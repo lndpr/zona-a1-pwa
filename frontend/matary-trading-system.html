@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matary Trading System — Alur Teknik ZONA A1</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><style id="a1-header-match">
+/* ===== ZONA A1 HEADER — MATCH INDEX.HTML ===== */
+.nav{position:sticky!important;top:0!important;z-index:50!important;background:rgba(2,7,13,.78)!important;backdrop-filter:blur(20px)!important;border-bottom:1px solid rgba(57,232,255,.11)!important}
+.nav-inner{width:min(1180px,calc(100% - 36px));margin:auto;height:72px!important;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;flex:0 0 auto;text-decoration:none;color:inherit}
+.brand-icon{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(59,130,246,.2));border:1px solid rgba(34,211,238,.35);box-shadow:0 0 30px rgba(34,211,238,.12)}
+.brand-name{font-weight:900;letter-spacing:-.7px}.brand-name span{color:#22d3ee}
+.brand-sub{display:block;font-size:9px;color:#718096;letter-spacing:1.7px;margin-top:2px}
+.a1-main-nav{display:flex;align-items:center;justify-content:center;gap:4px;flex:1}
+.a1-nav-link{position:relative;display:flex;align-items:center;gap:7px;padding:10px 11px;border:1px solid transparent;border-radius:10px;color:#8092a4;font:800 9px/1 Inter,system-ui,sans-serif;letter-spacing:.65px;text-transform:uppercase;transition:.25s;text-decoration:none}
+.a1-nav-link i{font-size:10px}
+.a1-nav-link:hover,.a1-nav-link.active{color:#eaffff;background:rgba(57,232,255,.055);border-color:rgba(57,232,255,.13)}
+.a1-nav-link.active:after{content:"";position:absolute;left:12px;right:12px;bottom:-9px;height:2px;background:#39e8ff;box-shadow:0 0 12px rgba(57,232,255,.7)}
+.a1-nav-link.rebate-link{color:#9df5c7;border-color:rgba(84,245,154,.12);background:rgba(84,245,154,.025)}
+.a1-nav-link.rebate-link:hover{color:#fff;border-color:rgba(84,245,154,.35);background:rgba(84,245,154,.07)}
+.nav-right{display:flex;align-items:center;gap:12px;flex:0 0 auto}
+.a1-join-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;border:1px solid rgba(57,232,255,.3);background:linear-gradient(135deg,rgba(57,232,255,.12),rgba(63,124,255,.08));color:#dffcff;font:900 8px/1 Inter,system-ui,sans-serif;letter-spacing:.8px;text-transform:uppercase;box-shadow:0 0 24px rgba(57,232,255,.07);transition:.25s;text-decoration:none}
+.a1-join-btn:hover{border-color:#39e8ff;box-shadow:0 0 28px rgba(57,232,255,.18);transform:translateY(-1px)}
+.nav-status{display:flex;align-items:center;gap:8px;color:#91a0b8;font-size:11px;font-weight:700;letter-spacing:1px}
+.dot{width:8px;height:8px;border-radius:50%;background:#f59e0b;box-shadow:0 0 16px rgba(245,158,11,.8)}
+.dot.online{background:#4ade80;box-shadow:0 0 16px rgba(74,222,128,.85);animation:a1Pulse 1.5s infinite}
+@keyframes a1Pulse{50%{transform:scale(.72);opacity:.55}}
+@media(max-width:1000px){.a1-nav-link span{display:none}.a1-nav-link{padding:10px}}
+@media(max-width:760px){.nav-inner{height:66px!important;gap:8px}.a1-main-nav{overflow-x:auto;justify-content:flex-start;scrollbar-width:none}.a1-main-nav::-webkit-scrollbar{display:none}.a1-nav-link{flex:0 0 auto;padding:9px}.a1-nav-link.active:after{display:none}.a1-join-btn span{display:none}.a1-join-btn{padding:9px 10px}.nav-status{display:none}.brand-name{font-size:12px}.brand-sub{font-size:7px}}
+@media(max-width:480px){.a1-main-nav{display:none}.nav-right{margin-left:auto}}
+</style><style id="a1-mobile-menu">
+.a1-mobile-toggle,
+.a1-mobile-menu,
+.a1-mobile-backdrop{display:none}
+
+@media (max-width:760px){
+ .a1-mobile-toggle{
+  display:grid!important;
+  place-items:center;
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  border-radius:12px;
+  border:1px solid rgba(57,232,255,.32);
+  background:rgba(57,232,255,.06);
+  color:#dffcff;
+  font-size:15px;
+  cursor:pointer;
+  transition:.25s;
+ }
+ .a1-mobile-toggle:hover{
+  border-color:#39e8ff;
+  background:rgba(57,232,255,.12);
+  box-shadow:0 0 24px rgba(57,232,255,.14);
+ }
+
+ /* Hide the desktop nav and desktop status on small screens.
+   The hamburger replaces them. */
+ .a1-main-nav{display:none!important}
+ .nav-right .nav-status{display:none!important}
+ .nav-right{gap:8px!important}
+
+ .a1-mobile-backdrop{
+  position:fixed;
+  inset:0;
+  z-index:998;
+  background:rgba(0,4,9,.72);
+  backdrop-filter:blur(4px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+ }
+
+ .a1-mobile-menu{
+  position:fixed;
+  top:0;
+  right:0;
+  bottom:0;
+  z-index:999;
+  width:min(330px,88vw);
+  padding:22px 18px;
+  display:flex!important;
+  flex-direction:column;
+  background:
+   radial-gradient(circle at 100% 0%,rgba(57,232,255,.12),transparent 35%),
+   linear-gradient(180deg,#07111a 0%,#02070d 100%);
+  border-left:1px solid rgba(57,232,255,.18);
+  box-shadow:-20px 0 70px rgba(0,0,0,.45);
+  transform:translateX(105%);
+  transition:transform .3s cubic-bezier(.22,.8,.2,1);
+  overflow-y:auto;
+ }
+
+ body.a1-menu-open{overflow:hidden}
+ body.a1-menu-open .a1-mobile-menu{transform:translateX(0)}
+ body.a1-menu-open .a1-mobile-backdrop{
+  opacity:1;
+  pointer-events:auto;
+ }
+
+ .a1-mobile-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:2px 2px 20px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+ }
+ .a1-mobile-title{
+  color:#f4fbff;
+  font-weight:900;
+  font-size:16px;
+  letter-spacing:-.5px;
+ }
+ .a1-mobile-title span{color:#22d3ee}
+ .a1-mobile-head small{
+  display:block;
+  margin-top:4px;
+  color:#6f8295;
+  font-size:8px;
+  letter-spacing:2px;
+ }
+ .a1-mobile-close{
+  width:38px;
+  height:38px;
+  border-radius:11px;
+  border:1px solid rgba(57,232,255,.2);
+  background:rgba(255,255,255,.035);
+  color:#bfefff;
+  cursor:pointer;
+  font-size:15px;
+ }
+
+ .a1-mobile-links{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  padding:20px 0;
+ }
+ .a1-mobile-links a{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-height:50px;
+  padding:0 15px;
+  border-radius:12px;
+  border:1px solid transparent;
+  color:#9aabba;
+  text-decoration:none;
+  font:800 11px/1 Inter,system-ui,sans-serif;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  transition:.2s;
+ }
+ .a1-mobile-links a i{
+  width:18px;
+  text-align:center;
+  color:#22d3ee;
+  font-size:13px;
+ }
+ .a1-mobile-links a:hover,
+ .a1-mobile-links a:active{
+  color:#effcff;
+  background:rgba(57,232,255,.06);
+  border-color:rgba(57,232,255,.14);
+ }
+ .a1-mobile-links a.mobile-rebate{
+  color:#9df5c7;
+  border-color:rgba(84,245,154,.1);
+  background:rgba(84,245,154,.025);
+ }
+ .a1-mobile-links a.mobile-rebate i{color:#4ade80}
+
+ .a1-mobile-join{
+  margin-top:auto;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border-radius:12px;
+  border:1px solid rgba(57,232,255,.3);
+  background:linear-gradient(135deg,rgba(57,232,255,.13),rgba(63,124,255,.08));
+  color:#e6fcff;
+  text-decoration:none;
+  font:900 9px/1 Inter,system-ui,sans-serif;
+  letter-spacing:1px;
+ }
+}
+
+@media (min-width:761px){
+ .a1-mobile-toggle,
+ .a1-mobile-menu,
+ .a1-mobile-backdrop{display:none!important}
+}
+</style><style id="a1-mobile-scroll-fix">
+@media (max-width:760px){
+ html,body{min-height:100%;}
+
+ .a1-mobile-menu{
+  position:fixed!important;
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  height:100dvh!important;
+  max-height:100dvh!important;
+  width:min(330px,88vw)!important;
+  box-sizing:border-box!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+  padding-bottom:28px!important;
+  z-index:9999!important;
+ }
+
+ .a1-mobile-menu .a1-mobile-head{
+  position:sticky;
+  top:0;
+  z-index:3;
+  flex:0 0 auto;
+  background:rgba(4,12,19,.96);
+  backdrop-filter:blur(14px);
+ }
+
+ .a1-mobile-links{
+  flex:0 0 auto!important;
+  overflow:visible!important;
+ }
+
+ .a1-mobile-join{
+  flex:0 0 auto!important;
+  margin-top:28px!important;
+  margin-bottom:4px!important;
+ }
+
+ .a1-mobile-backdrop{
+  z-index:9998!important;
+ }
+
+ /* Prevent the main page from stealing the swipe while drawer is open. */
+ body.a1-menu-open{
+  overflow:hidden!important;
+  touch-action:none;
+ }
+ body.a1-menu-open .a1-mobile-menu{
+  touch-action:auto;
+ }
+}
+</style>
+<style id="a1-matary-theme">
+:root{--bg:#02070d;--card:#07121c;--text:#eaf8ff;--dim:#879aaa;--cyan:#39e8ff;--blue:#3f7cff;--green:#4ade80;--red:#ff5577;--gold:#f5c451;--border:rgba(57,232,255,.13)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;color:var(--text);background:radial-gradient(circle at 15% 10%,rgba(57,232,255,.07),transparent 30%),radial-gradient(circle at 90% 15%,rgba(63,124,255,.07),transparent 28%),linear-gradient(180deg,#02070d,#030910 60%,#02060b);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background-image:linear-gradient(rgba(57,232,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(57,232,255,.025) 1px,transparent 1px);background-size:48px 48px}
+.matary-doc{width:min(1120px,calc(100% - 32px));margin:auto;padding:48px 0 70px}
+.matary-cover{padding:48px 32px 42px;margin-bottom:26px;border:1px solid var(--border);border-radius:18px;background:radial-gradient(circle at 85% 20%,rgba(57,232,255,.12),transparent 30%),linear-gradient(135deg,rgba(8,20,30,.94),rgba(2,8,14,.98));box-shadow:0 20px 70px rgba(0,0,0,.28)}
+.matary-cover .kicker{color:var(--cyan);font:800 9px/1 Inter,sans-serif;letter-spacing:2.2px;text-transform:uppercase}
+.matary-cover h1{color:#f4fbff;font:900 clamp(32px,5vw,58px)/1.02 Inter,sans-serif;letter-spacing:-2px;margin:15px 0 12px}
+.matary-cover .sub{max-width:800px;color:#91a5b7;font:500 14px/1.8 Inter,sans-serif}
+.matary-wrap{max-width:900px;margin:auto}
+.toc{background:linear-gradient(135deg,rgba(8,19,29,.9),rgba(3,10,17,.95))!important;border:1px solid var(--border)!important;border-radius:14px!important}
+.toc h2,h2.chapter{color:var(--cyan)!important;font-family:Inter,sans-serif!important}
+.toc a{color:#a9eefd!important}
+section{margin-bottom:48px!important;padding:28px 30px 30px;border:1px solid rgba(255,255,255,.065);border-radius:15px;background:rgba(4,11,18,.72);box-shadow:0 12px 45px rgba(0,0,0,.13);scroll-margin-top:90px}
+h2.chapter{font-size:9px!important;letter-spacing:2px!important}
+h1.chapter-title{color:#eefbff!important;font:900 27px/1.18 Inter,sans-serif!important;border-bottom:1px solid rgba(57,232,255,.12)!important}
+h3{color:#d9f7ff!important;font-family:Inter,sans-serif!important}
+p,li,dd{color:#a4b4c2!important;font:500 13px/1.85 Inter,sans-serif!important}
+strong{color:#e7fbff}
+.callout{background:rgba(57,232,255,.045)!important;border-left:3px solid var(--cyan)!important;border-radius:9px!important}
+.callout strong{color:var(--cyan)!important}.warn{background:rgba(255,85,119,.045)!important;border-left-color:var(--red)!important}.warn strong{color:#ff718c!important}.gold-box{background:rgba(245,196,81,.045)!important;border-left-color:var(--gold)!important}.gold-box strong{color:var(--gold)!important}
+table{width:100%!important;border-collapse:collapse!important;background:rgba(2,8,14,.7);border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden}
+th{background:rgba(57,232,255,.055)!important;color:#d9faff!important;font:800 10px/1.4 Inter,sans-serif!important}td{color:#9eafbd!important;font:500 11px/1.6 Inter,sans-serif!important}th,td{border:1px solid rgba(255,255,255,.065)!important;padding:10px 12px!important}
+.diagram{background:rgba(2,8,14,.7)!important;border:1px solid var(--border)!important;border-radius:13px!important}.diagram figcaption{color:#718697!important;font:500 10px/1.6 Inter,sans-serif!important}
+.glossary dt{color:var(--cyan)!important;font-family:Inter,sans-serif!important}.glossary dd{color:#8295a7!important}.checklist li::before{color:var(--cyan)!important}
+@media(max-width:760px){.matary-doc{width:calc(100% - 24px);padding:28px 0 50px}.matary-cover{padding:34px 20px 32px}.matary-cover h1{font-size:34px}section{padding:22px 18px 24px}.toc{padding:18px!important}table{display:block!important;overflow-x:hidden!important}}
+</style><style id="a1-disclaimer-footer">
+.a1-legal-footer{
+ width:min(1180px,calc(100% - 36px));
+ margin:70px auto 0;
+ padding:28px 0 32px;
+ border-top:1px solid rgba(57,232,255,.12);
+}
+.a1-legal-box{
+ border:1px solid rgba(255,255,255,.08);
+ border-radius:14px;
+ background:linear-gradient(135deg,rgba(10,20,29,.78),rgba(3,9,15,.92));
+ padding:20px 22px;
+ box-shadow:0 12px 40px rgba(0,0,0,.18);
+}
+.a1-legal-title{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ margin-bottom:10px;
+ color:#dffcff;
+ font:900 10px/1 Inter,system-ui,sans-serif;
+ letter-spacing:1.3px;
+ text-transform:uppercase;
+}
+.a1-legal-title i{color:#f59e0b}
+.a1-legal-text{
+ margin:0;
+ color:#8091a3;
+ font:500 10px/1.8 Inter,system-ui,sans-serif;
+}
+.a1-legal-copy{
+ margin-top:15px;
+ padding-top:13px;
+ border-top:1px solid rgba(255,255,255,.06);
+ color:#5f7081;
+ font:500 9px/1.7 Inter,system-ui,sans-serif;
+}
+.a1-legal-copy strong{color:#8da0b3}
+@media(max-width:760px){
+ .a1-legal-footer{
+  width:calc(100% - 32px);
+  margin-top:45px;
+  padding-bottom:24px;
+ }
+ .a1-legal-box{padding:17px}
+ .a1-legal-text{font-size:9px;line-height:1.8}
+}
+</style>
+
+<style id="a1-svg-variable-fix">
+:root{
+ --bg-card:rgba(7,18,28,.92);
+ --text:#eaf8ff;
+ --text-dim:#879aaa;
+ --accent:#39e8ff;
+ --accent-2:#4ade80;
+ --border:rgba(57,232,255,.18);
+ --line:#647b8e;
+ --gold:#f5c451;
+ --eq:rgba(74,222,128,.13);
+}
+</style>
+
+
+<style id="a1-svg-readability-fix">
+.diagram svg .flowbox{
+ fill:rgba(7,18,28,.96)!important;
+ stroke:rgba(57,232,255,.24)!important;
+}
+.diagram svg .flowtext{
+ fill:#eaf8ff!important;
+}
+.diagram svg .flowsub{
+ fill:#8da2b4!important;
+}
+.diagram svg .lbl{
+ font-weight:800!important;
+}
+.diagram svg .lbl-sub{
+ fill:#8da2b4!important;
+}
+.diagram svg{
+ min-height:220px;
+}
+@media(max-width:760px){
+ .diagram svg{min-width:620px}
+ .diagram{overflow-x:auto}
+}
+</style>
+
+
+<style id="a1-clean-flow">
+.flow-diagram{
+ padding:20px!important;
+ background:linear-gradient(135deg,rgba(3,11,18,.96),rgba(2,8,14,.98))!important;
+ border-color:rgba(57,232,255,.18)!important;
+ overflow:hidden!important;
+}
+.flow-diagram svg{
+ width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ display:block!important;
+}
+.flow-diagram .flow-number{
+ fill:#39e8ff;
+ font:900 13px/1 Inter,sans-serif;
+ letter-spacing:.5px;
+}
+.flow-diagram .flow-green{fill:#4ade80}
+.flow-diagram .flow-title{
+ fill:#eaf8ff;
+ font:800 15px/1 Inter,sans-serif;
+ letter-spacing:.25px;
+}
+.flow-diagram .flow-sub{
+ fill:#91a5b7;
+ font:500 11px/1 Inter,sans-serif;
+}
+.flow-diagram .flow-arrow-clean{
+ fill:none;
+ stroke:#39e8ff;
+ stroke-width:2.2;
+ stroke-linecap:round;
+ filter:url(#flowGlow);
+ marker-end:url(#flowArrowClean);
+}
+@media(max-width:760px){
+ .flow-diagram{padding:10px!important;overflow-x:hidden!important}
+ .flow-diagram svg{min-width:0!important}
+ .flow-diagram figcaption{font-size:9px!important}
+}
+</style>
+
+
+<style id="a1-br-leg-visual">
+.br-leg-diagram{
+ padding:18px!important;
+ overflow:hidden!important;
+ background:linear-gradient(135deg,rgba(3,11,18,.96),rgba(2,8,14,.98))!important;
+}
+.br-leg-diagram svg{
+ width:100%!important;
+ height:auto!important;
+ display:block!important;
+}
+.br-leg-diagram .br-axis{
+ fill:#8da2b4;
+ font:500 13px/1 Inter,sans-serif;
+}
+.br-leg-diagram .br-zone-title{
+ font:900 16px/1 Inter,sans-serif;
+ letter-spacing:.2px;
+}
+.br-leg-diagram .br-cyan{fill:#00d9ff}
+.br-leg-diagram .br-green{fill:#4ade80}
+.br-leg-diagram .br-point{
+ fill:#ff6a7c;
+ font:800 11px/1 Inter,sans-serif;
+}
+@media(max-width:760px){
+ .br-leg-diagram{
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch;
+ }
+ .br-leg-diagram svg{
+  min-width:0!important;
+ }
+}
+</style>
+
+
+<style id="a1-mobile-final-fix">
+html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+body{min-width:0!important}
+@media(max-width:760px){
+ html,body{width:100%!important;min-width:0!important;overflow-x:hidden!important}
+ .nav,.nav-inner{width:100%!important;max-width:100%!important;min-width:0!important}
+ .a1-main-nav,.nav-right{display:none!important}
+ .a1-mobile-toggle{display:flex!important;flex:0 0 auto!important}
+ .a1-mobile-menu{
+  position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;
+  width:min(86vw,340px)!important;max-width:340px!important;min-width:0!important;
+  height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;
+  z-index:99999!important;transform:translateX(105%)!important;visibility:hidden!important;
+ }
+ .a1-mobile-menu.open,.a1-mobile-menu.active,.a1-mobile-menu.is-open,
+ body.mobile-menu-open .a1-mobile-menu{transform:translateX(0)!important;visibility:visible!important}
+ .a1-mobile-backdrop{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+  z-index:99998!important;display:none!important
+ }
+ .a1-mobile-backdrop.show,.a1-mobile-backdrop.active,
+ body.mobile-menu-open .a1-mobile-backdrop{display:block!important}
+ img,svg,canvas,video,iframe{max-width:100%!important}
+}
+</style>
+<style id="a1-no-reader-bars">
+.reader,.reader-bar,.racts,#reader,#readerTitle,#readerDl,#readerClose,#readerFrame{
+display:none!important;
+}
+</style>
+<style id="a1-matary-mobile-svg-final">
+@media (max-width:760px){
+  .matary-doc,.matary-wrap,.matary-doc section,.matary-doc .diagram{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+  }
+  .matary-doc .diagram{
+    box-sizing:border-box!important;overflow:hidden!important;padding:8px!important;
+  }
+  .matary-doc .diagram svg{
+    display:block!important;width:100%!important;max-width:100%!important;
+    min-width:0!important;height:auto!important;
+  }
+  .flow-diagram .flow-title{font-size:13px!important}
+  .flow-diagram .flow-sub{font-size:9px!important}
+  .flow-diagram .flow-number{font-size:11px!important}
+  .br-leg-diagram .br-zone-title{font-size:13px!important}
+  .br-leg-diagram .br-axis{font-size:10px!important}
+  .br-leg-diagram .br-point{font-size:9px!important}
+  .matary-doc .diagram figcaption{
+    max-width:100%!important;overflow-wrap:anywhere!important;
+  }
+}
+</style>
+
+<style id="a1-flow-mobile-center">
+@media(max-width:760px){
+  .flow-diagram{
+    width:100%!important;max-width:100%!important;margin:0 auto!important;
+    padding:8px!important;box-sizing:border-box!important;
+  }
+  .flow-diagram svg{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:0 auto!important;
+  }
+}
+</style>
+
+<style id="a1-chapter-upgrade">
+/* ===== ZONA A1 — CHAPTER PRESENTATION ===== */
+.matary-doc .matary-wrap > section,
+body > main > section,
+section{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.matary-doc .matary-wrap > section.a1-chapter-card{
+  padding:30px 30px 34px!important;
+  margin:0 0 26px!important;
+  border:1px solid rgba(57,232,255,.10)!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(57,232,255,.055),transparent 30%),
+    linear-gradient(145deg,rgba(7,17,27,.94),rgba(3,10,17,.88))!important;
+  box-shadow:0 16px 55px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025);
+}
+.a1-chapter-card:before{
+  content:"";
+  position:absolute;left:0;top:20px;bottom:20px;width:3px;
+  background:linear-gradient(180deg,#39e8ff,#3f7cff,transparent);
+  border-radius:0 4px 4px 0;
+  opacity:.8;
+}
+.a1-chapter-card:after{
+  content:"";
+  position:absolute;right:-80px;top:-80px;width:190px;height:190px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(57,232,255,.08),transparent 68%);
+  pointer-events:none;
+}
+.a1-chapter-head{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:11px;
+  margin:0 0 17px;
+}
+.a1-chapter-no{
+  width:36px;height:36px;flex:0 0 36px;
+  display:grid;place-items:center;
+  border:1px solid rgba(57,232,255,.28);
+  border-radius:10px;
+  background:rgba(57,232,255,.055);
+  color:#39e8ff;
+  font:900 11px/1 Inter,sans-serif;
+  letter-spacing:.5px;
+  box-shadow:0 0 22px rgba(57,232,255,.06);
+}
+.a1-chapter-kicker{
+  color:#39e8ff;
+  font:900 9px/1 Inter,sans-serif;
+  letter-spacing:2.1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.a1-chapter-line{
+  height:1px;flex:1;
+  background:linear-gradient(90deg,rgba(57,232,255,.28),transparent);
+}
+.a1-chapter-card h1.chapter-title{
+  position:relative;z-index:2;
+  margin:0 0 16px!important;
+  padding:0 0 15px!important;
+  color:#effaff!important;
+  font:900 clamp(25px,3vw,34px)/1.16 Inter,sans-serif!important;
+  letter-spacing:-.8px!important;
+  border-bottom:1px solid rgba(57,232,255,.11)!important;
+}
+.a1-chapter-card p{
+  position:relative;z-index:2;
+  max-width:880px;
+}
+.a1-chapter-card .callout,
+.a1-chapter-card .diagram,
+.a1-chapter-card table,
+.a1-chapter-card ul,
+.a1-chapter-card ol{
+  position:relative;z-index:2;
+}
+.a1-chapter-card .diagram{
+  margin:24px auto!important;
+}
+.a1-reference-card{
+  border-color:rgba(245,196,81,.13)!important;
+  background:linear-gradient(145deg,rgba(18,14,7,.72),rgba(4,10,16,.9))!important;
+}
+.a1-reference-card:before{
+  background:linear-gradient(180deg,#f5c451,#ff9f43,transparent);
+}
+.a1-reference-card .a1-chapter-no,
+.a1-reference-card .a1-chapter-kicker{
+  color:#f5c451;
+  border-color:rgba(245,196,81,.28);
+}
+.a1-reference-card h1.chapter-title{border-color:rgba(245,196,81,.12)!important}
+.a1-chapter-card figure{
+  max-width:100%!important;
+}
+.a1-chapter-card img,
+.a1-chapter-card svg,
+.a1-chapter-card canvas{
+  max-width:100%!important;
+  height:auto!important;
+}
+.a1-chapter-card blockquote{
+  margin:20px 0!important;
+  padding:16px 18px!important;
+  border-left:3px solid #39e8ff!important;
+  border-radius:10px!important;
+  background:rgba(57,232,255,.035)!important;
+}
+@media(max-width:760px){
+  .matary-doc .matary-wrap > section.a1-chapter-card{
+    padding:22px 17px 25px!important;
+    margin-bottom:18px!important;
+    border-radius:15px!important;
+  }
+  .a1-chapter-card:before{top:16px;bottom:16px}
+  .a1-chapter-head{gap:9px;margin-bottom:14px}
+  .a1-chapter-no{width:31px;height:31px;flex-basis:31px;font-size:10px;border-radius:9px}
+  .a1-chapter-kicker{font-size:8px;letter-spacing:1.7px}
+  .a1-chapter-card h1.chapter-title{
+    font-size:25px!important;
+    line-height:1.12!important;
+    letter-spacing:-.5px!important;
+  }
+  .a1-chapter-card p,
+  .a1-chapter-card li,
+  .a1-chapter-card dd{
+    font-size:13px!important;
+    line-height:1.8!important;
+  }
+}
+</style>
+
+<style id="a1-chapter-hero-final">
+/* ===== CHAPTER HERO — ZONA A1 ===== */
+.a1-chapter-card{
+  position:relative!important;
+}
+.a1-chapter-card .a1-chapter-head{
+  position:relative!important;
+  min-height:118px!important;
+  padding:0 0 18px!important;
+  margin:0 0 24px!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:15px!important;
+  border-bottom:1px solid rgba(57,232,255,.13)!important;
+}
+.a1-chapter-card .a1-chapter-no{
+  position:relative!important;
+  width:92px!important;
+  height:92px!important;
+  flex:0 0 92px!important;
+  border-radius:20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:
+    radial-gradient(circle at 35% 25%,rgba(57,232,255,.18),transparent 45%),
+    linear-gradient(145deg,rgba(57,232,255,.10),rgba(8,19,29,.95))!important;
+  border:1px solid rgba(57,232,255,.34)!important;
+  color:#eafcff!important;
+  font:900 27px/1 Inter,sans-serif!important;
+  letter-spacing:-1px!important;
+  box-shadow:
+    0 0 0 1px rgba(57,232,255,.04),
+    0 14px 35px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.a1-chapter-card .a1-chapter-no:before{
+  content:"BAB";
+  position:absolute;
+  top:12px;
+  left:0;
+  right:0;
+  text-align:center;
+  color:#39e8ff;
+  font:900 7px/1 Inter,sans-serif;
+  letter-spacing:2.3px;
+}
+.a1-chapter-card .a1-chapter-no:after{
+  content:"";
+  position:absolute;
+  width:8px;height:8px;
+  right:10px;bottom:10px;
+  border-radius:50%;
+  background:#39e8ff;
+  box-shadow:0 0 16px rgba(57,232,255,.75);
+}
+.a1-chapter-card .a1-chapter-kicker{
+  align-self:center!important;
+  margin-top:22px!important;
+  color:#39e8ff!important;
+  font:900 11px/1 Inter,sans-serif!important;
+  letter-spacing:3px!important;
+  text-transform:uppercase!important;
+}
+.a1-chapter-card .a1-chapter-line{
+  display:none!important;
+}
+
+/* Giant chapter marker behind the title area */
+.a1-chapter-card h1.chapter-title{
+  position:relative!important;
+  margin-left:0!important;
+}
+.a1-chapter-card h1.chapter-title:before{
+  content:"CHAPTER";
+  display:block;
+  margin-bottom:7px;
+  color:rgba(57,232,255,.42);
+  font:900 9px/1 Inter,sans-serif;
+  letter-spacing:3.5px;
+  text-transform:uppercase;
+}
+.a1-chapter-card h1.chapter-title:after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-1px;
+  width:76px;
+  height:3px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#39e8ff,#3f7cff,transparent);
+  box-shadow:0 0 14px rgba(57,232,255,.25);
+}
+
+/* Make the first paragraph read like a chapter introduction */
+.a1-chapter-card h1.chapter-title + p{
+  font-size:15px!important;
+  line-height:1.85!important;
+  color:#a9bac8!important;
+}
+
+/* Reference section gets a distinct gold treatment */
+.a1-reference-card .a1-chapter-no{
+  color:#fff4ce!important;
+  border-color:rgba(245,196,81,.35)!important;
+  background:linear-gradient(145deg,rgba(245,196,81,.13),rgba(18,14,7,.94))!important;
+}
+.a1-reference-card .a1-chapter-no:before,
+.a1-reference-card .a1-chapter-kicker{
+  color:#f5c451!important;
+}
+.a1-reference-card .a1-chapter-no:after{
+  background:#f5c451!important;
+  box-shadow:0 0 16px rgba(245,196,81,.7)!important;
+}
+.a1-reference-card h1.chapter-title:after{
+  background:linear-gradient(90deg,#f5c451,#ff9f43,transparent)!important;
+}
+
+/* Mobile: chapter must remain visually dominant */
+@media(max-width:760px){
+  .a1-chapter-card .a1-chapter-head{
+    min-height:91px!important;
+    padding-bottom:14px!important;
+    margin-bottom:19px!important;
+    gap:11px!important;
+    align-items:flex-end!important;
+  }
+  .a1-chapter-card .a1-chapter-no{
+    width:67px!important;
+    height:67px!important;
+    flex-basis:67px!important;
+    border-radius:16px!important;
+    font-size:21px!important;
+  }
+  .a1-chapter-card .a1-chapter-no:before{
+    top:9px!important;
+    font-size:6px!important;
+    letter-spacing:1.8px!important;
+  }
+  .a1-chapter-card .a1-chapter-no:after{
+    width:6px!important;height:6px!important;
+    right:8px!important;bottom:8px!important;
+  }
+  .a1-chapter-card .a1-chapter-kicker{
+    margin-top:15px!important;
+    font-size:8px!important;
+    letter-spacing:2.2px!important;
+  }
+  .a1-chapter-card h1.chapter-title{
+    font-size:27px!important;
+    line-height:1.08!important;
+    padding-bottom:14px!important;
+  }
+  .a1-chapter-card h1.chapter-title:before{
+    font-size:7px!important;
+    letter-spacing:2.8px!important;
+    margin-bottom:6px!important;
+  }
+  .a1-chapter-card h1.chapter-title + p{
+    font-size:13px!important;
+    line-height:1.8!important;
+  }
+}
+</style>
+
+
+<style id="a1-chapter-line-clean-final">
+.a1-chapter-card:before{
+  display:none!important;
+  content:none!important;
+}
+.a1-chapter-card .a1-chapter-head{
+  border-bottom:0!important;
+}
+.a1-chapter-card h1.chapter-title{
+  border-bottom:1px solid rgba(57,232,255,.13)!important;
+}
+.a1-chapter-card h1.chapter-title:after{
+  bottom:-1px!important;
+  left:0!important;
+}
+</style>
+</head>
+
+<body><header class="nav"><div class="nav-inner"><a class="brand" href="index.html#home"><div class="brand-icon"><i class="fa-solid fa-chart-line"></i></div><div><div class="brand-name">ZONA <span>A1</span></div><span class="brand-sub">BY MATARYCLUB</span></div></a><nav class="a1-main-nav"><a class="a1-nav-link" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a><a class="a1-nav-link active" href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a></nav><div class="nav-right"><div class="nav-status"><span class="dot online"></span><span>LIVE</span></div></div><button class="a1-mobile-toggle" id="a1MobileToggle" type="button" aria-label="Open navigation menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button></div></header><div class="a1-mobile-backdrop" id="a1MobileBackdrop"></div><aside class="a1-mobile-menu" id="a1MobileMenu" aria-hidden="true"><div class="a1-mobile-head"><div><div class="a1-mobile-title">ZONA <span>A1</span></div><small>BY MATARYCLUB</small></div><button class="a1-mobile-close" id="a1MobileClose" type="button"><i class="fa-solid fa-xmark"></i></button></div><div class="a1-mobile-links"><a href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a><a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a></div></aside><main class="matary-doc"><div class="matary-cover"><div class="kicker">ZONA A1 / MATARYCLUB / ADVANCED SYSTEM</div><h1>Matary Trading System</h1><p class="sub">Alur teknik strategi ZONA A1 — dari trend filter, struktur BOS/CHoCH, dua zona entry, sampai manajemen risiko otomatis.</p></div><div class="matary-wrap">
+
+ <div class="toc">
+  <h2>Daftar Isi</h2>
+  <ol>
+   <li><a href="#bab1">Apa Itu Matary Trading System</a></li>
+   <li><a href="#bab2">Alur Besar Sistem</a></li>
+   <li><a href="#bab3">Langkah 1 — Trend Filter</a></li>
+   <li><a href="#bab4">Langkah 2 — Struktur & BOS/CHoCH</a></li>
+   <li><a href="#bab5">Langkah 3 — Dua Zona Entry: BR 1 & BR 2 (Block Rejection)</a></li>
+   <li><a href="#bab6">Langkah 4 — Entry Trigger</a></li>
+   <li><a href="#bab7">Langkah 5 — Manajemen Risiko: SL, TP1–TP3, R:R</a></li>
+   <li><a href="#bab8">Langkah 6 — Auto Break Even</a></li>
+   <li><a href="#bab9">Zone Freshness — Satu Zona, Satu Kesempatan</a></li>
+   <li><a href="#bab10">Aturan Wajib: No Break, No Entry</a></li>
+   <li><a href="#bab11">Dashboard & Next Action</a></li>
+   <li><a href="#bab12">Checklist Alur Lengkap</a></li>
+   <li><a href="#glossary">Glosarium Istilah</a></li>
+  </ol>
+ </div>
+
+ <section id="bab1" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">01</span><span class="a1-chapter-kicker">BAB 1</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Apa Itu Matary Trading System</h1>
+  <p>Matary Trading System adalah alur trading yang dipakai di balik indikator/strategi <strong>ZONA A1 Mataryclub</strong>. Sistem ini menggabungkan beberapa fondasi yang sudah dibahas di e-book sebelumnya — market structure (BOS/CHoCH) dan manajemen risiko — menjadi satu alur kerja yang terstruktur dan bisa diulang secara konsisten.</p>
+  <p>Intinya, sistem ini tidak menebak arah dari satu indikator saja. Ia menunggu konfirmasi arah dari struktur harga, lalu masuk hanya di dua area retracement spesifik yang sudah ditentukan, dengan manajemen risiko yang otomatis mengikuti dari awal sampai akhir posisi.</p>
+  <div class="callout">
+   <strong>Filosofi dasar:</strong> jangan kejar harga. Tunggu konfirmasi arah, lalu tunggu harga kembali ke area entry yang sudah disiapkan — bukan sebaliknya, mengejar harga yang sudah bergerak jauh.
+  </div>
+ </section>
+
+ <section id="bab2" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">02</span><span class="a1-chapter-kicker">BAB 2</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Alur Besar Sistem</h1>
+  <p>Sebelum masuk ke detail tiap komponen, berikut gambaran alur dari awal sampai posisi ditutup:</p>
+
+  
+<figure class="diagram flow-diagram">
+ <svg viewBox="0 0 900 980" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Alur besar Matary Trading System">
+  <defs>
+   <linearGradient id="flowCard" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#0b1d2a"/>
+    <stop offset="100%" stop-color="#06111a"/>
+   </linearGradient>
+   <linearGradient id="flowAccent" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#39e8ff"/>
+    <stop offset="100%" stop-color="#3f7cff"/>
+   </linearGradient>
+   <filter id="flowGlow">
+    <feGaussianBlur stdDeviation="5" result="blur"/>
+    <feMerge>
+     <feMergeNode in="blur"/>
+     <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+   </filter>
+   <marker id="flowArrowClean" viewBox="0 0 12 12" refX="10" refY="6"
+       markerWidth="8" markerHeight="8" orient="auto">
+    <path d="M1,1 L11,6 L1,11 Z" fill="#39e8ff"/>
+   </marker>
+  </defs>
+
+  <!-- 1 -->
+  <g>
+   <rect x="150" y="25" width="600" height="100" rx="16"
+      fill="url(#flowCard)" stroke="#39e8ff" stroke-opacity=".32"/>
+   <rect x="150" y="25" width="6" height="100" rx="3" fill="url(#flowAccent)"/>
+   <circle cx="205" cy="75" r="25" fill="#39e8ff" fill-opacity=".10" stroke="#39e8ff" stroke-opacity=".45"/>
+   <text x="205" y="82" text-anchor="middle" class="flow-number">01</text>
+   <text x="250" y="64" class="flow-title">TREND FILTER (HTF MA)</text>
+   <text x="250" y="88" class="flow-sub">Tentukan bias: BUY di atas MA, SELL di bawah MA</text>
+  </g>
+
+  <path d="M450 125 L450 162" class="flow-arrow-clean"/>
+
+  <!-- 2 -->
+  <g>
+   <rect x="150" y="165" width="600" height="100" rx="16"
+      fill="url(#flowCard)" stroke="#39e8ff" stroke-opacity=".32"/>
+   <rect x="150" y="165" width="6" height="100" rx="3" fill="url(#flowAccent)"/>
+   <circle cx="205" cy="215" r="25" fill="#39e8ff" fill-opacity=".10" stroke="#39e8ff" stroke-opacity=".45"/>
+   <text x="205" y="222" text-anchor="middle" class="flow-number">02</text>
+   <text x="250" y="204" class="flow-title">DETEKSI STRUKTUR (SWING LEG)</text>
+   <text x="250" y="228" class="flow-sub">Cari swing high / low dari panjang leg yang ditentukan</text>
+  </g>
+
+  <path d="M450 265 L450 302" class="flow-arrow-clean"/>
+
+  <!-- 3 -->
+  <g>
+   <rect x="150" y="305" width="600" height="100" rx="16"
+      fill="url(#flowCard)" stroke="#39e8ff" stroke-opacity=".32"/>
+   <rect x="150" y="305" width="6" height="100" rx="3" fill="url(#flowAccent)"/>
+   <circle cx="205" cy="355" r="25" fill="#39e8ff" fill-opacity=".10" stroke="#39e8ff" stroke-opacity=".45"/>
+   <text x="205" y="362" text-anchor="middle" class="flow-number">03</text>
+   <text x="250" y="344" class="flow-title">BOS / CHoCH TERKONFIRMASI</text>
+   <text x="250" y="368" class="flow-sub">Harga close menembus swing high / low sebelumnya</text>
+  </g>
+
+  <path d="M450 405 L450 442" class="flow-arrow-clean"/>
+
+  <!-- 4 -->
+  <g>
+   <rect x="150" y="445" width="600" height="100" rx="16"
+      fill="url(#flowCard)" stroke="#39e8ff" stroke-opacity=".32"/>
+   <rect x="150" y="445" width="6" height="100" rx="3" fill="url(#flowAccent)"/>
+   <circle cx="205" cy="495" r="25" fill="#39e8ff" fill-opacity=".10" stroke="#39e8ff" stroke-opacity=".45"/>
+   <text x="205" y="502" text-anchor="middle" class="flow-number">04</text>
+   <text x="250" y="484" class="flow-title">UKUR LEG &amp; BUAT 2 ZONA</text>
+   <text x="250" y="508" class="flow-sub">BR 1 — Block Rejection dalam • BR 2 — Block Rejection tengah</text>
+  </g>
+
+  <path d="M450 545 L450 582" class="flow-arrow-clean"/>
+
+  <!-- 5 -->
+  <g>
+   <rect x="150" y="585" width="600" height="100" rx="16"
+      fill="url(#flowCard)" stroke="#39e8ff" stroke-opacity=".32"/>
+   <rect x="150" y="585" width="6" height="100" rx="3" fill="url(#flowAccent)"/>
+   <circle cx="205" cy="635" r="25" fill="#39e8ff" fill-opacity=".10" stroke="#39e8ff" stroke-opacity=".45"/>
+   <text x="205" y="642" text-anchor="middle" class="flow-number">05</text>
+   <text x="250" y="624" class="flow-title">TUNGGU RETEST KE ZONA</text>
+   <text x="250" y="648" class="flow-sub">Candle Close di dalam zona, atau Price Touch di tepi zona</text>
+  </g>
+
+  <path d="M450 685 L450 722" class="flow-arrow-clean"/>
+
+  <!-- 6 -->
+  <g>
+   <rect x="150" y="725" width="600" height="100" rx="16"
+      fill="url(#flowCard)" stroke="#39e8ff" stroke-opacity=".32"/>
+   <rect x="150" y="725" width="6" height="100" rx="3" fill="url(#flowAccent)"/>
+   <circle cx="205" cy="775" r="25" fill="#39e8ff" fill-opacity=".10" stroke="#39e8ff" stroke-opacity=".45"/>
+   <text x="205" y="782" text-anchor="middle" class="flow-number">06</text>
+   <text x="250" y="764" class="flow-title">ENTRY + SL / TP1 / TP2 / TP3</text>
+   <text x="250" y="788" class="flow-sub">SL di luar zona, TP berdasarkan kelipatan R:R</text>
+  </g>
+
+  <path d="M450 825 L450 862" class="flow-arrow-clean"/>
+
+  <!-- 7 -->
+  <g>
+   <rect x="150" y="865" width="600" height="90" rx="16"
+      fill="#071a18" stroke="#4ade80" stroke-opacity=".38"/>
+   <rect x="150" y="865" width="6" height="90" rx="3" fill="#4ade80"/>
+   <circle cx="205" cy="910" r="25" fill="#4ade80" fill-opacity=".10" stroke="#4ade80" stroke-opacity=".45"/>
+   <text x="205" y="917" text-anchor="middle" class="flow-number flow-green">07</text>
+   <text x="250" y="899" class="flow-title">AUTO BREAK EVEN</text>
+   <text x="250" y="923" class="flow-sub">Setelah TP1 kena, SL pindah ke entry — sisa posisi risk-free</text>
+  </g>
+ </svg>
+ <figcaption>Alur lengkap Matary Trading System — dari penentuan bias sampai posisi risk-free.</figcaption>
+</figure>
+
+ </section>
+
+ <section id="bab3" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">03</span><span class="a1-chapter-kicker">BAB 3</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Langkah 1 — Trend Filter</h1>
+  <p>Sebelum mencari sinyal apa pun, sistem ini mengecek arah tren di timeframe lebih tinggi (default: Daily) menggunakan moving average (bisa EMA, SMA, WMA, atau HMA, default panjang 200). Aturannya sederhana:</p>
+  <ul>
+   <li>Harga di <strong>atas</strong> MA → hanya posisi <strong>BUY</strong> yang diizinkan.</li>
+   <li>Harga di <strong>bawah</strong> MA → hanya posisi <strong>SELL</strong> yang diizinkan.</li>
+  </ul>
+  <p>Filter ini bisa dimatikan, tapi fungsinya penting: mencegah sistem mengambil sinyal melawan arah besar pasar. Tanpa filter ini, sinyal BOS/CHoCH di timeframe kecil bisa saja muncul di tengah kondisi tren besar yang berlawanan, yang secara statistik lebih berisiko.</p>
+ </section>
+
+ <section id="bab4" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">04</span><span class="a1-chapter-kicker">BAB 4</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Langkah 2 — Struktur & BOS/CHoCH</h1>
+  <p>Sistem mendeteksi swing high dan swing low menggunakan panjang leg tertentu (default 50 bar) — titik tertinggi/terendah dalam rentang tersebut ditandai sebagai swing point acuan. Begitu harga <strong>close</strong> menembus swing high sebelumnya, itu dianggap <strong>bullish break</strong> (bias berubah ke BUY). Sebaliknya, menembus swing low sebelumnya dianggap <strong>bearish break</strong> (bias berubah ke SELL).</p>
+  <p>Setiap kali break baru terjadi, sistem mereset seluruh zona dan status entry sebelumnya — artinya setiap BOS/CHoCH membuka "babak" baru yang independen dari sinyal-sinyal lama.</p>
+  <div class="callout">
+   <strong>Catatan:</strong> ini persis konsep BOS yang sudah dibahas di e-book <em>Market Structure</em> — swing high/low, lalu penembusan yang mengonfirmasi arah.
+  </div>
+ </section>
+
+ <section id="bab5" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">05</span><span class="a1-chapter-kicker">BAB 5</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Langkah 3 — Dua Zona Entry: BR 1 & BR 2 (Block Rejection)</h1>
+  <p>Setelah BOS/CHoCH terjadi, sistem mengukur "leg" — jarak dari titik ekstrem sebelumnya (trailing top/bottom) sampai titik BOS/CHoCH — lalu membentuk dua area <strong>Block Rejection</strong> di dalam leg tersebut. Area ini disebut "block" karena merepresentasikan zona harga yang berpotensi memicu reaksi/penolakan (rejection) saat harga kembali ke situ — bukan sekadar angka acak di tengah leg.</p>
+  <ul>
+   <li><strong>BR 1 — Block Rejection dalam</strong> — area yang posisinya lebih dekat ke titik ekstrem awal leg (retracement lebih dalam). Karena lebih dalam, jarak SL dari area ini relatif lebih kecil, tapi harga butuh pullback yang lebih signifikan agar sampai ke area ini.</li>
+   <li><strong>BR 2 — Block Rejection tengah</strong> — area yang posisinya lebih dekat ke titik tengah leg (retracement lebih dangkal). Karena lebih dangkal, area ini lebih sering tersentuh, tapi jarak SL dari area ini relatif lebih besar.</li>
+  </ul>
+
+  
+<figure class="diagram br-leg-diagram">
+ <svg viewBox="0 0 900 410" xmlns="http://www.w3.org/2000/svg"
+    role="img" aria-label="BR1 dan BR2 pada leg dengan jalur retracement">
+  <defs>
+   <linearGradient id="br1Gold" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#f5c451"/>
+    <stop offset="100%" stop-color="#ffd66b"/>
+   </linearGradient>
+   <marker id="redArrow" viewBox="0 0 12 12" refX="10" refY="6"
+       markerWidth="9" markerHeight="9" orient="auto">
+    <path d="M1,1 L11,6 L1,11 Z" fill="#ff3048"/>
+   </marker>
+   <filter id="redGlow">
+    <feGaussianBlur stdDeviation="2.5" result="b"/>
+    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+   </filter>
+  </defs>
+
+  <line x1="70" y1="45" x2="70" y2="355" stroke="#536b7e" stroke-width="1.5"/>
+  <text x="20" y="51" class="br-axis">100%</text>
+  <text x="27" y="359" class="br-axis">0%</text>
+
+  <!-- BR1 -->
+  <rect x="70" y="45" width="760" height="65"
+     fill="url(#br1Gold)" fill-opacity=".95"
+     stroke="#39e8ff" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="450" y="84" class="br-zone-title br-cyan" text-anchor="middle">
+   BR 1 — Block Rejection Dalam
+  </text>
+
+  <!-- BR2 -->
+  <rect x="70" y="158" width="760" height="48"
+     fill="#12382e" fill-opacity=".9"
+     stroke="#4ade80" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="450" y="188" class="br-zone-title br-green" text-anchor="middle">
+   BR 2 — Block Rejection Tengah
+  </text>
+
+  <!-- actual leg -->
+  <polyline points="70,350 215,115 360,235 525,72 665,145 830,45"
+   fill="none" stroke="#71879a" stroke-width="4"
+   stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- red path exactly showing the rejection/retrace movement -->
+  <line x1="82" y1="342" x2="208" y2="168"
+   stroke="#ff3048" stroke-width="5" stroke-linecap="round"
+   marker-end="url(#redArrow)" filter="url(#redGlow)"/>
+  <line x1="208" y1="168" x2="300" y2="338"
+   stroke="#ff3048" stroke-width="5" stroke-linecap="round"
+   marker-end="url(#redArrow)" filter="url(#redGlow)"/>
+  <line x1="300" y1="338" x2="455" y2="76"
+   stroke="#ff3048" stroke-width="5" stroke-linecap="round"
+   marker-end="url(#redArrow)" filter="url(#redGlow)"/>
+  <line x1="455" y1="76" x2="585" y2="342"
+   stroke="#ff3048" stroke-width="5" stroke-linecap="round"
+   marker-end="url(#redArrow)" filter="url(#redGlow)"/>
+
+  <circle cx="208" cy="168" r="6" fill="#ff3048"/>
+  <circle cx="455" cy="76" r="6" fill="#ff3048"/>
+  <text x="208" y="147" class="br-point" text-anchor="middle">BR 2 touch</text>
+  <text x="455" y="55" class="br-point" text-anchor="middle">BR 1 touch</text>
+
+  <text x="70" y="385" class="br-axis">Bottom leg</text>
+  <text x="758" y="30" class="br-axis">Top leg</text>
+ </svg>
+
+ <figcaption>
+  Garis abu-abu menunjukkan struktur leg. Garis merah menunjukkan contoh jalur
+  retracement/rejection: harga bergerak dari bottom leg, menyentuh BR 2, kembali
+  turun, kemudian retrace ke BR 1 sebelum bergerak kembali. BR 1 berada lebih dekat
+  ekstrem leg, sedangkan BR 2 berada di area tengah leg.
+ </figcaption>
+</figure>
+
+
+  <p>Kedua zona ini bisa diaktifkan/dimatikan secara independen, dan masing-masing punya pengaturan TP dan SL buffer sendiri.</p>
+ </section>
+
+ <section id="bab6" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">06</span><span class="a1-chapter-kicker">BAB 6</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Langkah 4 — Entry Trigger</h1>
+  <p>Ada dua mode untuk menentukan kapan entry benar-benar dieksekusi saat harga memasuki zona:</p>
+  <table>
+   <thead>
+    <tr><th>Mode</th><th>Cara Kerja</th><th>Karakteristik</th></tr>
+   </thead>
+   <tbody>
+    <tr><td><strong>Candle Close</strong></td><td>Entry market begitu candle close di dalam area zona (BR 1/BR 2)</td><td>Lebih menunggu konfirmasi, tapi bisa entry di harga yang sedikit lebih dalam/kurang optimal dari tepi zona</td></tr>
+    <tr><td><strong>Price Touch</strong></td><td>Limit order ditempatkan tepat di tepi zona (top untuk sell, bottom untuk buy)</td><td>Entry lebih presisi di harga terbaik, tapi berisiko tidak terisi bila harga tidak benar-benar menyentuh level limit</td></tr>
+   </tbody>
+  </table>
+ </section>
+
+ <section id="bab7" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">07</span><span class="a1-chapter-kicker">BAB 7</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Langkah 5 — Manajemen Risiko: SL, TP1–TP3, R:R</h1>
+  <p>Setiap zona (BR 1 dan BR 2) punya pengaturan risiko sendiri:</p>
+  <ul>
+   <li><strong>Stop Loss</strong> — ditempatkan di luar batas zona (dengan buffer persen tambahan) supaya tidak langsung kena noise kecil di tepi zona.</li>
+   <li><strong>TP1, TP2, TP3</strong> — masing-masing dihitung dari kelipatan risiko (R:R), default 1:1, 1:2, dan 1:3.</li>
+   <li><strong>Partial close</strong> — setiap TP menutup sebagian posisi (default 40% di TP1, 40% di TP2, sisa 20% lanjut ke TP3), bukan menutup semua sekaligus.</li>
+  </ul>
+  <div class="callout">
+   <strong>Kenapa partial close?</strong> Ini mengunci sebagian profit lebih awal (mengurangi tekanan psikologis dan risiko "profit hilang lagi"), sambil tetap membiarkan sisa posisi mengejar target yang lebih besar.
+  </div>
+ </section>
+
+ <section id="bab8" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">08</span><span class="a1-chapter-kicker">BAB 8</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Langkah 6 — Auto Break Even</h1>
+  <p>Begitu TP1 tercapai, sistem otomatis memindahkan stop loss ke harga entry (break even) — dengan opsi buffer tambahan. Efeknya: sisa posisi (yang menuju TP2/TP3) menjadi <strong>risk-free</strong> — dalam skenario terburuk, posisi hanya akan menghasilkan hasil impas di sisa lot itu, bukan kerugian tambahan.</p>
+  <p>Mekanisme ini penting karena mengurangi tekanan untuk "buru-buru menutup semua posisi" begitu profit awal muncul — trader (atau sistem) bisa membiarkan sisa posisi berjalan menuju target lebih jauh dengan lebih tenang.</p>
+ </section>
+
+ <section id="bab9" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">09</span><span class="a1-chapter-kicker">BAB 9</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Zone Freshness — Satu Zona, Satu Kesempatan</h1>
+  <p>Setiap zona (BR 1 dan BR 2) punya status "freshness" yang dilacak sepanjang satu siklus struktur:</p>
+  <table>
+   <thead>
+    <tr><th>Status</th><th>Arti</th></tr>
+   </thead>
+   <tbody>
+    <tr><td>🟢 FRESH</td><td>Zona baru terbentuk dari BOS/CHoCH terbaru, belum pernah dipakai entry</td></tr>
+    <tr><td>🟡 USED</td><td>Zona sudah dipakai untuk entry sekali dalam siklus struktur ini</td></tr>
+    <tr><td>🔴 INVALID</td><td>Zona tidak relevan/tidak terbentuk untuk arah bias saat ini</td></tr>
+   </tbody>
+  </table>
+  <p>Artinya, satu zona (BR 1 maupun BR 2) hanya diperbolehkan memicu satu kali entry per siklus BOS/CHoCH. Status ini baru direset saat BOS/CHoCH baru terjadi. Aturan ini mencegah sistem membuka berkali-kali posisi di zona yang sama secara berulang selama harga masih berputar-putar di area itu.</p>
+ </section>
+
+ <section id="bab10" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">10</span><span class="a1-chapter-kicker">BAB 10</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Aturan Wajib: No Break, No Entry</h1>
+  <p>Ini adalah aturan inti yang menjaga seluruh alur di atas tetap disiplin. Sesederhana apa pun kelihatannya, pelanggaran terhadap aturan ini adalah penyebab paling umum sinyal palsu dan entry yang tidak seharusnya diambil.</p>
+  <div class="callout warn">
+   <strong>No Break, No Entry.</strong> Selama belum ada BOS/CHoCH baru yang terkonfirmasi, tidak ada entry yang boleh diambil — seberapa pun menariknya harga terlihat di chart saat itu. Breakout struktur adalah syarat mutlak, bukan opsional.
+  </div>
+  <h3>Jika Semua Zona Berstatus Invalid</h3>
+  <p>Ketika dashboard menunjukkan BR 1 dan BR 2 sama-sama berstatus 🔴 INVALID untuk kedua arah (BUY maupun SELL), itu tandanya belum ada struktur yang cukup jelas untuk membentuk zona entry yang valid. Dalam kondisi ini, satu-satunya langkah yang benar adalah <strong>menunggu BOS/CHoCH terbaru</strong> — bukan memaksakan entry di luar zona, dan bukan menurunkan standar hanya karena sudah lama tidak ada sinyal.</p>
+  <h3>Cara Memilih Zona yang Tepat</h3>
+  <p>Sebelum mempertimbangkan entry apa pun, selalu cek dashboard dan pastikan dua syarat berikut terpenuhi bersamaan:</p>
+  <ul>
+   <li>Zona (BR 1 atau BR 2) berstatus <strong>🟢 FRESH</strong> — belum pernah dipakai di siklus struktur berjalan.</li>
+   <li>Zona tersebut berstatus <strong>VALID</strong> sesuai arah bias yang sedang aktif (searah trend filter dan searah BOS/CHoCH terakhir).</li>
+  </ul>
+  <p>Kalau salah satu syarat ini tidak terpenuhi — zona sudah USED, atau statusnya INVALID — maka bukan zona itu yang dicari. Tunggu, dan biarkan struktur baru terbentuk lewat BOS/CHoCH berikutnya.</p>
+ </section>
+
+ <section id="bab11" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">11</span><span class="a1-chapter-kicker">BAB 11</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Dashboard & Next Action</h1>
+  <p>Seluruh kondisi di atas — trend filter, bias struktur, validitas zona, status waiting, dan freshness — dirangkum dalam satu dashboard yang menampilkan status BUY dan SELL secara berdampingan, lalu diringkas jadi satu sinyal akhir:</p>
+  <ul>
+   <li><strong>⏳ WAIT</strong> — belum ada BOS/CHoCH baru atau zona belum valid, sistem menunggu break swing berikutnya.</li>
+   <li><strong>🟢 BUY (Ready Entry)</strong> — bias bullish aktif, zona BR 1/BR 2 valid dan masih fresh, tinggal menunggu retest.</li>
+   <li><strong>🔴 SELL (Ready Entry)</strong> — bias bearish aktif, zona BR 1/BR 2 valid dan masih fresh, tinggal menunggu retest.</li>
+  </ul>
+  <p>Dashboard ini pada dasarnya adalah checklist otomatis dari seluruh syarat di bab-bab sebelumnya, supaya pengguna tidak perlu mengecek satu per satu secara manual di chart.</p>
+ </section>
+
+ <section id="bab12" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">12</span><span class="a1-chapter-kicker">BAB 12</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Checklist Alur Lengkap</h1>
+  <ul class="checklist">
+   <li>Cek arah tren HTF (MA) — tentukan apakah hanya BUY atau hanya SELL yang diizinkan.</li>
+   <li>Tunggu BOS (searah tren) atau CHoCH (perubahan bias) terkonfirmasi lewat penembusan swing high/low. <strong>No Break, No Entry</strong> — tanpa ini, tidak ada langkah selanjutnya.</li>
+   <li>Biarkan sistem mengukur leg dan membentuk dua zona: BR 1 (Block Rejection dalam) dan BR 2 (Block Rejection tengah).</li>
+   <li>Cek dashboard — cari zona yang berstatus <strong>FRESH</strong> dan <strong>VALID</strong> untuk arah bias yang sedang aktif. Jika semua zona INVALID, berhenti di sini dan tunggu BOS/CHoCH berikutnya.</li>
+   <li>Tunggu harga retest ke salah satu zona — sesuai mode Candle Close atau Price Touch.</li>
+   <li>Konfirmasi entry otomatis mengatur SL di luar zona, dan TP1/TP2/TP3 sesuai R:R yang ditentukan.</li>
+   <li>Setelah TP1 tercapai, biarkan Auto Break Even mengamankan sisa posisi.</li>
+   <li>Tunggu BOS/CHoCH berikutnya untuk siklus baru — jangan paksa entry ulang di zona yang sudah USED.</li>
+  </ul>
+ </section>
+
+ <section id="glossary" class="a1-chapter-card a1-reference-card"><div class="a1-chapter-head"><span class="a1-chapter-no">REF</span><span class="a1-chapter-kicker">REFERENCE</span><span class="a1-chapter-line"></span></div>
+  <h2 class="chapter">Referensi</h2>
+  <h1 class="chapter-title">Glosarium Istilah</h1>
+  <dl class="glossary">
+   <dt>Trend Filter</dt><dd>Penyaring arah berdasarkan posisi harga terhadap moving average di timeframe lebih tinggi.</dd>
+   <dt>Swing Leg</dt><dd>Rentang harga antara titik ekstrem (tertinggi/terendah) yang dipakai sebagai dasar pengukuran zona retracement.</dd>
+   <dt>BOS / CHoCH</dt><dd>Penembusan swing point yang mengonfirmasi kelanjutan (BOS) atau perubahan (CHoCH) arah struktur.</dd>
+   <dt>Block Rejection (BR)</dt><dd>Area di dalam leg struktur yang berpotensi memicu reaksi/penolakan harga saat disentuh kembali; dasar dari zona BR 1 dan BR 2.</dd>
+   <dt>BR 1 (Block Rejection Dalam)</dt><dd>Area block rejection yang posisinya lebih dekat ke titik ekstrem leg — SL cenderung lebih kecil, butuh pullback lebih dalam.</dd>
+   <dt>BR 2 (Block Rejection Tengah)</dt><dd>Area block rejection yang posisinya lebih dekat ke titik tengah leg — lebih sering tersentuh, SL cenderung lebih besar.</dd>
+   <dt>No Break, No Entry</dt><dd>Aturan wajib: tanpa BOS/CHoCH terkonfirmasi, tidak ada entry yang boleh diambil.</dd>
+   <dt>Candle Close / Price Touch</dt><dd>Dua mode trigger entry — konfirmasi lewat penutupan candle, atau limit order di tepi zona.</dd>
+   <dt>R:R (Risk:Reward)</dt><dd>Rasio antara jarak risiko (SL) dan jarak target (TP) dari harga entry.</dd>
+   <dt>Partial Close</dt><dd>Menutup sebagian posisi di tiap level TP, bukan seluruhnya sekaligus.</dd>
+   <dt>Auto Break Even</dt><dd>Pemindahan otomatis SL ke harga entry setelah TP1 tercapai, membuat sisa posisi risk-free.</dd>
+   <dt>Zone Freshness</dt><dd>Status validitas zona (fresh/used/invalid) yang menentukan apakah zona masih boleh memicu entry baru.</dd>
+  </dl>
+ </section>
+
+ 
+
+</div><footer class="a1-legal-footer">
+ <div class="a1-legal-box">
+  <div class="a1-legal-title">
+   <i class="fa-solid fa-triangle-exclamation"></i>
+   Trading Disclaimer
+  </div>
+  <p class="a1-legal-text">
+   Materi E-Book ZONA A1 disusun untuk tujuan edukasi dan informasi umum, bukan merupakan
+   nasihat keuangan, investasi, atau ajakan untuk melakukan transaksi tertentu. Trading
+   memiliki risiko dan dapat menyebabkan kerugian sebagian maupun seluruh modal. Hasil
+   pembelajaran, backtest, simulasi, atau contoh historis tidak menjamin hasil di masa depan.
+   Setiap keputusan trading, ukuran posisi, leverage, dan pengelolaan risiko sepenuhnya menjadi
+   tanggung jawab masing-masing pengguna.
+  </p>
+  <div class="a1-legal-copy">
+   <strong>ZONA A1 / BY MATARYCLUB</strong> — Gunakan materi sebagai referensi belajar dan
+   selalu sesuaikan strategi dengan profil risiko serta kondisi pasar masing-masing.
+  </div>
+ </div>
+</footer>
+</main><script id="a1-mobile-menu-js">
+(function(){
+ const body = document.body;
+ const toggle = document.getElementById('a1MobileToggle');
+ const menu = document.getElementById('a1MobileMenu');
+ const backdrop = document.getElementById('a1MobileBackdrop');
+ const close = document.getElementById('a1MobileClose');
+
+ if(!toggle || !menu) return;
+
+ function openMenu(){
+  body.classList.add('a1-menu-open');
+  toggle.setAttribute('aria-expanded','true');
+  toggle.setAttribute('aria-label','Close navigation menu');
+  toggle.innerHTML='<i class="fa-solid fa-xmark"></i>';
+  menu.setAttribute('aria-hidden','false');
+ }
+ function closeMenu(){
+  body.classList.remove('a1-menu-open');
+  toggle.setAttribute('aria-expanded','false');
+  toggle.setAttribute('aria-label','Open navigation menu');
+  toggle.innerHTML='<i class="fa-solid fa-bars"></i>';
+  menu.setAttribute('aria-hidden','true');
+ }
+
+ toggle.addEventListener('click', function(){
+  body.classList.contains('a1-menu-open') ? closeMenu() : openMenu();
+ });
+ if(close) close.addEventListener('click', closeMenu);
+ if(backdrop) backdrop.addEventListener('click', closeMenu);
+
+ menu.querySelectorAll('a').forEach(function(link){
+  link.addEventListener('click', closeMenu);
+ });
+
+ document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeMenu();
+ });
+
+ window.addEventListener('resize', function(){
+  if(window.innerWidth > 760) closeMenu();
+ });
+})();
+</script><script id="a1-mobile-scroll-fix-js">
+(function(){
+ const menu = document.getElementById('a1MobileMenu');
+ if(!menu) return;
+
+ /* When opened, start at the top so all navigation items are reachable. */
+ const observer = new MutationObserver(function(){
+  if(document.body.classList.contains('a1-menu-open')){
+   menu.scrollTop = 0;
+  }
+ });
+ observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+})();
+</script>
+<script id="a1-mobile-final-js">
+(function(){
+ const t=document.getElementById('a1MobileToggle'),c=document.getElementById('a1MobileClose'),
+ m=document.getElementById('a1MobileMenu'),b=document.getElementById('a1MobileBackdrop');
+ if(!t||!m)return;
+ function openM(){m.classList.add('open','active','is-open');if(b)b.classList.add('show','active');document.body.classList.add('mobile-menu-open');t.setAttribute('aria-expanded','true');m.setAttribute('aria-hidden','false')}
+ function closeM(){m.classList.remove('open','active','is-open');if(b)b.classList.remove('show','active');document.body.classList.remove('mobile-menu-open');t.setAttribute('aria-expanded','false');m.setAttribute('aria-hidden','true')}
+ t.addEventListener('click',openM);if(c)c.addEventListener('click',closeM);if(b)b.addEventListener('click',closeM);
+ m.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeM));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+})();
+</script>
+
+<script id="a1-flow-mobile-center-js">
+(function(){
+  function centerFlow(){
+    document.querySelectorAll('.flow-diagram svg').forEach(function(svg){
+      if(window.innerWidth<=760){
+        svg.setAttribute('viewBox','120 0 660 980');
+        svg.setAttribute('preserveAspectRatio','xMidYMin meet');
+      }else{
+        svg.setAttribute('viewBox','0 0 900 980');
+        svg.setAttribute('preserveAspectRatio','xMidYMin meet');
+      }
+    });
+  }
+  centerFlow();
+  window.addEventListener('resize',centerFlow);
+})();
+</script>
+
+<script id="a1-matary-diagram-center-final">
+(function(){
+  function fit(){
+    var mobile=window.innerWidth<=760;
+    document.querySelectorAll('.br-leg-diagram svg').forEach(function(svg){
+      svg.setAttribute('viewBox', mobile ? '55 30 790 365' : '0 0 900 410');
+      svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+      svg.style.width='100%';
+      svg.style.maxWidth='100%';
+      svg.style.minWidth='0';
+    });
+    document.querySelectorAll('.flow-diagram svg').forEach(function(svg){
+      svg.setAttribute('viewBox', mobile ? '120 0 660 980' : '0 0 900 980');
+      svg.setAttribute('preserveAspectRatio','xMidYMin meet');
+      svg.style.width='100%';
+      svg.style.maxWidth='100%';
+      svg.style.minWidth='0';
+    });
+  }
+  fit();
+  window.addEventListener('resize',fit);
+})();
+</script>
+</body></html>

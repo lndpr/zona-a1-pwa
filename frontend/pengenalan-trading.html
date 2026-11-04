@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pengenalan Trading — Panduan Dasar untuk Pemula</title>
+<style>
+ :root {
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --text: #1c1a17;
+  --text-dim: #5c574f;
+  --accent: #b45309;
+  --accent-2: #0f766e;
+  --border: #e7e2d9;
+  --danger: #b91c1c;
+ }
+ @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+   --bg: #161513;
+   --bg-card: #201e1a;
+   --text: #efece6;
+   --text-dim: #b3ac9e;
+   --accent: #e0a458;
+   --accent-2: #4fd1c5;
+   --border: #33302a;
+   --danger: #f87171;
+  }
+ }
+ :root[data-theme="dark"] {
+  --bg: #161513;
+  --bg-card: #201e1a;
+  --text: #efece6;
+  --text-dim: #b3ac9e;
+  --accent: #e0a458;
+  --accent-2: #4fd1c5;
+  --border: #33302a;
+  --danger: #f87171;
+ }
+
+ * { box-sizing: border-box; }
+ body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Georgia", "Iowan Old Style", serif;
+  line-height: 1.7;
+ }
+ .wrap { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+
+ /* Cover */
+ .cover {
+  padding: 90px 24px 60px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+ }
+ .cover .kicker {
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+ }
+ .cover h1 {
+  font-size: clamp(32px, 6vw, 52px);
+  margin: 14px 0 8px;
+  letter-spacing: -0.5px;
+ }
+ .cover p.sub {
+  color: var(--text-dim);
+  font-size: 18px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  max-width: 480px;
+  margin: 0 auto;
+ }
+
+ /* TOC */
+ .toc {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 56px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+ }
+ .toc h2 {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-top: 0;
+ }
+ .toc ol { margin: 0; padding-left: 20px; }
+ .toc li { margin-bottom: 8px; }
+ .toc a { color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--border); }
+ .toc a:hover { color: var(--accent); }
+
+ h2.chapter {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  margin: 0 0 4px;
+ }
+ h1.chapter-title {
+  font-size: 30px;
+  margin: 0 0 22px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--border);
+ }
+ section { margin-bottom: 64px; scroll-margin-top: 20px; }
+ h3 { font-size: 20px; margin-top: 34px; }
+ p { margin: 14px 0; }
+ ul, ol.list { padding-left: 22px; }
+ li { margin-bottom: 8px; }
+
+ .callout {
+  background: var(--bg-card);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 22px 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+ }
+ .callout strong { color: var(--accent-2); }
+ .warn {
+  border-left-color: var(--danger);
+  background: var(--bg-card);
+ }
+ .warn strong { color: var(--danger); }
+
+ table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14.5px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+ }
+ table thead { background: var(--bg-card); }
+ th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+ }
+
+ .glossary dt {
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 14px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+ }
+ .glossary dd { margin: 2px 0 0; color: var(--text-dim); }
+
+ footer {
+  text-align: center;
+  color: var(--text-dim);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+ }
+
+ code {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.9em;
+ }
+
+/* ZONA A1 TERMINAL SKIN */
+:root{--bg:#050a0f;--bg-card:#09131b;--text:#e8f7fa;--text-dim:#8199a2;--accent:#00d9ff;--accent-2:#27e08b;--border:#17313f;--danger:#ff4d67;--bull:#27e08b;--bear:#ff4d67;--line:#35505b}
+body{background:radial-gradient(circle at 15% 0%,#09202a 0,#050a0f 38%,#03070b 100%);color:var(--text);font-family:Segoe UI,Arial,sans-serif;line-height:1.75}
+.nav{height:68px;border-bottom:1px solid var(--border);background:rgba(4,10,15,.94);display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:30;backdrop-filter:blur(12px)}
+.nav .logo{font-weight:900;letter-spacing:1px}.nav .logo i{color:#00d9ff;font-style:normal}.nav .links{display:flex;gap:20px;font-size:12px}.nav a{color:#8da7b0;text-decoration:none}.nav a:hover{color:#00d9ff}.nav .btn{padding:8px 12px;border:1px solid #216174;border-radius:6px;color:#dffaff;background:#071820;font-weight:800;font-size:10px}
+.wrap{max-width:900px;padding-bottom:70px}.cover{padding:72px 24px 50px;background:linear-gradient(145deg,#071219,#081d26);border:1px solid var(--border);border-radius:0 0 14px 14px;margin-bottom:28px;box-shadow:0 25px 70px rgba(0,217,255,.06)}.cover .kicker{color:#00d9ff;font-family:Segoe UI,Arial,sans-serif}.cover h1{font-family:Segoe UI,Arial,sans-serif;font-weight:900}.cover p.sub{font-family:Segoe UI,Arial,sans-serif;color:#8ca4ad}.toc,.callout,.diagram{background:#09131b;border-color:var(--border);box-shadow:none}.toc{font-family:Segoe UI,Arial,sans-serif}.toc h2,h2.chapter{font-family:Segoe UI,Arial,sans-serif;color:#00d9ff}.toc a{color:#cfe5ea}.callout{font-family:Segoe UI,Arial,sans-serif;border-left-color:#00d9ff}.warn{border-left-color:#ff4d67}.callout strong{color:#00d9ff}.warn strong{color:#ff4d67}.diagram{border-radius:10px}h1.chapter-title{font-family:Segoe UI,Arial,sans-serif}.glossary dt{color:#00d9ff;font-family:Segoe UI,Arial,sans-serif}footer{font-family:Segoe UI,Arial,sans-serif;border-color:var(--border)}
+@media(max-width:700px){.nav .links{display:none}.nav{padding:0 18px}.wrap{padding-left:16px;padding-right:16px}.cover{padding-top:50px}}
+</style>
+
+<style id="a1-disclaimer-footer">
+.a1-legal-footer{
+ width:min(1180px,calc(100% - 36px));
+ margin:70px auto 0;
+ padding:28px 0 32px;
+ border-top:1px solid rgba(57,232,255,.12);
+}
+.a1-legal-box{
+ border:1px solid rgba(255,255,255,.08);
+ border-radius:14px;
+ background:linear-gradient(135deg,rgba(10,20,29,.78),rgba(3,9,15,.92));
+ padding:20px 22px;
+ box-shadow:0 12px 40px rgba(0,0,0,.18);
+}
+.a1-legal-title{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ margin-bottom:10px;
+ color:#dffcff;
+ font:900 10px/1 Inter,system-ui,sans-serif;
+ letter-spacing:1.3px;
+ text-transform:uppercase;
+}
+.a1-legal-title i{color:#f59e0b}
+.a1-legal-text{
+ margin:0;
+ color:#8091a3;
+ font:500 10px/1.8 Inter,system-ui,sans-serif;
+}
+.a1-legal-copy{
+ margin-top:15px;
+ padding-top:13px;
+ border-top:1px solid rgba(255,255,255,.06);
+ color:#5f7081;
+ font:500 9px/1.7 Inter,system-ui,sans-serif;
+}
+.a1-legal-copy strong{color:#8da0b3}
+@media(max-width:760px){
+ .a1-legal-footer{
+  width:calc(100% - 32px);
+  margin-top:45px;
+  padding-bottom:24px;
+ }
+ .a1-legal-box{padding:17px}
+ .a1-legal-text{font-size:9px;line-height:1.8}
+}
+</style>
+
+
+<style id="a1-mobile-final-fix">
+html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+body{min-width:0!important}
+@media(max-width:760px){
+ html,body{width:100%!important;min-width:0!important;overflow-x:hidden!important}
+ .nav,.nav-inner{width:100%!important;max-width:100%!important;min-width:0!important}
+ .a1-main-nav,.nav-right{display:none!important}
+ .a1-mobile-toggle{display:flex!important;flex:0 0 auto!important}
+ .a1-mobile-menu{
+  position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;
+  width:min(86vw,340px)!important;max-width:340px!important;min-width:0!important;
+  height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;
+  z-index:99999!important;transform:translateX(105%)!important;visibility:hidden!important;
+ }
+ .a1-mobile-menu.open,.a1-mobile-menu.active,.a1-mobile-menu.is-open,
+ body.mobile-menu-open .a1-mobile-menu{transform:translateX(0)!important;visibility:visible!important}
+ .a1-mobile-backdrop{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+  z-index:99998!important;display:none!important
+ }
+ .a1-mobile-backdrop.show,.a1-mobile-backdrop.active,
+ body.mobile-menu-open .a1-mobile-backdrop{display:block!important}
+ img,svg,canvas,video,iframe{max-width:100%!important}
+}
+</style>
+<style id="a1-no-reader-bars">
+.reader,.reader-bar,.racts,#reader,#readerTitle,#readerDl,#readerClose,#readerFrame{
+display:none!important;
+}
+</style>
+<style id="a1-chapter-upgrade">
+/* ===== ZONA A1 — CHAPTER PRESENTATION ===== */
+.matary-doc .matary-wrap > section,
+body > main > section,
+section{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.matary-doc .matary-wrap > section.a1-chapter-card{
+  padding:30px 30px 34px!important;
+  margin:0 0 26px!important;
+  border:1px solid rgba(57,232,255,.10)!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(57,232,255,.055),transparent 30%),
+    linear-gradient(145deg,rgba(7,17,27,.94),rgba(3,10,17,.88))!important;
+  box-shadow:0 16px 55px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025);
+}
+.a1-chapter-card:before{
+  content:"";
+  position:absolute;left:0;top:20px;bottom:20px;width:3px;
+  background:linear-gradient(180deg,#39e8ff,#3f7cff,transparent);
+  border-radius:0 4px 4px 0;
+  opacity:.8;
+}
+.a1-chapter-card:after{
+  content:"";
+  position:absolute;right:-80px;top:-80px;width:190px;height:190px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(57,232,255,.08),transparent 68%);
+  pointer-events:none;
+}
+.a1-chapter-head{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:11px;
+  margin:0 0 17px;
+}
+.a1-chapter-no{
+  width:36px;height:36px;flex:0 0 36px;
+  display:grid;place-items:center;
+  border:1px solid rgba(57,232,255,.28);
+  border-radius:10px;
+  background:rgba(57,232,255,.055);
+  color:#39e8ff;
+  font:900 11px/1 Inter,sans-serif;
+  letter-spacing:.5px;
+  box-shadow:0 0 22px rgba(57,232,255,.06);
+}
+.a1-chapter-kicker{
+  color:#39e8ff;
+  font:900 9px/1 Inter,sans-serif;
+  letter-spacing:2.1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.a1-chapter-line{
+  height:1px;flex:1;
+  background:linear-gradient(90deg,rgba(57,232,255,.28),transparent);
+}
+.a1-chapter-card h1.chapter-title{
+  position:relative;z-index:2;
+  margin:0 0 16px!important;
+  padding:0 0 15px!important;
+  color:#effaff!important;
+  font:900 clamp(25px,3vw,34px)/1.16 Inter,sans-serif!important;
+  letter-spacing:-.8px!important;
+  border-bottom:1px solid rgba(57,232,255,.11)!important;
+}
+.a1-chapter-card p{
+  position:relative;z-index:2;
+  max-width:880px;
+}
+.a1-chapter-card .callout,
+.a1-chapter-card .diagram,
+.a1-chapter-card table,
+.a1-chapter-card ul,
+.a1-chapter-card ol{
+  position:relative;z-index:2;
+}
+.a1-chapter-card .diagram{
+  margin:24px auto!important;
+}
+.a1-reference-card{
+  border-color:rgba(245,196,81,.13)!important;
+  background:linear-gradient(145deg,rgba(18,14,7,.72),rgba(4,10,16,.9))!important;
+}
+.a1-reference-card:before{
+  background:linear-gradient(180deg,#f5c451,#ff9f43,transparent);
+}
+.a1-reference-card .a1-chapter-no,
+.a1-reference-card .a1-chapter-kicker{
+  color:#f5c451;
+  border-color:rgba(245,196,81,.28);
+}
+.a1-reference-card h1.chapter-title{border-color:rgba(245,196,81,.12)!important}
+.a1-chapter-card figure{
+  max-width:100%!important;
+}
+.a1-chapter-card img,
+.a1-chapter-card svg,
+.a1-chapter-card canvas{
+  max-width:100%!important;
+  height:auto!important;
+}
+.a1-chapter-card blockquote{
+  margin:20px 0!important;
+  padding:16px 18px!important;
+  border-left:3px solid #39e8ff!important;
+  border-radius:10px!important;
+  background:rgba(57,232,255,.035)!important;
+}
+@media(max-width:760px){
+  .matary-doc .matary-wrap > section.a1-chapter-card{
+    padding:22px 17px 25px!important;
+    margin-bottom:18px!important;
+    border-radius:15px!important;
+  }
+  .a1-chapter-card:before{top:16px;bottom:16px}
+  .a1-chapter-head{gap:9px;margin-bottom:14px}
+  .a1-chapter-no{width:31px;height:31px;flex-basis:31px;font-size:10px;border-radius:9px}
+  .a1-chapter-kicker{font-size:8px;letter-spacing:1.7px}
+  .a1-chapter-card h1.chapter-title{
+    font-size:25px!important;
+    line-height:1.12!important;
+    letter-spacing:-.5px!important;
+  }
+  .a1-chapter-card p,
+  .a1-chapter-card li,
+  .a1-chapter-card dd{
+    font-size:13px!important;
+    line-height:1.8!important;
+  }
+}
+</style>
+
+<style id="a1-chapter-hero-final">
+/* ===== CHAPTER HERO — ZONA A1 ===== */
+.a1-chapter-card{
+  position:relative!important;
+}
+.a1-chapter-card .a1-chapter-head{
+  position:relative!important;
+  min-height:118px!important;
+  padding:0 0 18px!important;
+  margin:0 0 24px!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:15px!important;
+  border-bottom:1px solid rgba(57,232,255,.13)!important;
+}
+.a1-chapter-card .a1-chapter-no{
+  position:relative!important;
+  width:92px!important;
+  height:92px!important;
+  flex:0 0 92px!important;
+  border-radius:20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:
+    radial-gradient(circle at 35% 25%,rgba(57,232,255,.18),transparent 45%),
+    linear-gradient(145deg,rgba(57,232,255,.10),rgba(8,19,29,.95))!important;
+  border:1px solid rgba(57,232,255,.34)!important;
+  color:#eafcff!important;
+  font:900 27px/1 Inter,sans-serif!important;
+  letter-spacing:-1px!important;
+  box-shadow:
+    0 0 0 1px rgba(57,232,255,.04),
+    0 14px 35px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.a1-chapter-card .a1-chapter-no:before{
+  content:"BAB";
+  position:absolute;
+  top:12px;
+  left:0;
+  right:0;
+  text-align:center;
+  color:#39e8ff;
+  font:900 7px/1 Inter,sans-serif;
+  letter-spacing:2.3px;
+}
+.a1-chapter-card .a1-chapter-no:after{
+  content:"";
+  position:absolute;
+  width:8px;height:8px;
+  right:10px;bottom:10px;
+  border-radius:50%;
+  background:#39e8ff;
+  box-shadow:0 0 16px rgba(57,232,255,.75);
+}
+.a1-chapter-card .a1-chapter-kicker{
+  align-self:center!important;
+  margin-top:22px!important;
+  color:#39e8ff!important;
+  font:900 11px/1 Inter,sans-serif!important;
+  letter-spacing:3px!important;
+  text-transform:uppercase!important;
+}
+.a1-chapter-card .a1-chapter-line{
+  display:none!important;
+}
+
+/* Giant chapter marker behind the title area */
+.a1-chapter-card h1.chapter-title{
+  position:relative!important;
+  margin-left:0!important;
+}
+.a1-chapter-card h1.chapter-title:before{
+  content:"CHAPTER";
+  display:block;
+  margin-bottom:7px;
+  color:rgba(57,232,255,.42);
+  font:900 9px/1 Inter,sans-serif;
+  letter-spacing:3.5px;
+  text-transform:uppercase;
+}
+.a1-chapter-card h1.chapter-title:after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-1px;
+  width:76px;
+  height:3px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#39e8ff,#3f7cff,transparent);
+  box-shadow:0 0 14px rgba(57,232,255,.25);
+}
+
+/* Make the first paragraph read like a chapter introduction */
+.a1-chapter-card h1.chapter-title + p{
+  font-size:15px!important;
+  line-height:1.85!important;
+  color:#a9bac8!important;
+}
+
+/* Reference section gets a distinct gold treatment */
+.a1-reference-card .a1-chapter-no{
+  color:#fff4ce!important;
+  border-color:rgba(245,196,81,.35)!important;
+  background:linear-gradient(145deg,rgba(245,196,81,.13),rgba(18,14,7,.94))!important;
+}
+.a1-reference-card .a1-chapter-no:before,
+.a1-reference-card .a1-chapter-kicker{
+  color:#f5c451!important;
+}
+.a1-reference-card .a1-chapter-no:after{
+  background:#f5c451!important;
+  box-shadow:0 0 16px rgba(245,196,81,.7)!important;
+}
+.a1-reference-card h1.chapter-title:after{
+  background:linear-gradient(90deg,#f5c451,#ff9f43,transparent)!important;
+}
+
+/* Mobile: chapter must remain visually dominant */
+@media(max-width:760px){
+  .a1-chapter-card .a1-chapter-head{
+    min-height:91px!important;
+    padding-bottom:14px!important;
+    margin-bottom:19px!important;
+    gap:11px!important;
+    align-items:flex-end!important;
+  }
+  .a1-chapter-card .a1-chapter-no{
+    width:67px!important;
+    height:67px!important;
+    flex-basis:67px!important;
+    border-radius:16px!important;
+    font-size:21px!important;
+  }
+  .a1-chapter-card .a1-chapter-no:before{
+    top:9px!important;
+    font-size:6px!important;
+    letter-spacing:1.8px!important;
+  }
+  .a1-chapter-card .a1-chapter-no:after{
+    width:6px!important;height:6px!important;
+    right:8px!important;bottom:8px!important;
+  }
+  .a1-chapter-card .a1-chapter-kicker{
+    margin-top:15px!important;
+    font-size:8px!important;
+    letter-spacing:2.2px!important;
+  }
+  .a1-chapter-card h1.chapter-title{
+    font-size:27px!important;
+    line-height:1.08!important;
+    padding-bottom:14px!important;
+  }
+  .a1-chapter-card h1.chapter-title:before{
+    font-size:7px!important;
+    letter-spacing:2.8px!important;
+    margin-bottom:6px!important;
+  }
+  .a1-chapter-card h1.chapter-title + p{
+    font-size:13px!important;
+    line-height:1.8!important;
+  }
+}
+</style>
+
+
+<style id="a1-chapter-line-clean-final">
+.a1-chapter-card:before{
+  display:none!important;
+  content:none!important;
+}
+.a1-chapter-card .a1-chapter-head{
+  border-bottom:0!important;
+}
+.a1-chapter-card h1.chapter-title{
+  border-bottom:1px solid rgba(57,232,255,.13)!important;
+}
+.a1-chapter-card h1.chapter-title:after{
+  bottom:-1px!important;
+  left:0!important;
+}
+</style>
+</head>
+<body><nav class="nav"><div class="logo">ZONA <i>A1</i> <small>BY MATARYCLUB</small></div><div class="links"><a href="ebook.html">E-Book Library</a><a href="market-structure.html">Structure</a><a href="smart-money-concept.html">SMC</a><a href="trading-psychology.html">Psychology</a><a href="risk-management.html">Risk</a></div><a class="btn" href="ebook.html">← LIBRARY</a></nav>
+
+
+<div class="cover">
+ <div class="kicker">Panduan Dasar</div>
+ <h1>Pengenalan Trading</h1>
+ <p class="sub">Memahami dasar-dasar trading di pasar finansial — konsep, instrumen, analisis, dan manajemen risiko untuk pemula.</p>
+</div>
+
+<div class="wrap">
+
+ <div class="toc">
+  <h2>Daftar Isi</h2>
+  <ol>
+   <li><a href="#bab1">Apa Itu Trading?</a></li>
+   <li><a href="#bab2">Trading vs Investasi</a></li>
+   <li><a href="#bab3">Jenis-Jenis Pasar Trading</a></li>
+   <li><a href="#bab4">Instrumen dan Cara Kerja Order</a></li>
+   <li><a href="#bab5">Analisis Fundamental</a></li>
+   <li><a href="#bab6">Analisis Teknikal</a></li>
+   <li><a href="#bab7">Manajemen Risiko & Money Management</a></li>
+   <li><a href="#bab8">Psikologi Trading</a></li>
+   <li><a href="#bab9">Kesalahan Umum Trader Pemula</a></li>
+   <li><a href="#bab10">Memulai: Langkah Praktis</a></li>
+   <li><a href="#glossary">Glosarium Istilah</a></li>
+  </ol>
+ </div>
+
+ <section id="bab1" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">01</span><span class="a1-chapter-kicker">BAB 1</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Apa Itu Trading?</h1>
+  <p>Trading adalah aktivitas membeli dan menjual instrumen finansial — seperti mata uang, saham, komoditas, atau aset kripto — dengan tujuan mengambil untung dari pergerakan harga dalam jangka waktu yang relatif pendek. Berbeda dengan bekerja untuk gaji tetap, hasil trading bergantung sepenuhnya pada kemampuan membaca pasar dan mengelola risiko.</p>
+  <p>Secara sederhana, trader mencoba menjawab dua pertanyaan di setiap posisi yang dibuka: <em>ke arah mana harga akan bergerak</em>, dan <em>berapa besar risiko yang siap ditanggung jika prediksi itu salah</em>. Trading yang konsisten bukan soal selalu benar, tapi soal disiplin menjalankan proses yang sama berulang-ulang.</p>
+  <div class="callout">
+   <strong>Inti dari trading:</strong> bukan mencari "sinyal ajaib", tapi membangun sistem — cara masuk posisi, cara keluar, dan cara membatasi kerugian — yang bisa dijalankan berulang secara konsisten.
+  </div>
+  <h3>Kenapa Orang Trading?</h3>
+  <ul>
+   <li>Potensi penghasilan tambahan atau penghasilan utama dari pergerakan pasar.</li>
+   <li>Fleksibilitas waktu — bisa dilakukan paruh waktu maupun penuh waktu.</li>
+   <li>Akses pasar global yang makin mudah lewat platform online dan broker retail.</li>
+   <li>Ketertarikan pada analisis data, pola, dan pengambilan keputusan berbasis probabilitas.</li>
+  </ul>
+ </section>
+
+ <section id="bab2" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">02</span><span class="a1-chapter-kicker">BAB 2</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Trading vs Investasi</h1>
+  <p>Banyak pemula menyamakan trading dengan investasi, padahal keduanya punya filosofi, horizon waktu, dan pendekatan risiko yang berbeda.</p>
+  <table>
+   <thead>
+    <tr><th>Aspek</th><th>Trading</th><th>Investasi</th></tr>
+   </thead>
+   <tbody>
+    <tr><td>Horizon waktu</td><td>Menit hingga beberapa minggu</td><td>Bulan hingga tahunan</td></tr>
+    <tr><td>Fokus analisis</td><td>Pergerakan harga jangka pendek (teknikal)</td><td>Nilai fundamental jangka panjang</td></tr>
+    <tr><td>Frekuensi transaksi</td><td>Tinggi — buka/tutup posisi berkali-kali</td><td>Rendah — beli lalu ditahan</td></tr>
+    <tr><td>Tujuan utama</td><td>Memanfaatkan volatilitas harga</td><td>Pertumbuhan nilai aset & compounding</td></tr>
+    <tr><td>Toleransi risiko per transaksi</td><td>Dibatasi ketat (stop loss)</td><td>Lebih longgar, fokus fluktuasi jangka panjang</td></tr>
+   </tbody>
+  </table>
+  <p>Tidak ada yang lebih "benar" — keduanya bisa saling melengkapi. Banyak trader juga memiliki portofolio investasi jangka panjang secara terpisah dari akun trading aktif mereka.</p>
+ </section>
+
+ <section id="bab3" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">03</span><span class="a1-chapter-kicker">BAB 3</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Jenis-Jenis Pasar Trading</h1>
+  <h3>Forex (Foreign Exchange)</h3>
+  <p>Pasar pertukaran mata uang, diperdagangkan berpasangan seperti EUR/USD atau XAU/USD (emas terhadap dolar). Buka 24 jam pada hari kerja, likuiditas sangat tinggi, dan populer karena leverage yang ditawarkan broker.</p>
+  <h3>Saham</h3>
+  <p>Kepemilikan sebagian kecil dari sebuah perusahaan. Trading saham bisa dilakukan secara harian (day trading) atau berbasis tren jangka menengah (swing trading), mengikuti jam bursa masing-masing negara.</p>
+  <h3>Kripto (Cryptocurrency)</h3>
+  <p>Aset digital seperti Bitcoin, Ethereum, hingga token di jaringan seperti Solana. Pasar buka 24/7, volatilitasnya tinggi, dan mencakup trading di exchange terpusat (CEX) maupun langsung on-chain lewat decentralized exchange (DEX).</p>
+  <h3>Komoditas</h3>
+  <p>Emas, perak, minyak, hingga produk agrikultur. Sering dipakai sebagai aset "safe haven" saat kondisi ekonomi tidak stabil.</p>
+  <h3>Derivatif (Futures & Options)</h3>
+  <p>Kontrak yang nilainya diturunkan dari aset lain. Memungkinkan spekulasi arah harga maupun hedging tanpa harus memiliki aset dasarnya secara langsung, tapi kompleksitas dan risikonya juga lebih tinggi.</p>
+ </section>
+
+ <section id="bab4" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">04</span><span class="a1-chapter-kicker">BAB 4</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Instrumen dan Cara Kerja Order</h1>
+  <h3>Long vs Short</h3>
+  <p><strong>Long</strong> berarti membeli dengan ekspektasi harga naik. <strong>Short</strong> berarti "menjual duluan" (biasanya dengan pinjaman aset dari broker) dengan ekspektasi harga turun, lalu membeli kembali di harga lebih rendah untuk mengambil selisihnya.</p>
+  <h3>Jenis Order Dasar</h3>
+  <ul>
+   <li><strong>Market order</strong> — eksekusi langsung di harga pasar saat itu.</li>
+   <li><strong>Limit order</strong> — eksekusi hanya jika harga mencapai level tertentu yang lebih menguntungkan.</li>
+   <li><strong>Stop order</strong> — order yang aktif setelah harga menyentuh level tertentu, umum dipakai untuk stop loss.</li>
+   <li><strong>Take profit</strong> — level otomatis untuk mengunci keuntungan.</li>
+   <li><strong>Stop loss</strong> — level otomatis untuk membatasi kerugian.</li>
+  </ul>
+  <h3>Leverage</h3>
+  <p>Leverage memungkinkan trader mengontrol posisi lebih besar dari modal yang dimiliki, misalnya leverage 1:100 berarti modal $100 bisa mengontrol posisi senilai $10.000. Leverage memperbesar potensi untung, tapi memperbesar potensi rugi dengan proporsi yang sama.</p>
+  <div class="callout warn">
+   <strong>Perhatian:</strong> leverage adalah pedang bermata dua. Leverage tinggi tanpa manajemen risiko yang jelas adalah penyebab paling umum akun trading pemula cepat habis.
+  </div>
+ </section>
+
+ <section id="bab5" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">05</span><span class="a1-chapter-kicker">BAB 5</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Analisis Fundamental</h1>
+  <p>Analisis fundamental menilai "nilai wajar" suatu aset berdasarkan faktor ekonomi, keuangan, dan berita yang memengaruhinya.</p>
+  <ul>
+   <li><strong>Forex:</strong> suku bunga bank sentral, data inflasi, ketenagakerjaan, kebijakan moneter.</li>
+   <li><strong>Saham:</strong> laporan keuangan perusahaan, prospek industri, sentimen manajemen.</li>
+   <li><strong>Kripto:</strong> adopsi jaringan, perkembangan teknologi, regulasi, aktivitas on-chain.</li>
+   <li><strong>Komoditas:</strong> penawaran-permintaan global, kondisi geopolitik, cuaca (untuk agrikultur).</li>
+  </ul>
+  <p>Analisis fundamental biasanya lebih relevan untuk horizon waktu menengah-panjang, karena efeknya terhadap harga sering tidak instan.</p>
+ </section>
+
+ <section id="bab6" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">06</span><span class="a1-chapter-kicker">BAB 6</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Analisis Teknikal</h1>
+  <p>Analisis teknikal mempelajari pergerakan harga historis dan volume untuk memperkirakan arah harga selanjutnya, dengan asumsi bahwa pola perilaku pasar cenderung berulang.</p>
+  <h3>Konsep Dasar</h3>
+  <ul>
+   <li><strong>Candlestick chart</strong> — menampilkan harga buka, tutup, tertinggi, dan terendah dalam satu periode.</li>
+   <li><strong>Support & resistance</strong> — area harga yang secara historis sering menahan pergerakan naik atau turun.</li>
+   <li><strong>Tren</strong> — arah dominan pergerakan harga: naik (bullish), turun (bearish), atau menyamping (sideways).</li>
+   <li><strong>Volume</strong> — jumlah transaksi yang terjadi, sering dipakai mengonfirmasi kekuatan suatu pergerakan.</li>
+  </ul>
+  <h3>Indikator Populer</h3>
+  <ul>
+   <li><strong>Moving Average (MA/EMA)</strong> — meratakan pergerakan harga untuk melihat arah tren.</li>
+   <li><strong>RSI (Relative Strength Index)</strong> — mengukur kondisi jenuh beli (overbought) atau jenuh jual (oversold).</li>
+   <li><strong>MACD</strong> — mengukur momentum dan potensi perubahan tren.</li>
+   <li><strong>Bollinger Bands</strong> — mengukur volatilitas harga relatif terhadap rata-ratanya.</li>
+  </ul>
+  <div class="callout">
+   <strong>Catatan penting:</strong> indikator adalah alat bantu, bukan jaminan. Kombinasi price action + konteks pasar biasanya lebih andal daripada mengandalkan satu indikator secara mentah-mentah.
+  </div>
+ </section>
+
+ <section id="bab7" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">07</span><span class="a1-chapter-kicker">BAB 7</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Manajemen Risiko & Money Management</h1>
+  <p>Ini adalah bagian yang paling sering diabaikan pemula, padahal justru paling menentukan apakah seseorang bisa bertahan lama di dunia trading.</p>
+  <h3>Prinsip Dasar</h3>
+  <ul>
+   <li><strong>Risk per trade</strong> — banyak trader profesional membatasi risiko di kisaran 1–2% dari modal per transaksi, agar rangkaian kerugian beruntun tidak menghabiskan akun.</li>
+   <li><strong>Risk/reward ratio</strong> — membandingkan potensi kerugian dengan potensi keuntungan sebelum masuk posisi, misalnya rasio 1:2 berarti menargetkan keuntungan dua kali lipat dari risiko yang diambil.</li>
+   <li><strong>Position sizing</strong> — menentukan besar posisi berdasarkan jarak stop loss dan persentase risiko yang sudah ditetapkan, bukan berdasarkan "perasaan yakin".</li>
+   <li><strong>Diversifikasi</strong> — tidak menaruh seluruh modal pada satu instrumen atau satu arah posisi saja.</li>
+  </ul>
+  <div class="callout warn">
+   <strong>Fakta penting:</strong> win rate tinggi tidak menjamin profit jika risk/reward-nya buruk. Sebaliknya, win rate rendah bisa tetap menguntungkan jika manajemen risikonya disiplin.
+  </div>
+ </section>
+
+ <section id="bab8" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">08</span><span class="a1-chapter-kicker">BAB 8</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Psikologi Trading</h1>
+  <p>Sistem trading yang bagus bisa gagal total di tangan trader yang tidak disiplin secara mental. Beberapa pola psikologis yang umum dihadapi:</p>
+  <ul>
+   <li><strong>Fear of missing out (FOMO)</strong> — masuk posisi karena takut ketinggalan momentum, tanpa analisis yang matang.</li>
+   <li><strong>Revenge trading</strong> — mencoba "balas dendam" setelah rugi dengan membuka posisi besar secara impulsif.</li>
+   <li><strong>Overconfidence</strong> — menaikkan ukuran posisi secara drastis setelah serangkaian kemenangan.</li>
+   <li><strong>Analysis paralysis</strong> — terlalu banyak mempertimbangkan indikator sehingga gagal mengambil keputusan tepat waktu.</li>
+  </ul>
+  <p>Mengatasi ini biasanya butuh aturan tertulis yang jelas — kapan masuk, kapan keluar, berapa risiko maksimal per hari — supaya keputusan tidak diambil berdasarkan emosi saat itu.</p>
+ </section>
+
+ <section id="bab9" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">09</span><span class="a1-chapter-kicker">BAB 9</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Kesalahan Umum Trader Pemula</h1>
+  <ol class="list">
+   <li>Trading tanpa rencana atau strategi yang teruji.</li>
+   <li>Tidak memasang stop loss, atau memindahkannya saat harga bergerak melawan posisi.</li>
+   <li>Menggunakan leverage terlalu besar relatif terhadap modal.</li>
+   <li>Overtrading — membuka terlalu banyak posisi karena bosan atau ingin "balik modal cepat".</li>
+   <li>Mengikuti sinyal orang lain tanpa memahami logikanya sendiri.</li>
+   <li>Tidak mencatat dan mengevaluasi hasil trading (trading journal).</li>
+   <li>Berpindah-pindah strategi setiap kali mengalami kerugian, tanpa memberi waktu strategi itu terbukti valid.</li>
+  </ol>
+ </section>
+
+ <section id="bab10" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">10</span><span class="a1-chapter-kicker">BAB 10</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Memulai: Langkah Praktis</h1>
+  <ol class="list">
+   <li><strong>Pelajari dasar-dasar pasar</strong> yang ingin ditekuni — forex, saham, atau kripto — termasuk jam operasional dan karakteristik volatilitasnya.</li>
+   <li><strong>Buka akun demo</strong> di broker/exchange terpercaya untuk berlatih tanpa risiko uang sungguhan.</li>
+   <li><strong>Susun rencana trading tertulis</strong> — kriteria masuk posisi, level stop loss/take profit, dan maksimal risiko per hari.</li>
+   <li><strong>Mulai dengan modal kecil</strong> saat pindah ke akun riil, sambil tetap menjalankan aturan yang sudah dibuat.</li>
+   <li><strong>Catat setiap transaksi</strong> dalam trading journal — alasan masuk, hasil, dan evaluasi apa yang bisa diperbaiki.</li>
+   <li><strong>Evaluasi berkala</strong> — tinjau performa mingguan/bulanan, bukan per transaksi, untuk melihat konsistensi sistem secara objektif.</li>
+  </ol>
+  <div class="callout">
+   <strong>Ingat:</strong> tidak ada strategi yang menang 100% dari waktu. Tujuan utama tahap awal bukan profit besar, tapi membangun proses yang bisa dipercaya dan diulang.
+  </div>
+ </section>
+
+ <section id="glossary" class="a1-chapter-card a1-reference-card"><div class="a1-chapter-head"><span class="a1-chapter-no">REF</span><span class="a1-chapter-kicker">REFERENCE</span><span class="a1-chapter-line"></span></div>
+  <h2 class="chapter">Referensi</h2>
+  <h1 class="chapter-title">Glosarium Istilah</h1>
+  <dl class="glossary">
+   <dt>Pip</dt><dd>Satuan perubahan harga terkecil pada pasangan mata uang forex.</dd>
+   <dt>Spread</dt><dd>Selisih antara harga beli (ask) dan harga jual (bid) suatu instrumen.</dd>
+   <dt>Lot</dt><dd>Satuan standar ukuran posisi dalam trading forex/komoditas.</dd>
+   <dt>Drawdown</dt><dd>Penurunan nilai akun dari titik tertinggi sebelumnya, biasanya dinyatakan dalam persen.</dd>
+   <dt>Slippage</dt><dd>Selisih antara harga yang diharapkan saat order dan harga eksekusi aktual.</dd>
+   <dt>Margin call</dt><dd>Peringatan broker saat modal di akun mendekati batas minimum untuk menahan posisi terbuka.</dd>
+   <dt>Liquidity</dt><dd>Seberapa mudah suatu aset dibeli/dijual tanpa memengaruhi harga secara signifikan.</dd>
+   <dt>Backtest</dt><dd>Menguji strategi trading terhadap data harga historis sebelum dipakai di pasar riil.</dd>
+  </dl>
+ </section>
+
+ <footer>
+  Pengenalan Trading — Panduan Dasar untuk Pemula
+ </footer>
+
+</div>
+
+<footer class="a1-legal-footer">
+ <div class="a1-legal-box">
+  <div class="a1-legal-title">
+   <i class="fa-solid fa-triangle-exclamation"></i>
+   Trading Disclaimer
+  </div>
+  <p class="a1-legal-text">
+   Materi E-Book ZONA A1 disusun untuk tujuan edukasi dan informasi umum, bukan merupakan
+   nasihat keuangan, investasi, atau ajakan untuk melakukan transaksi tertentu. Trading
+   memiliki risiko dan dapat menyebabkan kerugian sebagian maupun seluruh modal. Hasil
+   pembelajaran, backtest, simulasi, atau contoh historis tidak menjamin hasil di masa depan.
+   Setiap keputusan trading, ukuran posisi, leverage, dan pengelolaan risiko sepenuhnya menjadi
+   tanggung jawab masing-masing pengguna.
+  </p>
+  <div class="a1-legal-copy">
+   <strong>ZONA A1 / BY MATARYCLUB</strong> — Gunakan materi sebagai referensi belajar dan
+   selalu sesuaikan strategi dengan profil risiko serta kondisi pasar masing-masing.
+  </div>
+ </div>
+</footer>
+
+
+<script id="a1-mobile-final-js">
+(function(){
+ const t=document.getElementById('a1MobileToggle'),c=document.getElementById('a1MobileClose'),
+ m=document.getElementById('a1MobileMenu'),b=document.getElementById('a1MobileBackdrop');
+ if(!t||!m)return;
+ function openM(){m.classList.add('open','active','is-open');if(b)b.classList.add('show','active');document.body.classList.add('mobile-menu-open');t.setAttribute('aria-expanded','true');m.setAttribute('aria-hidden','false')}
+ function closeM(){m.classList.remove('open','active','is-open');if(b)b.classList.remove('show','active');document.body.classList.remove('mobile-menu-open');t.setAttribute('aria-expanded','false');m.setAttribute('aria-hidden','true')}
+ t.addEventListener('click',openM);if(c)c.addEventListener('click',closeM);if(b)b.addEventListener('click',closeM);
+ m.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeM));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+})();
+</script>
+
+<script id="a1-matary-diagram-center-final">
+(function(){
+  function fit(){
+    var mobile=window.innerWidth<=760;
+    document.querySelectorAll('.br-leg-diagram svg').forEach(function(svg){
+      svg.setAttribute('viewBox', mobile ? '55 30 790 365' : '0 0 900 410');
+      svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+      svg.style.width='100%';
+      svg.style.maxWidth='100%';
+      svg.style.minWidth='0';
+    });
+    document.querySelectorAll('.flow-diagram svg').forEach(function(svg){
+      svg.setAttribute('viewBox', mobile ? '120 0 660 980' : '0 0 900 980');
+      svg.setAttribute('preserveAspectRatio','xMidYMin meet');
+      svg.style.width='100%';
+      svg.style.maxWidth='100%';
+      svg.style.minWidth='0';
+    });
+  }
+  fit();
+  window.addEventListener('resize',fit);
+})();
+</script>
+</body>
+</html>

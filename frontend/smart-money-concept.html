@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Money Concept — Liquidity, Order Block, FVG, Sweep & Struktur</title>
+<style>
+ :root {
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --text: #1c1a17;
+  --text-dim: #5c574f;
+  --accent: #b45309;
+  --accent-2: #0f766e;
+  --border: #e7e2d9;
+  --danger: #b91c1c;
+  --bull: #0f766e;
+  --bear: #b91c1c;
+  --line: #9a9284;
+  --ob-bull: rgba(15,118,110,0.16);
+  --ob-bear: rgba(185,28,28,0.14);
+  --fvg: rgba(180,83,9,0.18);
+ }
+ @media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+   --bg: #161513;
+   --bg-card: #201e1a;
+   --text: #efece6;
+   --text-dim: #b3ac9e;
+   --accent: #e0a458;
+   --accent-2: #4fd1c5;
+   --border: #33302a;
+   --danger: #f87171;
+   --bull: #4fd1c5;
+   --bear: #f87171;
+   --line: #6b6558;
+   --ob-bull: rgba(79,209,197,0.16);
+   --ob-bear: rgba(248,113,113,0.14);
+   --fvg: rgba(224,164,88,0.20);
+  }
+ }
+ :root[data-theme="dark"] {
+  --bg: #161513;
+  --bg-card: #201e1a;
+  --text: #efece6;
+  --text-dim: #b3ac9e;
+  --accent: #e0a458;
+  --accent-2: #4fd1c5;
+  --border: #33302a;
+  --danger: #f87171;
+  --bull: #4fd1c5;
+  --bear: #f87171;
+  --line: #6b6558;
+  --ob-bull: rgba(79,209,197,0.16);
+  --ob-bear: rgba(248,113,113,0.14);
+  --fvg: rgba(224,164,88,0.20);
+ }
+
+ * { box-sizing: border-box; }
+ body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Georgia", "Iowan Old Style", serif;
+  line-height: 1.7;
+ }
+ .wrap { max-width: 780px; margin: 0 auto; padding: 0 24px 80px; }
+
+ .cover {
+  padding: 90px 24px 60px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+ }
+ .cover .kicker {
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: 600;
+ }
+ .cover h1 {
+  font-size: clamp(28px, 6vw, 46px);
+  margin: 14px 0 8px;
+  letter-spacing: -0.5px;
+ }
+ .cover p.sub {
+  color: var(--text-dim);
+  font-size: 18px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  max-width: 520px;
+  margin: 0 auto;
+ }
+
+ .toc {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px 28px;
+  margin-bottom: 56px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+ }
+ .toc h2 {
+  font-family: Georgia, serif;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-top: 0;
+ }
+ .toc ol { margin: 0; padding-left: 20px; }
+ .toc li { margin-bottom: 8px; }
+ .toc a { color: var(--text); text-decoration: none; border-bottom: 1px dotted var(--border); }
+ .toc a:hover { color: var(--accent); }
+
+ h2.chapter {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--accent);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  margin: 0 0 4px;
+ }
+ h1.chapter-title {
+  font-size: 27px;
+  margin: 0 0 22px;
+  padding-bottom: 18px;
+  border-bottom: 2px solid var(--border);
+ }
+ section { margin-bottom: 64px; scroll-margin-top: 20px; }
+ h3 { font-size: 19px; margin-top: 34px; }
+ p { margin: 14px 0; }
+ ul, ol.list { padding-left: 22px; }
+ li { margin-bottom: 8px; }
+
+ .callout {
+  background: var(--bg-card);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 22px 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 15px;
+ }
+ .callout strong { color: var(--accent-2); }
+ .warn { border-left-color: var(--danger); }
+ .warn strong { color: var(--danger); }
+
+ table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 14.5px;
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+ }
+ table thead { background: var(--bg-card); }
+ th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+
+ .diagram {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin: 24px 0;
+ }
+ .diagram figcaption {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 10px;
+ }
+ svg { width: 100%; height: auto; display: block; }
+ .lbl { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 15px; font-weight: 700; }
+ .lbl-sub { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 11px; }
+
+ .glossary dt {
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 14px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+ }
+ .glossary dd { margin: 2px 0 0; color: var(--text-dim); }
+
+ footer {
+  text-align: center;
+  color: var(--text-dim);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 13px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+ }
+
+/* ZONA A1 TERMINAL SKIN */
+:root{--bg:#050a0f;--bg-card:#09131b;--text:#e8f7fa;--text-dim:#8199a2;--accent:#00d9ff;--accent-2:#27e08b;--border:#17313f;--danger:#ff4d67;--bull:#27e08b;--bear:#ff4d67;--line:#35505b}
+body{background:radial-gradient(circle at 15% 0%,#09202a 0,#050a0f 38%,#03070b 100%);color:var(--text);font-family:Segoe UI,Arial,sans-serif;line-height:1.75}
+.nav{height:68px;border-bottom:1px solid var(--border);background:rgba(4,10,15,.94);display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;z-index:30;backdrop-filter:blur(12px)}
+.nav .logo{font-weight:900;letter-spacing:1px}.nav .logo i{color:#00d9ff;font-style:normal}.nav .links{display:flex;gap:20px;font-size:12px}.nav a{color:#8da7b0;text-decoration:none}.nav a:hover{color:#00d9ff}.nav .btn{padding:8px 12px;border:1px solid #216174;border-radius:6px;color:#dffaff;background:#071820;font-weight:800;font-size:10px}
+.wrap{max-width:900px;padding-bottom:70px}.cover{padding:72px 24px 50px;background:linear-gradient(145deg,#071219,#081d26);border:1px solid var(--border);border-radius:0 0 14px 14px;margin-bottom:28px;box-shadow:0 25px 70px rgba(0,217,255,.06)}.cover .kicker{color:#00d9ff;font-family:Segoe UI,Arial,sans-serif}.cover h1{font-family:Segoe UI,Arial,sans-serif;font-weight:900}.cover p.sub{font-family:Segoe UI,Arial,sans-serif;color:#8ca4ad}.toc,.callout,.diagram{background:#09131b;border-color:var(--border);box-shadow:none}.toc{font-family:Segoe UI,Arial,sans-serif}.toc h2,h2.chapter{font-family:Segoe UI,Arial,sans-serif;color:#00d9ff}.toc a{color:#cfe5ea}.callout{font-family:Segoe UI,Arial,sans-serif;border-left-color:#00d9ff}.warn{border-left-color:#ff4d67}.callout strong{color:#00d9ff}.warn strong{color:#ff4d67}.diagram{border-radius:10px}h1.chapter-title{font-family:Segoe UI,Arial,sans-serif}.glossary dt{color:#00d9ff;font-family:Segoe UI,Arial,sans-serif}footer{font-family:Segoe UI,Arial,sans-serif;border-color:var(--border)}
+@media(max-width:700px){.nav .links{display:none}.nav{padding:0 18px}.wrap{padding-left:16px;padding-right:16px}.cover{padding-top:50px}}
+</style>
+
+<style id="a1-disclaimer-footer">
+.a1-legal-footer{
+ width:min(1180px,calc(100% - 36px));
+ margin:70px auto 0;
+ padding:28px 0 32px;
+ border-top:1px solid rgba(57,232,255,.12);
+}
+.a1-legal-box{
+ border:1px solid rgba(255,255,255,.08);
+ border-radius:14px;
+ background:linear-gradient(135deg,rgba(10,20,29,.78),rgba(3,9,15,.92));
+ padding:20px 22px;
+ box-shadow:0 12px 40px rgba(0,0,0,.18);
+}
+.a1-legal-title{
+ display:flex;
+ align-items:center;
+ gap:8px;
+ margin-bottom:10px;
+ color:#dffcff;
+ font:900 10px/1 Inter,system-ui,sans-serif;
+ letter-spacing:1.3px;
+ text-transform:uppercase;
+}
+.a1-legal-title i{color:#f59e0b}
+.a1-legal-text{
+ margin:0;
+ color:#8091a3;
+ font:500 10px/1.8 Inter,system-ui,sans-serif;
+}
+.a1-legal-copy{
+ margin-top:15px;
+ padding-top:13px;
+ border-top:1px solid rgba(255,255,255,.06);
+ color:#5f7081;
+ font:500 9px/1.7 Inter,system-ui,sans-serif;
+}
+.a1-legal-copy strong{color:#8da0b3}
+@media(max-width:760px){
+ .a1-legal-footer{
+  width:calc(100% - 32px);
+  margin-top:45px;
+  padding-bottom:24px;
+ }
+ .a1-legal-box{padding:17px}
+ .a1-legal-text{font-size:9px;line-height:1.8}
+}
+</style>
+
+
+<style id="a1-mobile-final-fix">
+html,body{width:100%;max-width:100%;overflow-x:hidden!important}
+body{min-width:0!important}
+@media(max-width:760px){
+ html,body{width:100%!important;min-width:0!important;overflow-x:hidden!important}
+ .nav,.nav-inner{width:100%!important;max-width:100%!important;min-width:0!important}
+ .a1-main-nav,.nav-right{display:none!important}
+ .a1-mobile-toggle{display:flex!important;flex:0 0 auto!important}
+ .a1-mobile-menu{
+  position:fixed!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;
+  width:min(86vw,340px)!important;max-width:340px!important;min-width:0!important;
+  height:100dvh!important;max-height:100dvh!important;overflow-y:auto!important;overflow-x:hidden!important;
+  z-index:99999!important;transform:translateX(105%)!important;visibility:hidden!important;
+ }
+ .a1-mobile-menu.open,.a1-mobile-menu.active,.a1-mobile-menu.is-open,
+ body.mobile-menu-open .a1-mobile-menu{transform:translateX(0)!important;visibility:visible!important}
+ .a1-mobile-backdrop{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+  z-index:99998!important;display:none!important
+ }
+ .a1-mobile-backdrop.show,.a1-mobile-backdrop.active,
+ body.mobile-menu-open .a1-mobile-backdrop{display:block!important}
+ img,svg,canvas,video,iframe{max-width:100%!important}
+}
+</style>
+<style id="a1-no-reader-bars">
+.reader,.reader-bar,.racts,#reader,#readerTitle,#readerDl,#readerClose,#readerFrame{
+display:none!important;
+}
+</style>
+<style id="a1-chapter-upgrade">
+/* ===== ZONA A1 — CHAPTER PRESENTATION ===== */
+.matary-doc .matary-wrap > section,
+body > main > section,
+section{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.matary-doc .matary-wrap > section.a1-chapter-card{
+  padding:30px 30px 34px!important;
+  margin:0 0 26px!important;
+  border:1px solid rgba(57,232,255,.10)!important;
+  border-radius:18px!important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(57,232,255,.055),transparent 30%),
+    linear-gradient(145deg,rgba(7,17,27,.94),rgba(3,10,17,.88))!important;
+  box-shadow:0 16px 55px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.025);
+}
+.a1-chapter-card:before{
+  content:"";
+  position:absolute;left:0;top:20px;bottom:20px;width:3px;
+  background:linear-gradient(180deg,#39e8ff,#3f7cff,transparent);
+  border-radius:0 4px 4px 0;
+  opacity:.8;
+}
+.a1-chapter-card:after{
+  content:"";
+  position:absolute;right:-80px;top:-80px;width:190px;height:190px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(57,232,255,.08),transparent 68%);
+  pointer-events:none;
+}
+.a1-chapter-head{
+  position:relative;z-index:2;
+  display:flex;align-items:center;gap:11px;
+  margin:0 0 17px;
+}
+.a1-chapter-no{
+  width:36px;height:36px;flex:0 0 36px;
+  display:grid;place-items:center;
+  border:1px solid rgba(57,232,255,.28);
+  border-radius:10px;
+  background:rgba(57,232,255,.055);
+  color:#39e8ff;
+  font:900 11px/1 Inter,sans-serif;
+  letter-spacing:.5px;
+  box-shadow:0 0 22px rgba(57,232,255,.06);
+}
+.a1-chapter-kicker{
+  color:#39e8ff;
+  font:900 9px/1 Inter,sans-serif;
+  letter-spacing:2.1px;
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.a1-chapter-line{
+  height:1px;flex:1;
+  background:linear-gradient(90deg,rgba(57,232,255,.28),transparent);
+}
+.a1-chapter-card h1.chapter-title{
+  position:relative;z-index:2;
+  margin:0 0 16px!important;
+  padding:0 0 15px!important;
+  color:#effaff!important;
+  font:900 clamp(25px,3vw,34px)/1.16 Inter,sans-serif!important;
+  letter-spacing:-.8px!important;
+  border-bottom:1px solid rgba(57,232,255,.11)!important;
+}
+.a1-chapter-card p{
+  position:relative;z-index:2;
+  max-width:880px;
+}
+.a1-chapter-card .callout,
+.a1-chapter-card .diagram,
+.a1-chapter-card table,
+.a1-chapter-card ul,
+.a1-chapter-card ol{
+  position:relative;z-index:2;
+}
+.a1-chapter-card .diagram{
+  margin:24px auto!important;
+}
+.a1-reference-card{
+  border-color:rgba(245,196,81,.13)!important;
+  background:linear-gradient(145deg,rgba(18,14,7,.72),rgba(4,10,16,.9))!important;
+}
+.a1-reference-card:before{
+  background:linear-gradient(180deg,#f5c451,#ff9f43,transparent);
+}
+.a1-reference-card .a1-chapter-no,
+.a1-reference-card .a1-chapter-kicker{
+  color:#f5c451;
+  border-color:rgba(245,196,81,.28);
+}
+.a1-reference-card h1.chapter-title{border-color:rgba(245,196,81,.12)!important}
+.a1-chapter-card figure{
+  max-width:100%!important;
+}
+.a1-chapter-card img,
+.a1-chapter-card svg,
+.a1-chapter-card canvas{
+  max-width:100%!important;
+  height:auto!important;
+}
+.a1-chapter-card blockquote{
+  margin:20px 0!important;
+  padding:16px 18px!important;
+  border-left:3px solid #39e8ff!important;
+  border-radius:10px!important;
+  background:rgba(57,232,255,.035)!important;
+}
+@media(max-width:760px){
+  .matary-doc .matary-wrap > section.a1-chapter-card{
+    padding:22px 17px 25px!important;
+    margin-bottom:18px!important;
+    border-radius:15px!important;
+  }
+  .a1-chapter-card:before{top:16px;bottom:16px}
+  .a1-chapter-head{gap:9px;margin-bottom:14px}
+  .a1-chapter-no{width:31px;height:31px;flex-basis:31px;font-size:10px;border-radius:9px}
+  .a1-chapter-kicker{font-size:8px;letter-spacing:1.7px}
+  .a1-chapter-card h1.chapter-title{
+    font-size:25px!important;
+    line-height:1.12!important;
+    letter-spacing:-.5px!important;
+  }
+  .a1-chapter-card p,
+  .a1-chapter-card li,
+  .a1-chapter-card dd{
+    font-size:13px!important;
+    line-height:1.8!important;
+  }
+}
+</style>
+
+<style id="a1-chapter-hero-final">
+/* ===== CHAPTER HERO — ZONA A1 ===== */
+.a1-chapter-card{
+  position:relative!important;
+}
+.a1-chapter-card .a1-chapter-head{
+  position:relative!important;
+  min-height:118px!important;
+  padding:0 0 18px!important;
+  margin:0 0 24px!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  gap:15px!important;
+  border-bottom:1px solid rgba(57,232,255,.13)!important;
+}
+.a1-chapter-card .a1-chapter-no{
+  position:relative!important;
+  width:92px!important;
+  height:92px!important;
+  flex:0 0 92px!important;
+  border-radius:20px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  background:
+    radial-gradient(circle at 35% 25%,rgba(57,232,255,.18),transparent 45%),
+    linear-gradient(145deg,rgba(57,232,255,.10),rgba(8,19,29,.95))!important;
+  border:1px solid rgba(57,232,255,.34)!important;
+  color:#eafcff!important;
+  font:900 27px/1 Inter,sans-serif!important;
+  letter-spacing:-1px!important;
+  box-shadow:
+    0 0 0 1px rgba(57,232,255,.04),
+    0 14px 35px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.06)!important;
+}
+.a1-chapter-card .a1-chapter-no:before{
+  content:"BAB";
+  position:absolute;
+  top:12px;
+  left:0;
+  right:0;
+  text-align:center;
+  color:#39e8ff;
+  font:900 7px/1 Inter,sans-serif;
+  letter-spacing:2.3px;
+}
+.a1-chapter-card .a1-chapter-no:after{
+  content:"";
+  position:absolute;
+  width:8px;height:8px;
+  right:10px;bottom:10px;
+  border-radius:50%;
+  background:#39e8ff;
+  box-shadow:0 0 16px rgba(57,232,255,.75);
+}
+.a1-chapter-card .a1-chapter-kicker{
+  align-self:center!important;
+  margin-top:22px!important;
+  color:#39e8ff!important;
+  font:900 11px/1 Inter,sans-serif!important;
+  letter-spacing:3px!important;
+  text-transform:uppercase!important;
+}
+.a1-chapter-card .a1-chapter-line{
+  display:none!important;
+}
+
+/* Giant chapter marker behind the title area */
+.a1-chapter-card h1.chapter-title{
+  position:relative!important;
+  margin-left:0!important;
+}
+.a1-chapter-card h1.chapter-title:before{
+  content:"CHAPTER";
+  display:block;
+  margin-bottom:7px;
+  color:rgba(57,232,255,.42);
+  font:900 9px/1 Inter,sans-serif;
+  letter-spacing:3.5px;
+  text-transform:uppercase;
+}
+.a1-chapter-card h1.chapter-title:after{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:-1px;
+  width:76px;
+  height:3px;
+  border-radius:3px;
+  background:linear-gradient(90deg,#39e8ff,#3f7cff,transparent);
+  box-shadow:0 0 14px rgba(57,232,255,.25);
+}
+
+/* Make the first paragraph read like a chapter introduction */
+.a1-chapter-card h1.chapter-title + p{
+  font-size:15px!important;
+  line-height:1.85!important;
+  color:#a9bac8!important;
+}
+
+/* Reference section gets a distinct gold treatment */
+.a1-reference-card .a1-chapter-no{
+  color:#fff4ce!important;
+  border-color:rgba(245,196,81,.35)!important;
+  background:linear-gradient(145deg,rgba(245,196,81,.13),rgba(18,14,7,.94))!important;
+}
+.a1-reference-card .a1-chapter-no:before,
+.a1-reference-card .a1-chapter-kicker{
+  color:#f5c451!important;
+}
+.a1-reference-card .a1-chapter-no:after{
+  background:#f5c451!important;
+  box-shadow:0 0 16px rgba(245,196,81,.7)!important;
+}
+.a1-reference-card h1.chapter-title:after{
+  background:linear-gradient(90deg,#f5c451,#ff9f43,transparent)!important;
+}
+
+/* Mobile: chapter must remain visually dominant */
+@media(max-width:760px){
+  .a1-chapter-card .a1-chapter-head{
+    min-height:91px!important;
+    padding-bottom:14px!important;
+    margin-bottom:19px!important;
+    gap:11px!important;
+    align-items:flex-end!important;
+  }
+  .a1-chapter-card .a1-chapter-no{
+    width:67px!important;
+    height:67px!important;
+    flex-basis:67px!important;
+    border-radius:16px!important;
+    font-size:21px!important;
+  }
+  .a1-chapter-card .a1-chapter-no:before{
+    top:9px!important;
+    font-size:6px!important;
+    letter-spacing:1.8px!important;
+  }
+  .a1-chapter-card .a1-chapter-no:after{
+    width:6px!important;height:6px!important;
+    right:8px!important;bottom:8px!important;
+  }
+  .a1-chapter-card .a1-chapter-kicker{
+    margin-top:15px!important;
+    font-size:8px!important;
+    letter-spacing:2.2px!important;
+  }
+  .a1-chapter-card h1.chapter-title{
+    font-size:27px!important;
+    line-height:1.08!important;
+    padding-bottom:14px!important;
+  }
+  .a1-chapter-card h1.chapter-title:before{
+    font-size:7px!important;
+    letter-spacing:2.8px!important;
+    margin-bottom:6px!important;
+  }
+  .a1-chapter-card h1.chapter-title + p{
+    font-size:13px!important;
+    line-height:1.8!important;
+  }
+}
+</style>
+
+
+<style id="a1-chapter-line-clean-final">
+.a1-chapter-card:before{
+  display:none!important;
+  content:none!important;
+}
+.a1-chapter-card .a1-chapter-head{
+  border-bottom:0!important;
+}
+.a1-chapter-card h1.chapter-title{
+  border-bottom:1px solid rgba(57,232,255,.13)!important;
+}
+.a1-chapter-card h1.chapter-title:after{
+  bottom:-1px!important;
+  left:0!important;
+}
+</style>
+</head>
+<body><nav class="nav"><div class="logo">ZONA <i>A1</i> <small>BY MATARYCLUB</small></div><div class="links"><a href="ebook.html">E-Book Library</a><a href="market-structure.html">Structure</a><a href="smart-money-concept.html">SMC</a><a href="trading-psychology.html">Psychology</a><a href="risk-management.html">Risk</a></div><a class="btn" href="ebook.html">← LIBRARY</a></nav>
+
+
+<div class="cover">
+ <div class="kicker">Panduan Price Action Lanjutan</div>
+ <h1>Smart Money Concept</h1>
+ <p class="sub">Memahami Liquidity, Order Block, Fair Value Gap (FVG), Sweep, dan bagaimana semuanya terhubung dengan Market Structure.</p>
+</div>
+
+<div class="wrap">
+
+ <div class="toc">
+  <h2>Daftar Isi</h2>
+  <ol>
+   <li><a href="#bab1">Apa Itu Smart Money Concept?</a></li>
+   <li><a href="#bab2">Liquidity: Buy-Side & Sell-Side</a></li>
+   <li><a href="#bab3">Liquidity Sweep (Stop Hunt)</a></li>
+   <li><a href="#bab4">Order Block</a></li>
+   <li><a href="#bab5">Fair Value Gap (FVG)</a></li>
+   <li><a href="#bab6">Menghubungkan dengan Market Structure</a></li>
+   <li><a href="#bab7">Alur Trading Plan SMC</a></li>
+   <li><a href="#bab8">Kesalahan Umum</a></li>
+   <li><a href="#glossary">Glosarium Istilah</a></li>
+  </ol>
+ </div>
+
+ <section id="bab1" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">01</span><span class="a1-chapter-kicker">BAB 1</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Apa Itu Smart Money Concept?</h1>
+  <p>Smart Money Concept (SMC) adalah kerangka analisis price action yang mencoba membaca jejak aktivitas pelaku pasar besar — bank, institusi, dan big player — lewat pola pergerakan harga. Idenya: pelaku besar butuh likuiditas dalam jumlah besar untuk mengeksekusi posisi mereka, dan cara mereka mengumpulkan likuiditas itu meninggalkan pola yang bisa dibaca di chart.</p>
+  <p>SMC menggabungkan beberapa elemen inti — <strong>liquidity</strong>, <strong>order block</strong>, <strong>fair value gap</strong>, <strong>sweep</strong>, dan <strong>market structure</strong> — menjadi satu kerangka untuk membaca bias arah dan menentukan titik entry yang lebih presisi dibanding indikator konvensional.</p>
+  <div class="callout">
+   <strong>Catatan:</strong> SMC bukan sistem yang "pasti benar" — ini tetap kerangka probabilistik seperti pendekatan price action lainnya. Kelebihannya ada di logika area entry yang lebih terstruktur dan kontekstual.
+  </div>
+ </section>
+
+ <section id="bab2" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">02</span><span class="a1-chapter-kicker">BAB 2</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Liquidity: Buy-Side & Sell-Side</h1>
+  <p>Liquidity dalam SMC merujuk pada area di chart tempat banyak order (terutama stop loss dan pending order) terkumpul, biasanya di sekitar swing high/low yang jelas atau area <em>equal highs/equal lows</em> (beberapa titik high atau low yang hampir sejajar).</p>
+  <ul>
+   <li><strong>Buy-side liquidity (BSL)</strong> — kumpulan order beli/stop loss short yang menumpuk di atas swing high, biasanya di atas area resistance atau equal highs.</li>
+   <li><strong>Sell-side liquidity (SSL)</strong> — kumpulan order jual/stop loss long yang menumpuk di bawah swing low, biasanya di bawah area support atau equal lows.</li>
+  </ul>
+  <p>Big player sering "memburu" area likuiditas ini untuk mendapatkan volume yang cukup besar sebelum benar-benar menggerakkan harga ke arah yang mereka inginkan.</p>
+ </section>
+
+ <section id="bab3" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">03</span><span class="a1-chapter-kicker">BAB 3</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Liquidity Sweep (Stop Hunt)</h1>
+  <p><strong>Liquidity sweep</strong> (sering disebut juga stop hunt) terjadi saat harga menembus sedikit di atas/bawah area liquidity untuk memicu order-order yang terkumpul di sana, lalu berbalik arah dengan cepat. Sweep berbeda dari BOS biasa karena biasanya diikuti reaksi tajam dan penolakan harga (rejection), bukan kelanjutan tren yang mulus.</p>
+
+  <figure class="diagram">
+   <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg">
+    <line x1="30" y1="80" x2="560" y2="80" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="5,5"/>
+    <text x="565" y="84" class="lbl-sub" fill="var(--text-dim)">Sell-side liquidity (SSL)</text>
+    <polyline points="30,140 130,80 230,150 330,110 400,200 480,60" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+    <circle cx="400" cy="200" r="6" fill="var(--bear)"/>
+    <text x="400" y="222" class="lbl" fill="var(--bear)" text-anchor="middle">Sweep ↓</text>
+    <circle cx="480" cy="60" r="6" fill="var(--bull)"/>
+    <text x="480" y="44" class="lbl" fill="var(--bull)" text-anchor="middle">Reversal ↑</text>
+   </svg>
+   <figcaption>Harga menembus sedikit di bawah area SSL untuk memicu order, lalu berbalik naik dengan tajam.</figcaption>
+  </figure>
+
+  <p>Sweep sering dipakai sebagai konfirmasi tambahan sebelum entry — trader menunggu likuiditas "diambil" terlebih dulu, baru mencari tanda pembalikan (misalnya CHoCH) sebagai sinyal masuk.</p>
+ </section>
+
+ <section id="bab4" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">04</span><span class="a1-chapter-kicker">BAB 4</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Order Block</h1>
+  <p><strong>Order block (OB)</strong> adalah candle atau area terakhir yang berlawanan arah sebelum terjadi pergerakan impulsif yang kuat. Area ini diasumsikan sebagai tempat big player menempatkan order dalam jumlah besar, sehingga saat harga kembali ke area tersebut, ada kemungkinan reaksi harga terjadi lagi di situ.</p>
+  <ul>
+   <li><strong>Bullish order block</strong> — candle turun terakhir sebelum pergerakan naik yang kuat.</li>
+   <li><strong>Bearish order block</strong> — candle naik terakhir sebelum pergerakan turun yang kuat.</li>
+  </ul>
+
+  <figure class="diagram">
+   <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg">
+    <rect x="150" y="90" width="70" height="60" fill="var(--ob-bull)" stroke="var(--bull)" stroke-width="1.5"/>
+    <text x="185" y="80" class="lbl-sub" fill="var(--bull)" text-anchor="middle">Bullish OB</text>
+    <polyline points="30,60 100,110 150,120 220,150 330,40 460,10" fill="none" stroke="var(--line)" stroke-width="2.5"/>
+    <text x="395" y="20" class="lbl-sub" fill="var(--text-dim)" text-anchor="middle">impulsif naik</text>
+   </svg>
+   <figcaption>Bullish order block: candle turun terakhir sebelum pergerakan naik kuat — area ini jadi acuan potensi entry saat harga kembali (retrace).</figcaption>
+  </figure>
+
+  <p>Order block umumnya dipakai bersamaan dengan konfirmasi lain (BOS, FVG, atau sweep) karena tidak semua OB akan bereaksi — semakin kuat pergerakan impulsif setelahnya, semakin diperhitungkan validitasnya.</p>
+ </section>
+
+ <section id="bab5" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">05</span><span class="a1-chapter-kicker">BAB 5</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Fair Value Gap (FVG)</h1>
+  <p><strong>Fair Value Gap (FVG)</strong>, disebut juga <em>imbalance</em>, adalah celah harga yang terbentuk saat pergerakan sangat cepat sehingga meninggalkan area di mana harga "melompat" tanpa banyak transaksi dua arah — biasanya terlihat dari tiga candle berurutan, di mana candle pertama dan ketiga tidak saling overlap dengan wick-nya.</p>
+
+  <figure class="diagram">
+   <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+    <rect x="80" y="70" width="40" height="80" fill="var(--line)"/>
+    <rect x="140" y="30" width="40" height="70" fill="var(--bull)"/>
+    <rect x="200" y="20" width="40" height="60" fill="var(--line)"/>
+    <rect x="118" y="80" width="84" height="30" fill="var(--fvg)" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="160" y="130" class="lbl" fill="var(--accent)" text-anchor="middle">FVG</text>
+    <text x="160" y="14" class="lbl-sub" fill="var(--text-dim)" text-anchor="middle">candle 1</text>
+    <text x="280" y="14" class="lbl-sub" fill="var(--text-dim)" text-anchor="middle">→ candle 3 tidak overlap candle 1</text>
+   </svg>
+   <figcaption>FVG terbentuk dari celah antara candle 1 dan candle 3 saat pergerakan candle 2 sangat kuat satu arah.</figcaption>
+  </figure>
+
+  <p>Konsepnya: harga cenderung "kembali mengisi" (mitigasi) area FVG di kemudian hari sebelum melanjutkan pergerakan, sehingga area ini sering dipakai sebagai salah satu zona entry potensial, mirip fungsinya dengan order block.</p>
+ </section>
+
+ <section id="bab6" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">06</span><span class="a1-chapter-kicker">BAB 6</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Menghubungkan dengan Market Structure</h1>
+  <p>Liquidity, order block, sweep, dan FVG tidak berdiri sendiri — semuanya dibaca dalam konteks market structure (HH, HL, LH, LL, BOS, CHoCH). Pola umum yang sering dicari trader SMC:</p>
+  <ol class="list">
+   <li>Identifikasi bias struktur di timeframe tinggi (uptrend/downtrend/ranging).</li>
+   <li>Tandai area liquidity yang relevan (equal highs/lows, swing point signifikan).</li>
+   <li>Tunggu liquidity sweep terjadi di area tersebut.</li>
+   <li>Konfirmasi dengan CHoCH atau BOS di timeframe lebih kecil sebagai tanda pembalikan/kelanjutan.</li>
+   <li>Cari entry di order block atau FVG terdekat yang searah dengan konfirmasi struktur.</li>
+  </ol>
+  <div class="callout">
+   <strong>Kunci konsep:</strong> struktur memberi arah (bias), liquidity & sweep memberi konteks kenapa harga bergerak ke situ, order block & FVG memberi lokasi presisi untuk entry.
+  </div>
+ </section>
+
+ <section id="bab7" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">07</span><span class="a1-chapter-kicker">BAB 7</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Alur Trading Plan SMC</h1>
+  <table>
+   <thead>
+    <tr><th>Tahap</th><th>Yang Dicari</th></tr>
+   </thead>
+   <tbody>
+    <tr><td>1. Bias arah</td><td>Struktur HTF: uptrend, downtrend, atau ranging</td></tr>
+    <tr><td>2. Target likuiditas</td><td>Equal highs/lows atau swing point yang jadi magnet harga</td></tr>
+    <tr><td>3. Sweep</td><td>Harga menembus liquidity lalu menunjukkan rejection</td></tr>
+    <tr><td>4. Konfirmasi struktur</td><td>CHoCH/BOS di timeframe entry (LTF)</td></tr>
+    <tr><td>5. Area entry</td><td>Order block atau FVG terdekat searah konfirmasi</td></tr>
+    <tr><td>6. Manajemen risiko</td><td>Stop loss di luar area OB/sweep, target di liquidity berikutnya</td></tr>
+   </tbody>
+  </table>
+ </section>
+
+ <section id="bab8" class="a1-chapter-card">
+  <div class="a1-chapter-head"><span class="a1-chapter-no">08</span><span class="a1-chapter-kicker">BAB 8</span><span class="a1-chapter-line"></span></div>
+  <h1 class="chapter-title">Kesalahan Umum</h1>
+  <ol class="list">
+   <li>Menandai order block atau FVG di semua tempat, padahal tidak semuanya relevan tanpa konteks struktur dan liquidity.</li>
+   <li>Entry langsung begitu harga menyentuh order block, tanpa menunggu konfirmasi struktur (CHoCH/BOS) di timeframe entry.</li>
+   <li>Mengabaikan bias timeframe tinggi dan hanya fokus pola di timeframe kecil.</li>
+   <li>Menganggap setiap sweep pasti berbalik arah, padahal sweep bisa juga jadi bagian dari kelanjutan tren (bukan reversal).</li>
+   <li>Terlalu banyak elemen dianalisis sekaligus tanpa alur trading plan yang jelas, sehingga sulit dievaluasi mana yang benar-benar efektif.</li>
+  </ol>
+ </section>
+
+ <section id="glossary" class="a1-chapter-card a1-reference-card"><div class="a1-chapter-head"><span class="a1-chapter-no">REF</span><span class="a1-chapter-kicker">REFERENCE</span><span class="a1-chapter-line"></span></div>
+  <h2 class="chapter">Referensi</h2>
+  <h1 class="chapter-title">Glosarium Istilah</h1>
+  <dl class="glossary">
+   <dt>Liquidity</dt><dd>Area di chart tempat banyak order (stop loss/pending order) terkumpul.</dd>
+   <dt>Buy-Side Liquidity (BSL)</dt><dd>Kumpulan order di atas swing high/equal highs.</dd>
+   <dt>Sell-Side Liquidity (SSL)</dt><dd>Kumpulan order di bawah swing low/equal lows.</dd>
+   <dt>Sweep / Stop Hunt</dt><dd>Penembusan singkat area liquidity untuk memicu order, diikuti pembalikan cepat.</dd>
+   <dt>Order Block (OB)</dt><dd>Candle terakhir berlawanan arah sebelum pergerakan impulsif kuat.</dd>
+   <dt>Fair Value Gap (FVG)</dt><dd>Celah harga akibat pergerakan sangat cepat, berpotensi "diisi" kembali oleh harga di kemudian hari.</dd>
+   <dt>Mitigasi</dt><dd>Proses harga kembali ke area FVG atau order block sebelum melanjutkan pergerakan.</dd>
+   <dt>Equal Highs/Lows</dt><dd>Beberapa titik swing high atau low yang levelnya hampir sejajar, sering jadi target likuiditas.</dd>
+   <dt>HTF / LTF</dt><dd>Higher Timeframe (timeframe lebih besar) dan Lower Timeframe (timeframe lebih kecil).</dd>
+  </dl>
+ </section>
+
+ <footer>
+  Smart Money Concept — Liquidity, Order Block, FVG, Sweep & Struktur
+ </footer>
+
+</div>
+
+<footer class="a1-legal-footer">
+ <div class="a1-legal-box">
+  <div class="a1-legal-title">
+   <i class="fa-solid fa-triangle-exclamation"></i>
+   Trading Disclaimer
+  </div>
+  <p class="a1-legal-text">
+   Materi E-Book ZONA A1 disusun untuk tujuan edukasi dan informasi umum, bukan merupakan
+   nasihat keuangan, investasi, atau ajakan untuk melakukan transaksi tertentu. Trading
+   memiliki risiko dan dapat menyebabkan kerugian sebagian maupun seluruh modal. Hasil
+   pembelajaran, backtest, simulasi, atau contoh historis tidak menjamin hasil di masa depan.
+   Setiap keputusan trading, ukuran posisi, leverage, dan pengelolaan risiko sepenuhnya menjadi
+   tanggung jawab masing-masing pengguna.
+  </p>
+  <div class="a1-legal-copy">
+   <strong>ZONA A1 / BY MATARYCLUB</strong> — Gunakan materi sebagai referensi belajar dan
+   selalu sesuaikan strategi dengan profil risiko serta kondisi pasar masing-masing.
+  </div>
+ </div>
+</footer>
+
+
+<script id="a1-mobile-final-js">
+(function(){
+ const t=document.getElementById('a1MobileToggle'),c=document.getElementById('a1MobileClose'),
+ m=document.getElementById('a1MobileMenu'),b=document.getElementById('a1MobileBackdrop');
+ if(!t||!m)return;
+ function openM(){m.classList.add('open','active','is-open');if(b)b.classList.add('show','active');document.body.classList.add('mobile-menu-open');t.setAttribute('aria-expanded','true');m.setAttribute('aria-hidden','false')}
+ function closeM(){m.classList.remove('open','active','is-open');if(b)b.classList.remove('show','active');document.body.classList.remove('mobile-menu-open');t.setAttribute('aria-expanded','false');m.setAttribute('aria-hidden','true')}
+ t.addEventListener('click',openM);if(c)c.addEventListener('click',closeM);if(b)b.addEventListener('click',closeM);
+ m.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeM));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
+})();
+</script>
+
+<script id="a1-matary-diagram-center-final">
+(function(){
+  function fit(){
+    var mobile=window.innerWidth<=760;
+    document.querySelectorAll('.br-leg-diagram svg').forEach(function(svg){
+      svg.setAttribute('viewBox', mobile ? '55 30 790 365' : '0 0 900 410');
+      svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+      svg.style.width='100%';
+      svg.style.maxWidth='100%';
+      svg.style.minWidth='0';
+    });
+    document.querySelectorAll('.flow-diagram svg').forEach(function(svg){
+      svg.setAttribute('viewBox', mobile ? '120 0 660 980' : '0 0 900 980');
+      svg.setAttribute('preserveAspectRatio','xMidYMin meet');
+      svg.style.width='100%';
+      svg.style.maxWidth='100%';
+      svg.style.minWidth='0';
+    });
+  }
+  fit();
+  window.addEventListener('resize',fit);
+})();
+</script>
+</body>
+</html>
