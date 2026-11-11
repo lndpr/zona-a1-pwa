@@ -1621,15 +1621,6 @@ img,iframe,video,canvas,svg{max-width:100%}
 .a1-za-toast.info{--c:#42d9ed}
 @media(max-width:620px){.a1-zones-controls{width:100%}.a1-zones-controls select,.a1-zones-controls button{flex:1 1 auto}}
 </style>
-<style id="a1-zone-monitor-style">
-.a1-zones-meta{flex-wrap:wrap}
-.a1-zone-monitor{font:700 9.5px ui-monospace,monospace;letter-spacing:.2px;padding:5px 10px;border-radius:999px;border:1px solid rgba(54,217,154,.3);background:rgba(54,217,154,.08);color:#8ff0c6}
-.a1-zone-monitor.bad{border-color:rgba(255,137,146,.4);background:rgba(255,137,146,.09);color:#ff9aa5}
-.a1-zt.is-triggered{border-color:rgba(57,232,255,.55);box-shadow:0 0 0 1px rgba(57,232,255,.2),0 0 28px rgba(57,232,255,.14)}
-.a1-zt-trg{margin-top:10px;padding:7px 10px;border-radius:10px;background:rgba(57,232,255,.09);border:1px solid rgba(57,232,255,.25);color:#9cf4ff;font:800 10px ui-monospace,monospace;letter-spacing:.3px}
-.a1-zt-st.triggered i{animation:a1Pulse 1.8s ease-out infinite}
-@media(prefers-reduced-motion:reduce){.a1-zt-st.triggered i{animation:none}}
-</style>
 </head>
 <body>
 <canvas id="astra-canvas"></canvas><div class="motion-orbs"><span class="motion-orb o1"></span><span class="motion-orb o2"></span><span class="motion-orb o3"></span></div>
@@ -1729,7 +1720,6 @@ img,iframe,video,canvas,svg{max-width:100%}
  <div class="a1-zones-meta">
   <span id="a1ZonesConnection" class="a1-zone-connection"><i></i> MENUNGGU DATA</span>
   <span id="a1ZonesUpdated">Update: —</span>
-  <span id="a1ZoneMonitor" class="a1-zone-monitor">Monitor: —</span>
  </div>
  <div class="a1-zone-overview" id="a1ZoneOverview">
   <div class="a1-zone-kpi"><span>TIMEFRAME AKTIF</span><b id="a1KpiTf">—</b></div>
@@ -3172,64 +3162,6 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
   }).join('');
  }
 
-
- /* ---------- HIGH IMPACT NEWS ALERTS: T-15 + actual release ---------- */
- const NEWS_SEEN_KEY='a1_high_impact_news_seen_v2';
- function newsSeen(){try{return JSON.parse(localStorage.getItem(NEWS_SEEN_KEY)||'{}')}catch(_){return {};}}
- function newsSaveSeen(v){try{localStorage.setItem(NEWS_SEEN_KEY,JSON.stringify(v));}catch(_){}}
- function newsIdentity(e,d){
-  return [String(currencyFor(e)||'USD'),d.getTime(),eventName(e).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim()].join('|');
- }
- function newsBiasText(e){
-  const a=numOf(e.actual),f=numOf(e.consensus);
-  if(a===null||f===null)return 'Actual/Forecast belum lengkap; bias belum dihitung.';
-  const diff=a-f;
-  if(Math.abs(diff)<1e-9)return 'Actual sesuai Forecast · USD netral awal · XAUUSD WAIT.';
-  const inverse=/unemployment|jobless claims|initial claims|continuing claims|unemployment rate/.test(eventName(e).toLowerCase());
-  const usdStrong=(diff>0)!==inverse;
-  return usdStrong
-   ? 'Actual lebih kuat dari Forecast · USD cenderung bullish · XAUUSD sell bias.'
-   : 'Actual lebih lemah dari Forecast · USD cenderung bearish · XAUUSD buy bias.';
- }
- function newsToast(e,stage){
-  let box=document.getElementById('a1ZoneToasts');
-  if(!box){box=document.createElement('div');box.id='a1ZoneToasts';box.setAttribute('aria-live','assertive');document.body.appendChild(box);}
-  const d=parseDate(e),when=d?fmtDate(d,{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
-  const t15=stage==='T15';
-  const title=t15?'HIGH IMPACT · 15 MENIT':'HIGH IMPACT · ACTUAL RELEASED';
-  const details=t15
-   ? `Forecast: ${isMissing(e.consensus)?'—':fmtValue(e.consensus,e)} · Previous: ${isMissing(e.prior)?'—':fmtValue(e.prior,e)}`
-   : `Actual: ${fmtValue(e.actual,e)||'—'} · Forecast: ${fmtValue(e.consensus,e)||'—'} · ${newsBiasText(e)}`;
-  const el=document.createElement('div');el.className='a1-za-toast info';el.setAttribute('role','alert');
-  el.innerHTML='<span class="a1-za-ico"><i class="fa-solid fa-calendar-exclamation"></i></span><div class="a1-za-body"><span class="a1-za-kicker"></span><b class="a1-za-title"></b><span class="a1-za-sub"></span><span class="a1-za-nums"></span></div><button type="button" class="a1-za-x" aria-label="Tutup">×</button>';
-  el.querySelector('.a1-za-kicker').textContent=title;
-  el.querySelector('.a1-za-title').textContent='USD · '+eventName(e);
-  el.querySelector('.a1-za-sub').textContent='Jadwal: '+when+' WIB';
-  el.querySelector('.a1-za-nums').textContent=details;
-  const close=()=>{if(el.parentNode)el.parentNode.removeChild(el);};
-  const timer=setTimeout(close,22000);
-  el.querySelector('.a1-za-x').addEventListener('click',()=>{clearTimeout(timer);close();});
-  box.appendChild(el);while(box.children.length>4)box.removeChild(box.firstChild);
- }
- function checkHighImpactAlerts(){
-  if(!events.length)return;
-  const now=Date.now(),seen=newsSeen();
-  events.forEach(e=>{
-   const d=parseDate(e);if(!d)return;
-   const key=newsIdentity(e,d);
-   const t15Id=key+'|T15',t15At=d.getTime()-15*60000;
-   if(now>=t15At&&now<=t15At+180000&&!seen[t15Id]){
-    seen[t15Id]=now;newsToast(e,'T15');
-   }
-   // LIVE alert only after an Actual value is actually published by a feed.
-   const liveId=key+'|LIVE';
-   if(!isMissing(e.actual)&&now>=d.getTime()&&now<=d.getTime()+30*60000&&!seen[liveId]){
-    seen[liveId]=now;newsToast(e,'LIVE');
-   }
-  });
-  newsSaveSeen(seen);
- }
-
  /* ---------- load ---------- */
  async function load(){
   if(busy)return;busy=true;
@@ -3263,7 +3195,6 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
     if(!dedup.has(key))dedup.set(key,e);
    }
    events=[...dedup.values()].sort((a,b)=>(parseDate(a)?.getTime()||0)-(parseDate(b)?.getTime()||0));
-   checkHighImpactAlerts();
    if(events.length){
     status.innerHTML='<i style="background:#56e6b6;box-shadow:0 0 8px rgba(86,230,182,.5)"></i> KALENDER USD · ACTIVE';
     updatedText='USD CALENDAR · '+fmtDate(new Date(),{hour:'2-digit',minute:'2-digit',second:'2-digit'})+' WIB · AUTO 30S';
@@ -3284,7 +3215,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
  }
 
  root.querySelectorAll('.a1-cal-filter').forEach(btn=>btn.addEventListener('click',()=>{windowDays=btn.dataset.window;root.querySelectorAll('.a1-cal-filter').forEach(b=>b.classList.toggle('active',b===btn));render();}));
- setInterval(()=>{if(events.length)render();checkHighImpactAlerts();},5000); // countdown + one-shot news alerts
+ setInterval(()=>{if(events.length)render();},60000); // refresh countdown "dalam Xm"
  load();setInterval(load,30000);
 })();
 </script>
@@ -3958,21 +3889,16 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
  const fmt=v=>Number.isFinite(Number(v))?Number(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:5}):"—";
  const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
  function stOf(v){return["FRESH","USED","INVALID","TRIGGERED"].includes(v)?v:"FRESH";}
- function brTile(kind,tag,box,status,trg){
+ function brTile(kind,tag,box,status){
   if(!box)return `<div class="a1-zt ${kind} empty"><div class="a1-zt-top"><b>${tag}</b></div><div class="a1-zt-na">Belum ada blok</div></div>`;
   const t=Number(box.top),bt=Number(box.bottom),hi=Math.max(t,bt),lo=Math.min(t,bt),st=stOf(status);
-  let info="";
-  if(st==="TRIGGERED"&&trg&&Number.isFinite(Number(trg.price))){
-   const tm=Number(trg.at)>0?new Date(Number(trg.at)).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}):"";
-   info=`<div class="a1-zt-trg">Disentuh @ ${fmt(trg.price)}${tm?" · "+tm:""}</div>`;
-  }
-  return `<div class="a1-zt ${kind}${st==="TRIGGERED"?" is-triggered":""}"><div class="a1-zt-top"><b>${tag}</b><span class="a1-zt-st ${st.toLowerCase()}"><i></i>${st}</span></div><div class="a1-zt-line hi"><span>HIGH</span><b>${fmt(hi)}</b></div><div class="a1-zt-slab"><em>Δ ${fmt(hi-lo)}</em></div><div class="a1-zt-line lo"><span>LOW</span><b>${fmt(lo)}</b></div>${info}</div>`;
+  return `<div class="a1-zt ${kind}"><div class="a1-zt-top"><b>${tag}</b><span class="a1-zt-st ${st.toLowerCase()}"><i></i>${st}</span></div><div class="a1-zt-line hi"><span>HIGH</span><b>${fmt(hi)}</b></div><div class="a1-zt-slab"><em>Δ ${fmt(hi-lo)}</em></div><div class="a1-zt-line lo"><span>LOW</span><b>${fmt(lo)}</b></div></div>`;
  }
  function tfBody(z){
   const v=b=>b&&Number.isFinite(Number(b.top))&&Number.isFinite(Number(b.bottom))?{h:Math.max(Number(b.top),Number(b.bottom)),l:Math.min(Number(b.top),Number(b.bottom))}:null;
   const x=v(z.br1),y=v(z.br2);let rel="";
   if(x&&y){const up=x.l>=y.l?["BR1","BR2",x,y]:["BR2","BR1",y,x];const gap=up[2].l-up[3].h;rel=gap>0?`<div class="a1-zt-rel"><span>${up[0]} di atas ${up[1]}</span><b>jarak ${fmt(gap)}</b></div>`:`<div class="a1-zt-rel"><span>BR1 dan BR2 saling tumpang tindih</span></div>`;}
-  return `<div class="a1-zt-wrap"><div class="a1-zt-grid">${brTile("br1","BR1",z.br1,z.status_br1,z.trigger_br1)}${brTile("br2","BR2",z.br2,z.status_br2,z.trigger_br2)}</div>${rel}</div>`;
+  return `<div class="a1-zt-wrap"><div class="a1-zt-grid">${brTile("br1","BR1",z.br1,z.status_br1)}${brTile("br2","BR2",z.br2,z.status_br2)}</div>${rel}</div>`;
  }
  function cleanZone(z){
   if(!z||typeof z!=="object")return null;
@@ -3990,18 +3916,10 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
   if(!sorted.length){content.innerHTML='<div class="a1-zones-empty"><i class="fa-solid fa-satellite-dish"></i><b>Belum ada zona valid</b><span>EA masih menunggu (WAIT). Zona hanya tampil saat sudah valid dan fresh.</span></div>';return;}
   content.innerHTML=sorted.map(z=>`<section class="a1-tf-panel"><div class="a1-tf-head"><div class="a1-tf-title"><i class="a1-tf-dot"></i><span class="a1-tf-code ${String(z.bias||"wait").toLowerCase()}">${z.bias==="BUY"?"▲ ":z.bias==="SELL"?"▼ ":""}ZONA ${esc(z.bias||"WAIT")} ${esc(z.tf)}</span><span class="a1-tf-group">/ ${esc(z.group||"TIMEFRAME")}</span></div></div>${tfBody(z)}</section>`).join("");
  }
- function paintMonitor(m){
-  const el=$("a1ZoneMonitor");if(!el)return;
-  if(!m){el.className="a1-zone-monitor bad";el.textContent="Monitor: belum ada data — deploy ulang Worker";return;}
-  const age=Math.max(0,Math.round((Date.now()-Number(m.at))/1000));
-  if(age>150){el.className="a1-zone-monitor bad";el.textContent="Monitor cron mati · terakhir "+Math.max(1,Math.round(age/60))+" mnt lalu";return;}
-  if(/^(skip|error)/.test(String(m.result))){el.className="a1-zone-monitor bad";el.textContent="Monitor: "+m.result;return;}
-  el.className="a1-zone-monitor";el.textContent="Monitor aktif · harga "+fmt(m.price)+" ("+(m.source||"?")+") · "+age+" dtk lalu";
- }
  async function load(){
   const symbol=symbolEl.value;connection.className="a1-zone-connection";connection.innerHTML="<i></i> SYNCING DATA";
   try{const res=await fetch(API+"?symbol="+encodeURIComponent(symbol),{cache:"no-store"});if(!res.ok)throw new Error("HTTP "+res.status);const data=await res.json(),zones=Array.isArray(data.zones)?data.zones:[],online=!data.stale&&zones.length>0;
-   connection.className="a1-zone-connection "+(online?"online":"offline");connection.innerHTML="<i></i> "+(online?"LIVE / CONNECTED":(zones.length?"DATA STALE":"NO ACTIVE ZONES"));updated.textContent="Update: "+(data.updated_at?new Date(data.updated_at).toLocaleString("id-ID"):"—");paintMonitor(data.monitor);render(zones);
+   connection.className="a1-zone-connection "+(online?"online":"offline");connection.innerHTML="<i></i> "+(online?"LIVE / CONNECTED":(zones.length?"DATA STALE":"NO ACTIVE ZONES"));updated.textContent="Update: "+(data.updated_at?new Date(data.updated_at).toLocaleString("id-ID"):"—");render(zones);
   }catch(err){connection.className="a1-zone-connection offline";connection.innerHTML="<i></i> API ERROR";updated.textContent="Tidak dapat mengambil data zona";content.innerHTML='<div class="a1-zones-empty"><i class="fa-solid fa-triangle-exclamation"></i><b>Koneksi zona gagal</b><span>'+esc(err.message||"Periksa Worker API.")+'</span></div>';$("a1KpiTf").textContent=$("a1KpiBuy").textContent=$("a1KpiSell").textContent=$("a1KpiFresh").textContent="—";}
  }
  symbolEl.addEventListener("change",load);refresh&&refresh.addEventListener("click",load);load();setInterval(load,20000);
@@ -4018,47 +3936,18 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
  function unlock(){try{var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ctx=ctx||new AC();if(ctx.state==="suspended")ctx.resume();}catch(e){}}
  function beep(bias){if(!ctx||ctx.state!=="running")return;try{var seq=bias==="BUY"?[660,880,1100]:[880,660,520],t=ctx.currentTime;seq.forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain(),a=t+i*.18;o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(.0001,a);g.gain.exponentialRampToValueAtTime(.22,a+.03);g.gain.exponentialRampToValueAtTime(.0001,a+.16);o.connect(g);g.connect(ctx.destination);o.start(a);o.stop(a+.18);});}catch(e){}}
  ["pointerdown","keydown","touchstart"].forEach(function(ev){document.addEventListener(ev,unlock,{once:true,capture:true});});
- var MSG_DENIED="Notifikasi browser diblokir. Izinkan di pengaturan situs agar alert muncul sebagai notifikasi Windows/Android.";
- function note(msg){
-  if(!box||!box.isConnected){box=document.getElementById("a1ZoneToasts")||document.createElement("div");box.id="a1ZoneToasts";box.setAttribute("aria-live","assertive");if(!box.parentNode)document.body.appendChild(box);}
-  var el=document.createElement("div");el.className="a1-za-toast info";el.setAttribute("role","status");
-  el.innerHTML='<span class="a1-za-ico"><i class="fa-solid fa-bell"></i></span><div class="a1-za-body"><span class="a1-za-kicker">ALERT ZONA</span><span class="a1-za-sub"></span></div><button type="button" class="a1-za-x" aria-label="Tutup">×</button>';
-  el.querySelector(".a1-za-sub").textContent=msg;
-  var tm=setTimeout(close,9000);function close(){clearTimeout(tm);if(el.parentNode)el.parentNode.removeChild(el);}
-  el.querySelector(".a1-za-x").addEventListener("click",close);box.appendChild(el);while(box.children.length>3)box.removeChild(box.firstChild);
- }
- function askPerm(showDenied){
-  if(!("Notification" in window))return;
-  if(Notification.permission==="default"){try{var r=Notification.requestPermission();if(r&&r.then)r.then(function(p){if(p==="denied"&&showDenied)note(MSG_DENIED);});}catch(e){}}
-  else if(Notification.permission==="denied"&&showDenied)note(MSG_DENIED);
- }
- function sysNotify(bias,tf,block,price){
-  if(!("Notification" in window)||Notification.permission!=="granted")return;
-  var title="ZONA "+bias+" "+tf+" · "+block+" TRIGGERED";
-  var opt={body:"Harga menembus zona di "+fmt(price),tag:"a1-zone",renotify:true,icon:"assets/icons/icon-192.png",badge:"assets/icons/icon-192.png",data:{url:"./#a1LiveZones"}};
-  function fallback(){try{var n=new Notification(title,opt);n.onclick=function(){window.focus();n.close();};}catch(e){}}
-  try{
-   if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration){
-    navigator.serviceWorker.getRegistration().then(function(reg){if(reg)reg.showNotification(title,opt);else fallback();}).catch(fallback);
-   }else fallback();
-  }catch(e){fallback();}
- }
- var panel=document.getElementById("a1LiveZones");
- if(panel&&"Notification" in window&&Notification.permission==="default"){
-  panel.addEventListener("pointerdown",function once(){panel.removeEventListener("pointerdown",once,true);askPerm(false);},true);
- }
  function toast(z,block,trigger){
   if(!box||!box.isConnected){box=document.getElementById("a1ZoneToasts")||document.createElement("div");box.id="a1ZoneToasts";box.setAttribute("aria-live","assertive");if(!box.parentNode)document.body.appendChild(box);}
   var el=document.createElement("div"),bias=String(z.bias||"").toUpperCase(),data=z["trigger_"+block.toLowerCase()]||{};
   el.className="a1-za-toast "+(bias==="BUY"?"buy":"sell");el.setAttribute("role","alert");
   el.innerHTML='<span class="a1-za-ico"><i class="fa-solid fa-bell"></i></span><div class="a1-za-body"><span class="a1-za-kicker">ZONA TRIGGERED</span><b class="a1-za-title">ZONA '+bias+' '+z.tf+' · '+block+'</b><span class="a1-za-sub">Harga menembus zona dari arah valid</span><span class="a1-za-nums">Harga '+fmt(data.price||0)+'</span></div><button type="button" class="a1-za-x" aria-label="Tutup">×</button>';
-  var tm=setTimeout(close,16000);function close(){clearTimeout(tm);if(el.parentNode)el.parentNode.removeChild(el);}el.querySelector(".a1-za-x").addEventListener("click",close);box.appendChild(el);while(box.children.length>3)box.removeChild(box.firstChild);beep(bias);sysNotify(bias,z.tf,block,data.price||0);
+  var tm=setTimeout(close,16000);function close(){clearTimeout(tm);if(el.parentNode)el.parentNode.removeChild(el);}el.querySelector(".a1-za-x").addEventListener("click",close);box.appendChild(el);while(box.children.length>3)box.removeChild(box.firstChild);beep(bias);
  }
  function paint(){if(!btn)return;btn.classList.toggle("on",on);btn.setAttribute("aria-pressed",on?"true":"false");btn.innerHTML='<i class="fa-solid fa-bell'+(on?'':'-slash')+'"></i> '+(on?'ALERT ON':'ALERT OFF');}
  function seenMap(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
  function saveSeen(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
  async function poll(){try{var r=await fetch(BASE+"/api/zones?symbol="+SYMBOL,{cache:"no-store"});if(!r.ok)return;var data=await r.json();if(data.stale)return;var seen=seenMap(),now=Date.now();(data.zones||[]).forEach(function(z){[['BR1','br1'],['BR2','br2']].forEach(function(pair){var block=pair[0],st=String(z['status_'+pair[1]]||'').toUpperCase(),tr=z['trigger_'+pair[1]]||{},at=Number(tr.at||0);if(st!=='TRIGGERED'||!at)return;var boxz=z[pair[1]]||{},id=[z.chart_id||z.tf,z.tf,block,z.bias,boxz.top,boxz.bottom].join('|'),stamp=String(at);if(seen[id]!==stamp){seen[id]=stamp;if(on&&now-at<180000)toast(z,block,tr);}})});saveSeen(seen);}catch(e){console.warn('A1 trigger observer',e);}}
- if(btn)btn.addEventListener("click",function(){on=!on;try{localStorage.setItem("a1_zone_alert",on?"on":"off")}catch(e){}unlock();paint();if(on)askPerm(true);});
+ if(btn)btn.addEventListener("click",function(){on=!on;try{localStorage.setItem("a1_zone_alert",on?"on":"off")}catch(e){}unlock();paint();});
  paint();poll();setInterval(poll,12000);
  window.A1ZoneAlert={test:function(){toast({bias:'BUY',tf:'M1',trigger_br1:{price:0}},'BR1',{});}};
 })();
@@ -4316,9 +4205,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 "Notifikasi HP aktif. Alert zona akan masuk walau halaman ditutup.": "Phone push enabled. Zone alerts will arrive even when the page is closed.",
 "Notifikasi HP dimatikan.": "Phone push turned off.",
 "Gagal mengaktifkan notifikasi. Coba lagi nanti.": "Failed to enable notifications. Please try again later.",
-"Server notifikasi belum siap (VAPID belum diset).": "Notification server is not ready (VAPID not set).",
-"Monitor: belum ada data — deploy ulang Worker": "Monitor: no data — redeploy the Worker",
-"Notifikasi browser diblokir. Izinkan di pengaturan situs agar alert muncul sebagai notifikasi Windows/Android.": "Browser notifications are blocked. Allow them in site settings so alerts appear as Windows/Android notifications."
+"Server notifikasi belum siap (VAPID belum diset).": "Notification server is not ready (VAPID not set)."
 }));
  var RULES=[[/^(\d+) RILIS TERBACA$/,'$1 RELEASES READ'],
   [/^Update: /,'Updated: '],
@@ -4338,9 +4225,6 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
   [/\bZONA (BUY|SELL|WAIT) (\w+)\b/g,'$1 ZONE $2'],
   [/^Harga masuk area (BR\d)$/,'Price entered $1 area'],
   [/^Harga ([\d.,]+) · Area ([\d.,]+) – ([\d.,]+)$/,'Price $1 · Range $2 – $3'],
-  [/^Monitor aktif · harga ([\d.,]+) \((\w+|\?)\) · (\d+) dtk lalu$/,'Monitor active · price $1 ($2) · $3s ago'],
-  [/^Monitor cron mati · terakhir (\d+) mnt lalu$/,'Cron monitor down · last $1 min ago'],
-  [/^Disentuh @ ([\d.,]+)( · .+)?$/,'Touched @ $1$2'],
   [/\b(BR\d) di atas (BR\d)\b/g,'$1 above $2'],
   [/\bjarak ([\d.,]+)/g,'gap $1'],
   [/\bDasar: /,'Basis: '],
