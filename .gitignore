@@ -19,8 +19,6 @@ Thumbs.db
 
 # Temporary files
 *.tmp
-# Private Cloudflare Worker source
-/worker/
 /bridge/node_modules/
 /bridge/.env
 /bridge/*.log

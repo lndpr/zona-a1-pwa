@@ -1,0 +1,57 @@
+name = "zona-a1-signal-api"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+# ── D1 Database ─────────────────────────────────────────────
+# Buat dulu dengan: wrangler d1 create zona-a1-signals
+# Lalu copy database_id hasilnya ke sini
+[[d1_databases]]
+binding = "DB"
+database_name = "zona-a1-signals"
+database_id = "9c6e205f-cda8-4ae6-8642-f9b21c2c5367"
+
+# ── Durable Object untuk broadcast SSE real-time ────────────
+[[durable_objects.bindings]]
+name = "SIGNAL_HUB"
+class_name = "SignalHub"
+
+# ── Durable Object penahan WebSocket ticks Exness (alert zona real-time) ──
+[[durable_objects.bindings]]
+name = "TICK_WATCHER"
+class_name = "TickWatcher"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SignalHub"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["TickWatcher"]
+
+# Nama instrumen di akun Exness: XAUUSD (Pro/Zero/Raw), XAUUSDm (Standard), XAUUSDc (Cent)
+[vars]
+EXN_SYMBOL = "XAUUSD"
+
+# ── Secret API key (JANGAN ditaruh di sini) ─────────────────
+# Set lewat: wrangler secret put API_SECRET
+
+# ── Cron: cek harga vs zona BR1/BR2 tiap menit, kirim Web Push ─
+[triggers]
+crons = ["* * * * *"]
+
+# Secret untuk Web Push (set lewat `wrangler secret put`):
+#   VAPID_PUBLIC, VAPID_PRIVATE_JWK, PUSH_ADMIN_TOKEN  (opsional: VAPID_SUBJECT)
+
+# Secret Exness API (set lewat `wrangler secret put`, JANGAN ditaruh di sini):
+#   EXN_API_KEY        exnsk-...   (API key identifier dari Key Management)
+#   EXN_PRIVATE_KEY    128 hex dari Exness, atau isi private.pem (PKCS#8) kalau bikin key sendiri
+#   EXN_ACCOUNT_ID     nomor akun trading
+#   EXN_ACCESS_POINT   host Access Point akun (dari DNS widget / hasil discovery), mis. ap-xxxx.trading.exness.com
+#   EXN_GATEWAY_URL    (opsional, kalau EXN_ACCESS_POINT kosong) Gateway host dari DNS widget -> dicari otomatis
+
+# Secrets (set with `npx wrangler secret put NAME`; never commit private key):
+# EXN_API_KEY
+# EXN_PRIVATE_KEY
+# EXN_ACCOUNT_ID
+# EXN_GATEWAY_URL (if not set as a non-secret var) OR EXN_ACCESS_POINT
+# API_SECRET, ADMIN_SECRET, VAPID_PUBLIC, VAPID_PRIVATE_JWK, PUSH_ADMIN_TOKEN

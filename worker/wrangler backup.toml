@@ -1,0 +1,23 @@
+name = "zona-a1-signal-api"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+# ── D1 Database ─────────────────────────────────────────────
+# Buat dulu dengan: wrangler d1 create zona-a1-signals
+# Lalu copy database_id hasilnya ke sini
+[[d1_databases]]
+binding = "DB"
+database_name = "zona-a1-signals"
+database_id = "9c6e205f-cda8-4ae6-8642-f9b21c2c5367"
+
+# ── Durable Object untuk broadcast SSE real-time ────────────
+[[durable_objects.bindings]]
+name = "SIGNAL_HUB"
+class_name = "SignalHub"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["SignalHub"]
+
+# ── Secret API key (JANGAN ditaruh di sini) ─────────────────
+# Set lewat: wrangler secret put API_SECRET

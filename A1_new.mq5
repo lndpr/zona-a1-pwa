@@ -40,7 +40,7 @@ input int    EntryCooldownSec    = 10;
 input group "=== WEB SIGNAL ==="
 input bool   SendWebSignal       = true;
 input string SignalApiUrl        = "https://zona-a1-signal-api.landungprakoso14.workers.dev/api/signal";
-input string SignalApiKey        = "zona-live-8x2k9m";
+input string SignalApiKey        = ""; // Isi sama dengan secret API_SECRET di Cloudflare Worker. JANGAN pakai nilai default — kunci lama sudah bocor di repo publik, ganti secret dulu (lihat FIX-CHANGELOG.md).
 input string SignalAccountLabel  = "Live-1";
 
 input group "=== WEB ZONE DASHBOARD ==="
@@ -224,6 +224,7 @@ struct TradeInfo
 TradeInfo g_trades[];
 datetime g_lastZoneSnapshotTime=0;
 string   g_lastZoneSnapshotState="";
+datetime g_lastZoneSnapshotFailTime=0; // waktu gagal kirim snapshot terakhir (retry 10 detik, bukan 60)
 string   g_lastZoneTriggerBR1="";
 string   g_lastZoneTriggerBR2="";
 datetime g_lastZoneTriggerAttemptBR1=0;
@@ -877,7 +878,7 @@ double GetRealizedPnL(){return AccountInfoDouble(ACCOUNT_BALANCE)-g_dayStartBala
 
 void SendSignalToWeb(bool isBuy,int zone,double entry,double sl,double tp,ulong ticket)
 {
-   if(!SendWebSignal) return;
+   if(!SendWebSignal || SignalApiKey=="") return;
    string zoneStr=(zone==1)?"BR2":"BR1";
    string json=StringFormat(
       "{\"symbol\":\"%s\",\"direction\":\"%s\",\"zone\":\"%s\",\"entry_price\":%.5f,"
@@ -908,7 +909,7 @@ string GetCloseReasonLabel(ulong posTicket)
 }
 void SendCloseSignalToWeb(bool isBuy,int zone,ulong ticket)
 {
-   if(!SendWebSignal) return;
+   if(!SendWebSignal || SignalApiKey=="") return;
    string reason=GetCloseReasonLabel(ticket);
    string zoneStr=(zone==1)?"BR2":"BR1";
    string json=StringFormat(
@@ -1172,6 +1173,10 @@ void SendZoneSnapshotToWeb(bool force=false)
    if(!SendZoneSnapshot || ZoneApiKey=="") return;
    if(g_trailTop<=g_trailBottom || g_trailBottom<=0) return;
 
+   // Jeda retry 10 detik setelah gagal kirim (bukan 60 detik), supaya Worker down tidak dihantam tiap tick.
+   if(g_lastZoneSnapshotFailTime>0 && (TimeCurrent()-g_lastZoneSnapshotFailTime)<10)
+      return;
+
    double br2Top=0.525*g_trailTop+0.475*g_trailBottom;
    double br2Bottom=0.525*g_trailBottom+0.475*g_trailTop;
 
@@ -1213,11 +1218,11 @@ void SendZoneSnapshotToWeb(bool force=false)
    string br2=StringFormat("{\"top\":%s,\"bottom\":%s}",
       DoubleToString(br2Top,_Digits),DoubleToString(br2Bottom,_Digits));
    string json=StringFormat(
-      "{\"symbol\":\"%s\",\"zones\":[{\"tf\":\"%s\",\"bias\":\"%s\","
+      "{\"symbol\":\"%s\",\"zones\":[{\"tf\":\"%s\",\"bias\":\"%s\",\"chart_id\":\"%s\","
       "\"signal_status\":\"%s\",\"confirmed\":%s,"
       "\"swing_top\":%s,\"swing_bottom\":%s,\"swing_pts\":%s,"
       "\"status_br1\":\"%s\",\"status_br2\":\"%s\",\"br1\":%s,\"br2\":%s}]}",
-      _Symbol,tf,bias,signalStatus,confirmed?"true":"false",
+      _Symbol,tf,bias,StringFormat("%I64d",ChartID()),signalStatus,confirmed?"true":"false",
       DoubleToString(g_trailTop,_Digits),
       DoubleToString(g_trailBottom,_Digits),
       DoubleToString((g_trailTop-g_trailBottom)/_Point,1),
@@ -1230,16 +1235,19 @@ void SendZoneSnapshotToWeb(bool force=false)
    if(ArraySize(post)>0) ArrayResize(post,ArraySize(post)-1);
    string headers="Content-Type: application/json\r\nX-API-Key: "+ZoneApiKey+"\r\n";
    ResetLastError();
-   g_lastZoneSnapshotTime=TimeCurrent(); // throttle juga saat request gagal
-   g_lastZoneSnapshotState=snapshotState;
    int code=WebRequest("POST",ZoneApiUrl,headers,5000,post,result,responseHeaders);
    if(code==200)
    {
+      // Throttle 60 detik hanya dihitung dari kirim yang BERHASIL.
+      // Kalau gagal, jangan update waktu/state — retry dijaga g_lastZoneSnapshotFailTime (10 detik).
+      g_lastZoneSnapshotTime=TimeCurrent();
+      g_lastZoneSnapshotState=snapshotState;
       Print("ZONA WEB | Snapshot terkirim: ",_Symbol," ",tf,
             " | ",signalStatus," | HTTP ",code);
    }
    else
    {
+      g_lastZoneSnapshotFailTime=TimeCurrent();
       Print("ZONA WEB | Gagal kirim snapshot. HTTP=",code,
             " Error=",GetLastError()," | ",CharArrayToString(result));
    }
@@ -1338,6 +1346,12 @@ int OnInit()
    trade.SetExpertMagicNumber(MagicNumber);
    trade.SetDeviationInPoints(Slippage);
    trade.SetTypeFilling(ORDER_FILLING_IOC);
+
+   if((SendZoneSnapshot || SendZoneTrigger) && ZoneApiKey=="")
+      Print("ZONA WEB | PERINGATAN: ZoneApiKey kosong - snapshot & trigger zona TIDAK akan dikirim. Isi ZoneApiKey sama dengan secret ZONES_API_KEY di Cloudflare Worker.");
+
+   if(SendWebSignal && SignalApiKey=="")
+      Print("ZONA WEB | PERINGATAN: SignalApiKey kosong - sinyal TIDAK akan dikirim ke dashboard. Isi SignalApiKey sama dengan secret API_SECRET di Cloudflare Worker.");
 
    if(UseEMAFilter)
    {

@@ -7,6 +7,8 @@ EA -> `POST /api/zones` (snapshot zona disimpan di D1) -> Worker membangunkan `T
 
 Cloudflare Cron per menit hanya watchdog/bootstrap koneksi; Cron tidak mengambil harga dan tidak mengirim trigger berdasarkan polling.
 
+Ada dua jalur trigger: TickWatcher (tiap tick Exness) dan `POST /api/zones/trigger` dari EA saat harga menyentuh BR1/BR2. Keduanya memakai state trigger yang sama di D1.
+
 ## 1. Persiapan Exness
 Buat API Key di Exness Personal Area dan pastikan akun memenuhi eligibility Exness API. Siapkan:
 - API key identifier
@@ -49,17 +51,26 @@ Cek status dengan admin token:
 ```powershell
 curl.exe -H "X-Admin-Token: TOKEN_PUSH_ADMIN" https://DOMAIN-WORKER/api/push/status
 ```
-Periksa `watcher.configured`, `watcher.connected`, `watcher.tickAgeSec`, `watcher.bid`, `watcher.ask`, `watcher.last_error`, `watcher.reconnects`, `watcher.zones`, `watcher.last_fire`, dan `watcher.last_push`.
+Periksa `watcher.configured`, `watcher.connected`, `watcher.tickAgeSec`, `watcher.bid`, `watcher.ask`, `watcher.last_error`, `watcher.reconnects`, `watcher.zones`, `watcher.last_fire`, `watcher.last_push`, dan `watcher.last_announce` (pengumuman zona baru FRESH terakhir).
 
 Tes push subscriber:
 ```powershell
 curl.exe -X POST -H "X-Admin-Token: TOKEN_PUSH_ADMIN" https://DOMAIN-WORKER/api/push/test
 ```
 
+Riwayat alert (publik, 20 terbaru):
+```powershell
+curl.exe https://DOMAIN-WORKER/api/push/history
+```
+
 ## Perilaku dan batasan
 - Tidak ada VPS dan tidak ada service Node.js lokal.
 - Tidak ada BiQuote sebagai sumber harga atau fallback trigger.
 - Exness ticks menyediakan Bid/Ask; update dapat di-throttle hingga sekitar 500 ms oleh Exness.
+- Trigger memakai harga sisi zona (bid untuk BUY, ask untuk SELL), bukan mid.
+- Zona yang sudah trigger boleh berbunyi lagi setelah harga keluar dari zona sejauh 0.5 USD. Push yang gagal total akan dicoba lagi setelah jeda 60 detik.
+- TTL push 3600 detik (1 jam); tiap alert memakai tag unik supaya tidak saling menimpa di tray HP.
+- Simbol akun bersuffix (`XAUUSDm`/`XAUUSDc`) dinormalisasi ke `XAUUSD` untuk snapshot zona dan lookup; subscribe WebSocket tetap memakai simbol persis akun.
 - Saat koneksi terputus, DO reconnect dengan backoff dan resubscribe. Tick yang terjadi saat offline tidak bisa diputar ulang oleh stream.
 - `HTTP 200` dari `/api/zones` hanya berarti snapshot EA diterima, bukan berarti push terkirim.
 - `HTTP 200` dari `/api/push/test` dan jumlah `sent` harus diperiksa untuk memastikan delivery ke browser.

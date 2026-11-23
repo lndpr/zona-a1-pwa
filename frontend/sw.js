@@ -1,13 +1,13 @@
 /* ZONA A1 PWA Service Worker — preserves existing Worker Web Push flow. */
-const CACHE_VERSION = "zona-a1-pwa-v3";
+const CACHE_VERSION = "zona-a1-pwa-v4";
 const APP_SHELL = [
-  "/",
-  "/index.html",
-  "/offline.html",
-  "/manifest.webmanifest",
-  "/assets/icons/icon-192.png",
-  "/assets/icons/icon-512.png",
-  "/assets/icons/apple-touch-icon.png"
+  "./",
+  "./index.html",
+  "./offline.html",
+  "./manifest.webmanifest",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
+  "./assets/icons/apple-touch-icon.png"
 ];
 const API = "https://zona-a1-signal-api.landungprakoso14.workers.dev";
 
@@ -47,14 +47,15 @@ self.addEventListener("fetch", (event) => {
       try {
         const response = await fetch(request);
         if (response && response.ok) {
-          await cache.put("/index.html", response.clone());
-          await cache.put("/", response.clone());
+          // Cache under the page's own URL — never overwrite the home page
+          // with another page's content.
+          await cache.put(request, response.clone());
         }
         return response;
       } catch (_) {
-        return (await cache.match("/index.html")) ||
-          (await cache.match("/")) ||
-          (await cache.match("/offline.html")) || Response.error();
+        return (await cache.match(request)) ||
+          (await cache.match("./index.html")) ||
+          (await cache.match("./offline.html")) || Response.error();
       }
     })());
     return;
@@ -97,16 +98,42 @@ self.addEventListener("push", (event) => {
       body,
       tag,
       renotify: true,
-      icon: "/assets/icons/icon-192.png",
-      badge: "/assets/icons/icon-192.png",
-      data: { url: "/#a1LiveZones" }
+      icon: "./assets/icons/icon-192.png",
+      badge: "./assets/icons/icon-192.png",
+      data: { url: "./#a1LiveZones" }
     });
+  })());
+});
+
+// If the browser rotates the push subscription, re-subscribe automatically
+// and send the new endpoint to the Worker so alerts keep arriving.
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil((async () => {
+    try {
+      const keyResponse = await fetch(API + "/api/push/key", { cache: "no-store" });
+      if (!keyResponse.ok) return;
+      const { key } = await keyResponse.json();
+      if (!key) return;
+      const padding = "=".repeat((4 - key.length % 4) % 4);
+      const raw = atob((key + padding).replace(/-/g, "+").replace(/_/g, "/"));
+      const applicationServerKey = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) applicationServerKey[i] = raw.charCodeAt(i);
+      const sub = await self.registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey
+      });
+      await fetch(API + "/api/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription: sub.toJSON() })
+      });
+    } catch (_) { /* A failed re-subscribe must not break the worker. */ }
   })());
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || "/";
+  const target = (event.notification.data && event.notification.data.url) || "./";
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const client of windows) {
