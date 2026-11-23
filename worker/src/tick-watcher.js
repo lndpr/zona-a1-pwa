@@ -20,6 +20,7 @@ const enc = new TextEncoder();
 const EMPTY_BODY_HASH = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU"; // SHA-256 body kosong, base64url
 const ZONE_REFRESH_MS = 5000;   // zona dibaca ulang dari D1 paling cepat tiap 5 dtk (+ langsung saat EA kirim snapshot)
 const FLUSH_MS = 30000;         // refresh last_seen zona di D1
+const ANNOUNCE_KEEP_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari: catatan pengumuman zona baru disimpan selama ini — slot yang sama baru boleh bunyi lagi setelah itu (sekali per slot, diawal aja)
 const STALE_MS = 90000;         // tidak ada pesan 90 dtk -> koneksi dianggap mati, sambung ulang
 const WATCHDOG_MS = 20000;      // alarm pengecek koneksi
 const MAX_BACKOFF_MS = 30000;
@@ -366,7 +367,11 @@ export class TickWatcher {
     this.triggered = new Set(results.filter((r) => r.triggered).map((r) => r.zone_key));
 
     // Zona yang sudah pernah diumumkan (persisten di D1 — DO restart tidak mengumumkan ulang).
-    const { results: announcedRows } = await db.prepare("SELECT zone_key FROM zone_announcement_state WHERE symbol=?").bind(SYMBOL).all();
+    // Sekali per slot, TIDAK PERNAH diumumkan ulang: baris pengumuman tidak dihapus saat
+    // zona keluar dari snapshot (aturan user 23 Nov ~22:07: notif zona baru cuma sekali,
+    // diawal aja — update zona tiap beberapa menit tidak boleh bunyi lagi). Baris hanya
+    // hilang lewat prune 7 hari di flush; slot yang sama baru boleh bunyi lagi setelah itu.
+    const { results: announcedRows } = await db.prepare("SELECT zone_key FROM zone_announcement_state WHERE symbol=? AND announced_at > ?").bind(SYMBOL, now - ANNOUNCE_KEEP_MS).all();
     const announced = new Set(announcedRows.map((r) => r.zone_key));
 
     const flush = now - this.lastFlush >= FLUSH_MS;
@@ -391,8 +396,9 @@ export class TickWatcher {
       const isNew = !rowKeys.has(z.key) && !this.fresh.has(z.key);
       if (isNew) this.fresh.add(z.key);
       if (isNew || (flush && !this.triggered.has(z.key))) stmts.push(seenStmt(db, z, now));
-      // Pengumuman zona baru FRESH: sekali per zona. Syaratnya HANYA "belum tercatat
-      // diumumkan di D1" + tidak sedang dalam jeda retry — sengaja TIDAK memakai
+      // Pengumuman zona baru FRESH: sekali per slot, TIDAK PERNAH diumumkan ulang.
+      // Syaratnya HANYA "belum tercatat diumumkan di D1" + tidak sedang dalam jeda
+      // retry — sengaja TIDAK memakai
       // isNew: isNew hanya true pada reload pertama zona itu muncul, sedangkan baris
       // seenStmt di zone_trigger_state membuat isNew false pada reload berikutnya.
       // Kalau syaratnya isNew, zona yang gagal diumumkan tidak akan pernah dicoba
@@ -404,14 +410,10 @@ export class TickWatcher {
       this.lastFlush = now;
       // zona yang sudah hilang > 3 menit = siklus lama selesai
       stmts.push(db.prepare("DELETE FROM zone_trigger_state WHERE symbol=? AND last_seen < ?").bind(SYMBOL, now - STALE_AFTER_SEC * 1000));
-      // zona yang sudah tidak ada di snapshot: hapus catatan pengumumannya supaya
-      // kalau zona yang sama terbentuk lagi nanti, pengumuman bisa bunyi lagi.
-      const currentKeys = zones.map((z) => z.key);
-      if (currentKeys.length) {
-        stmts.push(db.prepare(`DELETE FROM zone_announcement_state WHERE symbol=? AND zone_key NOT IN (${currentKeys.map(() => "?").join(",")})`).bind(SYMBOL, ...currentKeys));
-      } else {
-        stmts.push(db.prepare("DELETE FROM zone_announcement_state WHERE symbol=?").bind(SYMBOL));
-      }
+      // Prune catatan pengumuman yang sudah > 7 hari (batas ukuran tabel — slot boleh
+      // bunyi lagi setelah itu). TIDAK ADA penghapusan saat zona keluar dari snapshot:
+      // zona yang hilang lalu muncul lagi TIDAK diumumkan ulang (sekali per slot).
+      stmts.push(db.prepare("DELETE FROM zone_announcement_state WHERE symbol=? AND announced_at < ?").bind(SYMBOL, now - ANNOUNCE_KEEP_MS));
       // jaga last_seen zona yang sudah triggered supaya tidak terhapus selama zonanya masih aktif
       for (const z of zones) if (this.triggered.has(z.key)) stmts.push(seenStmt(db, z, now));
     }

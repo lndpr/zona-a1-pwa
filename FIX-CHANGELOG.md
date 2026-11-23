@@ -3,6 +3,23 @@
 Semua temuan audit `ZONA-A1-PWA-AUDIT.md` sudah diperbaiki. Zip ini berisi seluruh
 repo hasil perbaikan (frontend + Worker + EA). File ini ikut di dalam zip.
 
+## Notif zona baru tidak lagi berulang — sekali per slot, diawal aja (23 Nov 2026)
+
+**Bug yang dilaporkan user, 23 Nov ~22:06 WIB (dengan screenshot):** "2 NEW ZONES · XAUUSD" muncul berulang — 21:01, 21:14, 21:32, 21:45, 21:56, 22:02, 22:06, padahal zonanya sama (M1/M5/M15/H1, tiap beberapa menit). Dicek live di `/api/push/history`: 7 pengumuman "2 NEW ZONES" dalam ~1 jam, sebagian slot yang sama (M1 20:26 → 22:02 → 22:06; M5 21:01 → 21:14 → 21:56).
+
+**Akar masalah:** flush tiap 30 detik MENGHAPUS catatan pengumuman zona yang sedang tidak ada di snapshot (status bukan FRESH / zona keluar snapshot). EA menghitung ulang zona tiap beberapa menit — zona yang sama hilang sebentar (mis. sempat TRIGGERED) lalu muncul lagi, catatannya sudah terhapus, jadi diumumkan lagi sebagai "zona baru". Bukan duplikat kirim yang sama: tiap update zona memicu pengumuman baru.
+
+**Perbaikan (Worker: `worker/src/tick-watcher.js`):**
+- Catatan pengumuman TIDAK PERNAH dihapus saat zona keluar dari snapshot — sekali per slot, diawal aja (aturan user 23 Nov ~22:07). Zona yang hilang lalu muncul lagi tidak diumumkan ulang.
+- Prune 7 hari (`ANNOUNCE_KEEP_MS`): catatan pengumuman yang sudah > 7 hari dihapus supaya tabel tidak membengkak; slot yang sama baru boleh bunyi lagi setelah itu.
+- Pengumuman gagal total tetap retry 60 detik (tidak ditandai, dicoba lagi — yang tidak pernah sampai ke HP tidak dihitung sudah diumumkan).
+
+**Yang tetap jalan:** zona yang benar-benar baru di slot yang belum pernah diumumkan tetap diumumkan sekali di awal. Notif TRIGGERED tidak berubah (sekali per zona sampai ada zona baru — baris trigger tetap di-flush saat zona keluar snapshot).
+
+Verifikasi: harness Node menjalankan TickWatcher ASLI dengan D1 palsu (32/32 lolos, termasuk 6 skenario pengumuman) — zona baru diumumkan 1x, reload berikutnya tidak ulang, zona hilang >3 menit lalu balik FRESH tidak diumumkan ulang, setelah 8 hari diumumkan lagi sekali.
+
+**Deploy:** `npx wrangler deploy` (Worker saja; frontend tidak berubah di ronde ini).
+
 ## Notif TRIGGERED tidak lagi ganda — sekali per zona (23 Nov 2026)
 
 **Bug yang dilaporkan user, 23 Nov ~20:35 WIB (dengan screenshot):** zona M1 yang sama mengirim notif TRIGGERED berkali-kali — BR2 3x (20:33:03, 20:33:16, 20:33:41) dan BR1 2x (20:34:05, 20:34:45), padahal harga cuma turun sekali melewati zona. Dicek live di `/api/push/history`: 5 push trigger dalam ~100 detik.
