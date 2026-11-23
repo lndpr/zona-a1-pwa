@@ -94,6 +94,8 @@ a{text-decoration:none;color:inherit}
 .a1-nav-link i{font-size:10px}
 .a1-nav-link:hover,.a1-nav-link.active{color:#eaffff;background:rgba(57,232,255,.055);border-color:rgba(57,232,255,.13)}
 .a1-nav-link.active:after{content:"";position:absolute;left:12px;right:12px;bottom:-9px;height:2px;background:#39e8ff;box-shadow:0 0 12px rgba(57,232,255,.7)}
+.a1-nav-link.rebate-link{color:#9df5c7;border-color:rgba(84,245,154,.12);background:rgba(84,245,154,.025)}
+.a1-nav-link.rebate-link:hover{color:#fff;border-color:rgba(84,245,154,.35);background:rgba(84,245,154,.07)}
 .nav-right{display:flex;align-items:center;gap:12px;flex:0 0 auto}
 .a1-join-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;border:1px solid rgba(57,232,255,.3);background:linear-gradient(135deg,rgba(57,232,255,.12),rgba(63,124,255,.08));color:#dffcff;font:900 8px/1 Inter,system-ui,sans-serif;letter-spacing:.8px;text-transform:uppercase;box-shadow:0 0 24px rgba(57,232,255,.07);transition:.25s;text-decoration:none}
 .a1-join-btn:hover{border-color:#39e8ff;box-shadow:0 0 28px rgba(57,232,255,.18);transform:translateY(-1px)}
@@ -241,6 +243,12 @@ a{text-decoration:none;color:inherit}
     background:rgba(57,232,255,.06);
     border-color:rgba(57,232,255,.14);
   }
+  .a1-mobile-links a.mobile-rebate{
+    color:#9df5c7;
+    border-color:rgba(84,245,154,.1);
+    background:rgba(84,245,154,.025);
+  }
+  .a1-mobile-links a.mobile-rebate i{color:#4ade80}
 
   .a1-mobile-join{
     margin-top:auto;
@@ -385,7 +393,6 @@ a{text-decoration:none;color:inherit}
 @media(max-width:850px){.tool-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.tool{padding:20px}}
 </style>
-<link rel="manifest" href="manifest.webmanifest">
 </head>
 <body>
 <header class="nav">
@@ -395,7 +402,7 @@ a{text-decoration:none;color:inherit}
       <div><div class="brand-name">ZONA <span>A1</span></div><span class="brand-sub">BY MATARYCLUB</span></div>
     </a>
     <nav class="a1-main-nav" aria-label="Main navigation">
-      <a class="a1-nav-link" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a><a class="a1-nav-link" href="ebook.html"><span>E-Book</span></a>
+      <a class="a1-nav-link" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a><a class="a1-nav-link" href="ebook.html"><span>E-Book</span></a><a class="a1-nav-link rebate-link active" href="fasilitas.html"><i class="fa-solid fa-circle-check"></i><span>Upgrade Plan</span></a>
     </nav>
 <button class="a1-mobile-toggle" id="a1MobileToggle" type="button"
         aria-label="Open navigation menu" aria-expanded="false">
@@ -420,6 +427,7 @@ a{text-decoration:none;color:inherit}
     <a href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a>
     <a href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a>
     <a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a>
+    <a class="mobile-rebate" href="fasilitas.html"><i class="fa-solid fa-circle-check"></i><span>Upgrade Plan</span></a>
   </div>
 
   <a class="a1-mobile-join" href="#akses"><i class="fa-solid fa-key"></i> AKSES</a>
@@ -600,6 +608,5 @@ a{text-decoration:none;color:inherit}
   </div>
 </footer>
 
-<script src="js/pwa-init.js" defer></script>
 </body>
 </html>

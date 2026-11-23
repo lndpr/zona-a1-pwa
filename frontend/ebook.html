@@ -23,6 +23,8 @@
 .a1-nav-link i{font-size:10px}
 .a1-nav-link:hover,.a1-nav-link.active{color:#eaffff;background:rgba(57,232,255,.055);border-color:rgba(57,232,255,.13)}
 .a1-nav-link.active:after{content:"";position:absolute;left:12px;right:12px;bottom:-9px;height:2px;background:#39e8ff;box-shadow:0 0 12px rgba(57,232,255,.7)}
+.a1-nav-link.rebate-link{color:#9df5c7;border-color:rgba(84,245,154,.12);background:rgba(84,245,154,.025)}
+.a1-nav-link.rebate-link:hover{color:#fff;border-color:rgba(84,245,154,.35);background:rgba(84,245,154,.07)}
 .nav-right{display:flex;align-items:center;gap:12px;flex:0 0 auto}
 .a1-join-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;border:1px solid rgba(57,232,255,.3);background:linear-gradient(135deg,rgba(57,232,255,.12),rgba(63,124,255,.08));color:#dffcff;font:900 8px/1 Inter,system-ui,sans-serif;letter-spacing:.8px;text-transform:uppercase;box-shadow:0 0 24px rgba(57,232,255,.07);transition:.25s;text-decoration:none}
 .a1-join-btn:hover{border-color:#39e8ff;box-shadow:0 0 28px rgba(57,232,255,.18);transform:translateY(-1px)}
@@ -170,6 +172,12 @@
   background:rgba(57,232,255,.06);
   border-color:rgba(57,232,255,.14);
  }
+ .a1-mobile-links a.mobile-rebate{
+  color:#9df5c7;
+  border-color:rgba(84,245,154,.1);
+  background:rgba(84,245,154,.025);
+ }
+ .a1-mobile-links a.mobile-rebate i{color:#4ade80}
 
  .a1-mobile-join{
   margin-top:auto;
@@ -334,8 +342,7 @@ body{min-width:0!important}
 .reader,.reader-bar,.racts,#reader,#readerTitle,#readerDl,#readerClose,#readerFrame{
 display:none!important;
 }
-</style><link rel="manifest" href="manifest.webmanifest">
-</head><body>
+</style></head><body>
 <header class="nav">
  <div class="nav-inner">
   <a class="brand" href="index.html#home" aria-label="ZONA A1 Home">
@@ -381,15 +388,15 @@ display:none!important;
  </div>
 </header>
 
-<main class="wrap"><section class="hero"><div><div class="eyebrow">ZONA A1 / TRADING ACADEMY / DIGITAL LIBRARY</div><h1>START<br><span>FROM BASIC.</span></h1><p>Pelajari fondasi trading yang perlu dipahami pemula sebelum masuk ke strategi yang lebih kompleks.</p><div class="meta"><span class="tag free">FREE E-BOOK</span><span class="tag">BEGINNER</span><span class="tag">PDF</span></div><a class="btn primary" href="pengenalan-trading.html">↓ BACA E-BOOK</a></div><div class="cover"><small>ZONA A1 / MATARYCLUB</small><strong>BASIC<br>TRADING</strong><small>PANDUAN DASAR TRADING UNTUK PEMULA</small></div></section>
-<section class="section"><div class="head"><div><h2>TRADING LIBRARY</h2><p>Materi edukasi ZONA A1</p></div><input class="search" id="q" placeholder="Search e-book..." aria-label="Cari e-book"></div>
+<main class="wrap"><section class="hero"><div><div class="eyebrow">ZONA A1 / TRADING ACADEMY / DIGITAL LIBRARY</div><h1>START<br><span>FROM BASIC.</span></h1><p>Pelajari fondasi trading yang perlu dipahami pemula sebelum masuk ke strategi yang lebih kompleks.</p><div class="meta"><span class="tag free">FREE E-BOOK</span><span class="tag">BEGINNER</span><span class="tag">PDF</span></div><a class="btn primary" href="ZONA_A1_Basic_Trading_Untuk_Pemula.pdf" download>↓ DOWNLOAD E-BOOK</a></div><div class="cover"><small>ZONA A1 / MATARYCLUB</small><strong>BASIC<br>TRADING</strong><small>PANDUAN DASAR TRADING UNTUK PEMULA</small></div></section>
+<section class="section"><div class="head"><div><h2>TRADING LIBRARY</h2><p>Materi edukasi ZONA A1</p></div><input class="search" id="q" placeholder="Search e-book..."></div>
 <div class="filters"><button class="filter active" data-cat="all">ALL</button><button class="filter" data-cat="basic">BASIC</button><button class="filter" data-cat="structure">STRUCTURE</button><button class="filter" data-cat="smc">SMC</button><button class="filter" data-cat="psychology">PSYCHOLOGY</button><button class="filter" data-cat="risk">RISK</button><button class="filter" data-cat="system">MATARY SYSTEM</button></div>
 <div class="grid" id="grid">
-<div class="card" data-cat="basic" data-title="basic trading"><div class="mini"><img src="assets/01-basic-trading.svg" alt="ZONA A1 basic"><small>01 / BEGINNER</small></div><h3>Basic Trading untuk Pemula</h3><p>Fondasi market, candlestick, structure, SMC, risk, psychology, plan dan journal.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="pengenalan-trading.html" aria-label="Baca BASIC TRADING">BACA</a><a class="btn dl" href="pengenalan-trading.html" title="Buka pelajaran">↓</a></div></div></div>
-<div class="card" data-cat="structure" data-title="market structure"><div class="mini blue"><img src="assets/02-market-structure.svg" alt="ZONA A1 structure"><small>02 / STRUCTURE</small></div><h3>Market Structure</h3><p>HH, HL, LH, LL, BOS dan CHoCH.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="market-structure.html" aria-label="Baca MARKET STRUCTURE">BACA</a><a class="btn dl" href="market-structure.html" title="Buka pelajaran">↓</a></div></div></div>
-<div class="card" data-cat="smc" data-title="smart money concept"><div class="mini purple"><img src="assets/03-smart-money-concept.svg" alt="ZONA A1 smc"><small>03 / SMC</small></div><h3>Smart Money Concept</h3><p>Liquidity, Order Block, FVG, sweep dan struktur.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="smart-money-concept.html" aria-label="Baca SMART MONEY CONCEPT">BACA</a><a class="btn dl" href="smart-money-concept.html" title="Buka pelajaran">↓</a></div></div></div>
-<div class="card" data-cat="psychology" data-title="trading psychology"><div class="mini red"><img src="assets/04-trading-psychology.svg" alt="ZONA A1 psychology"><small>04 / MINDSET</small></div><h3>Trading Psychology</h3><p>FOMO, fear, greed, revenge trading dan disiplin.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="trading-psychology.html" aria-label="Baca TRADING PSYCHOLOGY">BACA</a><a class="btn dl" href="trading-psychology.html" title="Buka pelajaran">↓</a></div></div></div>
-<div class="card" data-cat="risk" data-title="risk management"><div class="mini green"><img src="assets/05-risk-management.svg" alt="ZONA A1 risk"><small>05 / RISK</small></div><h3>Risk Management</h3><p>Lot, SL, TP, R:R dan drawdown.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="risk-management.html" aria-label="Baca RISK MANAGEMENT">BACA</a><a class="btn dl" href="risk-management.html" title="Buka pelajaran">↓</a></div></div></div>
+<div class="card" data-cat="basic" data-title="basic trading"><div class="mini"><img src="assets/01-basic-trading.svg" alt="ZONA A1 basic"><small>01 / BEGINNER</small></div><h3>Basic Trading untuk Pemula</h3><p>Fondasi market, candlestick, structure, SMC, risk, psychology, plan dan journal.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="pengenalan-trading.html" aria-label="Baca BASIC TRADING">BACA</a><a class="btn dl" href="ZONA_A1_Basic_Trading_Untuk_Pemula.pdf" download title="Download PDF">↓</a></div></div></div>
+<div class="card" data-cat="structure" data-title="market structure"><div class="mini blue"><img src="assets/02-market-structure.svg" alt="ZONA A1 structure"><small>02 / STRUCTURE</small></div><h3>Market Structure</h3><p>HH, HL, LH, LL, BOS dan CHoCH.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="market-structure.html" aria-label="Baca MARKET STRUCTURE">BACA</a><a class="btn dl" href="market-structure.pdf" download title="Download PDF">↓</a></div></div></div>
+<div class="card" data-cat="smc" data-title="smart money concept"><div class="mini purple"><img src="assets/03-smart-money-concept.svg" alt="ZONA A1 smc"><small>03 / SMC</small></div><h3>Smart Money Concept</h3><p>Liquidity, Order Block, FVG, sweep dan struktur.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="smart-money-concept.html" aria-label="Baca SMART MONEY CONCEPT">BACA</a><a class="btn dl" href="smart-money-concept.pdf" download title="Download PDF">↓</a></div></div></div>
+<div class="card" data-cat="psychology" data-title="trading psychology"><div class="mini red"><img src="assets/04-trading-psychology.svg" alt="ZONA A1 psychology"><small>04 / MINDSET</small></div><h3>Trading Psychology</h3><p>FOMO, fear, greed, revenge trading dan disiplin.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="trading-psychology.html" aria-label="Baca TRADING PSYCHOLOGY">BACA</a><a class="btn dl" href="trading-psychology.pdf" download title="Download PDF">↓</a></div></div></div>
+<div class="card" data-cat="risk" data-title="risk management"><div class="mini green"><img src="assets/05-risk-management.svg" alt="ZONA A1 risk"><small>05 / RISK</small></div><h3>Risk Management</h3><p>Lot, SL, TP, R:R dan drawdown.</p><div class="foot"><span class="access">● FREE</span><div class="actions"><a class="btn read" href="risk-management.html" aria-label="Baca RISK MANAGEMENT">BACA</a><a class="btn dl" href="risk-management.pdf" download title="Download PDF">↓</a></div></div></div>
 <div class="card" data-cat="system" data-title="matary trading system"><div class="mini gold"><img src="assets/06-matary-trading-system.svg" alt="ZONA A1 system"><small>06 / MATARY</small></div><h3>Matary Trading System</h3><p>Materi khusus workflow ZONA A1 setelah memahami fondasi.</p><div class="foot"><span class="access">MEMBER / VIP</span><a class="btn read" href="matary-trading-system.html" aria-label="Baca MATARY TRADING SYSTEM">BACA</a></div></div>
 </div><div class="routine"><div><b>01 — BASIC</b><span>Pahami istilah dan market.</span></div><div><b>02 — STRUCTURE</b><span>Baca struktur harga.</span></div><div><b>03 — RISK</b><span>Lindungi modal.</span></div><div><b>04 — SYSTEM</b><span>Bangun setup konsisten.</span></div></div></section></main>
 <footer><div class="wrap">ZONA A1 • BY MATARYCLUB<br>Educational content only. Trading involves risk. Past performance/backtest does not guarantee future results.</div></footer>
@@ -490,5 +497,4 @@ display:none!important;
  m.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeM));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
 })();
 </script>
-<script src="js/pwa-init.js" defer></script>
 </body></html>

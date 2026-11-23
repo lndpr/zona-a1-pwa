@@ -1,13 +1,13 @@
 /* ZONA A1 PWA Service Worker — preserves existing Worker Web Push flow. */
-const CACHE_VERSION = "zona-a1-pwa-v4";
+const CACHE_VERSION = "zona-a1-pwa-v3";
 const APP_SHELL = [
-  "./",
-  "./index.html",
-  "./offline.html",
-  "./manifest.webmanifest",
-  "./assets/icons/icon-192.png",
-  "./assets/icons/icon-512.png",
-  "./assets/icons/apple-touch-icon.png"
+  "/",
+  "/index.html",
+  "/offline.html",
+  "/manifest.webmanifest",
+  "/assets/icons/icon-192.png",
+  "/assets/icons/icon-512.png",
+  "/assets/icons/apple-touch-icon.png"
 ];
 const API = "https://zona-a1-signal-api.landungprakoso14.workers.dev";
 
@@ -47,15 +47,14 @@ self.addEventListener("fetch", (event) => {
       try {
         const response = await fetch(request);
         if (response && response.ok) {
-          // Cache under the page's own URL — never overwrite the home page
-          // with another page's content.
-          await cache.put(request, response.clone());
+          await cache.put("/index.html", response.clone());
+          await cache.put("/", response.clone());
         }
         return response;
       } catch (_) {
-        return (await cache.match(request)) ||
-          (await cache.match("./index.html")) ||
-          (await cache.match("./offline.html")) || Response.error();
+        return (await cache.match("/index.html")) ||
+          (await cache.match("/")) ||
+          (await cache.match("/offline.html")) || Response.error();
       }
     })());
     return;
@@ -78,71 +77,36 @@ self.addEventListener("fetch", (event) => {
 // Existing Web Push behavior: fetch the latest alert from the same Worker API.
 self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
-    // Teks cadangan NETRAL: jangan pernah menyebut kejadian spesifik. Teks lama
-    // ("Harga masuk area blok BR1/BR2") tampil saat fetch /api/push/last gagal,
-    // padahal alert yang dikirim bisa saja zona baru / news / tes — persis yang
-    // terjadi 23 Nov 20:26: notif zona baru tampil sebagai "harga masuk area".
     let title = "ALERT ZONA A1";
-    let body = "Ada alert baru dari ZONA A1. Buka dashboard untuk detail.";
+    let body = "Harga masuk area blok BR1/BR2. Buka ZONA A1 untuk detail.";
     let tag = "a1-zone";
-    // Ambil isi asli dari Worker: 2x percobaan, timeout 8 dtk tiap percobaan.
-    // (Dulu 1x percobaan 3,5 dtk — di HP dengan sinyal lemot, fetch sering tidak
-    // keburu dan notif tampil dengan teks cadangan yang menyesatkan.)
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const response = await fetch(API + "/api/push/last", { cache: "no-store", signal: AbortSignal.timeout(8000) });
-        if (response.ok) {
-          const payload = await response.json();
-          if (payload && payload.title) {
-            title = payload.title;
-            body = payload.body || body;
-            tag = payload.tag || tag;
-            break;
-          }
+    try {
+      // timeout 3,5 dtk: jangan sampai notif tertahan kalau Worker lambat — fallback ke teks bawaan
+      const response = await fetch(API + "/api/push/last", { cache: "no-store", signal: AbortSignal.timeout(3500) });
+      if (response.ok) {
+        const payload = await response.json();
+        if (payload && payload.title) {
+          title = payload.title;
+          body = payload.body || body;
+          tag = payload.tag || tag;
         }
-      } catch (_) { /* Coba lagi sekali, lalu pakai teks cadangan netral. */ }
-    }
+      }
+    } catch (_) { /* Keep fallback notification text. */ }
 
     await self.registration.showNotification(title, {
       body,
       tag,
       renotify: true,
-      icon: "./assets/icons/icon-192.png",
-      badge: "./assets/icons/icon-192.png",
-      data: { url: "./#a1LiveZones" }
+      icon: "/assets/icons/icon-192.png",
+      badge: "/assets/icons/icon-192.png",
+      data: { url: "/#a1LiveZones" }
     });
-  })());
-});
-
-// If the browser rotates the push subscription, re-subscribe automatically
-// and send the new endpoint to the Worker so alerts keep arriving.
-self.addEventListener("pushsubscriptionchange", (event) => {
-  event.waitUntil((async () => {
-    try {
-      const keyResponse = await fetch(API + "/api/push/key", { cache: "no-store" });
-      if (!keyResponse.ok) return;
-      const { key } = await keyResponse.json();
-      if (!key) return;
-      const padding = "=".repeat((4 - key.length % 4) % 4);
-      const raw = atob((key + padding).replace(/-/g, "+").replace(/_/g, "/"));
-      const applicationServerKey = new Uint8Array(raw.length);
-      for (let i = 0; i < raw.length; i++) applicationServerKey[i] = raw.charCodeAt(i);
-      const sub = await self.registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey
-      });
-      await fetch(API + "/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subscription: sub.toJSON() })
-      });
-    } catch (_) { /* A failed re-subscribe must not break the worker. */ }
   })());
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = (event.notification.data && event.notification.data.url) || "./";
+  const target = (event.notification.data && event.notification.data.url) || "/";
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
     for (const client of windows) {

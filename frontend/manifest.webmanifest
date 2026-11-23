@@ -1,37 +1,28 @@
 {
-  "background_color": "#050914",
+  "id": "/",
+  "name": "ZONA A1 | Market Intelligence Terminal",
+  "short_name": "ZONA A1",
   "description": "Terminal market intelligence XAUUSD: zona BR1/BR2, signal live, kalender ekonomi, dan berita.",
+  "lang": "id-ID",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#050914",
+  "theme_color": "#050914",
   "icons": [
     {
-      "purpose": "any",
+      "src": "/assets/icons/icon-192.png",
       "sizes": "192x192",
-      "src": "./assets/icons/icon-192.png",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "purpose": "any",
+      "src": "/assets/icons/icon-512.png",
       "sizes": "512x512",
-      "src": "./assets/icons/icon-512.png",
-      "type": "image/png"
-    },
-    {
-      "purpose": "maskable",
-      "sizes": "512x512",
-      "src": "./assets/icons/icon-512.png",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     }
-  ],
-  "id": "./",
-  "lang": "id-ID",
-  "name": "ZONA A1 | Market Intelligence Terminal",
-  "orientation": "any",
-  "scope": "./",
-  "short_name": "ZONA A1",
-  "start_url": "./",
-  "theme_color": "#050914"
+  ]
 }

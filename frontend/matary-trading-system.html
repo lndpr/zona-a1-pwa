@@ -18,6 +18,8 @@
 .a1-nav-link i{font-size:10px}
 .a1-nav-link:hover,.a1-nav-link.active{color:#eaffff;background:rgba(57,232,255,.055);border-color:rgba(57,232,255,.13)}
 .a1-nav-link.active:after{content:"";position:absolute;left:12px;right:12px;bottom:-9px;height:2px;background:#39e8ff;box-shadow:0 0 12px rgba(57,232,255,.7)}
+.a1-nav-link.rebate-link{color:#9df5c7;border-color:rgba(84,245,154,.12);background:rgba(84,245,154,.025)}
+.a1-nav-link.rebate-link:hover{color:#fff;border-color:rgba(84,245,154,.35);background:rgba(84,245,154,.07)}
 .nav-right{display:flex;align-items:center;gap:12px;flex:0 0 auto}
 .a1-join-btn{display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;border:1px solid rgba(57,232,255,.3);background:linear-gradient(135deg,rgba(57,232,255,.12),rgba(63,124,255,.08));color:#dffcff;font:900 8px/1 Inter,system-ui,sans-serif;letter-spacing:.8px;text-transform:uppercase;box-shadow:0 0 24px rgba(57,232,255,.07);transition:.25s;text-decoration:none}
 .a1-join-btn:hover{border-color:#39e8ff;box-shadow:0 0 28px rgba(57,232,255,.18);transform:translateY(-1px)}
@@ -163,6 +165,12 @@
   background:rgba(57,232,255,.06);
   border-color:rgba(57,232,255,.14);
  }
+ .a1-mobile-links a.mobile-rebate{
+  color:#9df5c7;
+  border-color:rgba(84,245,154,.1);
+  background:rgba(84,245,154,.025);
+ }
+ .a1-mobile-links a.mobile-rebate i{color:#4ade80}
 
  .a1-mobile-join{
   margin-top:auto;
@@ -826,7 +834,6 @@ section{
   left:0!important;
 }
 </style>
-<link rel="manifest" href="manifest.webmanifest">
 </head>
 
 <body><header class="nav"><div class="nav-inner"><a class="brand" href="index.html#home"><div class="brand-icon"><i class="fa-solid fa-chart-line"></i></div><div><div class="brand-name">ZONA <span>A1</span></div><span class="brand-sub">BY MATARYCLUB</span></div></a><nav class="a1-main-nav"><a class="a1-nav-link" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a><a class="a1-nav-link active" href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a></nav><div class="nav-right"><div class="nav-status"><span class="dot online"></span><span>LIVE</span></div></div><button class="a1-mobile-toggle" id="a1MobileToggle" type="button" aria-label="Open navigation menu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button></div></header><div class="a1-mobile-backdrop" id="a1MobileBackdrop"></div><aside class="a1-mobile-menu" id="a1MobileMenu" aria-hidden="true"><div class="a1-mobile-head"><div><div class="a1-mobile-title">ZONA <span>A1</span></div><small>BY MATARYCLUB</small></div><button class="a1-mobile-close" id="a1MobileClose" type="button"><i class="fa-solid fa-xmark"></i></button></div><div class="a1-mobile-links"><a href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a href="index.html#tools"><i class="fa-solid fa-layer-group"></i><span>Tools</span></a><a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a></div></aside><main class="matary-doc"><div class="matary-cover"><div class="kicker">ZONA A1 / MATARYCLUB / ADVANCED SYSTEM</div><h1>Matary Trading System</h1><p class="sub">Alur teknik strategi ZONA A1 — dari trend filter, struktur BOS/CHoCH, dua zona entry, sampai manajemen risiko otomatis.</p></div><div class="matary-wrap">
@@ -1342,5 +1349,4 @@ section{
   window.addEventListener('resize',fit);
 })();
 </script>
-<script src="js/pwa-init.js" defer></script>
 </body></html>
