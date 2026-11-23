@@ -17,6 +17,10 @@
 
 export const SYMBOL = "XAUUSD";
 export const STALE_AFTER_SEC = 180;  // sama dengan /api/zones: lewat 180 dtk data EA dianggap basi
+// Sekali per zona (aturan user 23 Nov ~20:50): zona yang sudah bunyi TIDAK PERNAH
+// bunyi lagi selama baris state-nya masih ada di D1. Baris hanya hilang lewat flush
+// saat zona keluar dari snapshot (>3 menit); zona BARU dengan key yang sama baru
+// boleh bunyi lagi sekali. Tidak ada cooldown, tidak ada re-arm keluar zona.
 const PUSH_TTL = 3600;        // detik, push dibuang kalau HP offline lebih lama dari ini (dulu 600: HP Doze >10 mnt = push hilang)
 const MAX_SUBS = 2000;        // batas langganan tersimpan
 const MAX_BODY = 4096;        // batas ukuran body request subscribe
@@ -391,7 +395,9 @@ export async function handleZoneTrigger(request, env) {
   // `${chart_id}|${tf}|${block}|${bias}` — membangun key `${tf}|${tf}|...` di sini
   // akan menulis baris trigger yang berbeda dan membuat cek already-triggered
   // meleset (double-fire). z.key identik dengan triggerKey() di zones-endpoint.js.
-  const state = await db.prepare("SELECT triggered FROM zone_trigger_state WHERE zone_key=?").bind(z.key).first();
+  const state = await db.prepare("SELECT triggered, triggered_at FROM zone_trigger_state WHERE zone_key=?").bind(z.key).first();
+  // Sekali per zona: sudah triggered = tidak fire lagi sampai baris state hilang
+  // (zona keluar dari snapshot, dihapus flush). Tidak ada cooldown / re-arm.
   if (state && state.triggered) return json({ ok: true, fired: false, reason: "already-triggered" });
 
   const result = await commitAndPush(env, db, [triggerStmt(db, z, price, now)], [z], price, now);
@@ -491,7 +497,12 @@ export function seenStmt(db, z, now) {
   ).bind(z.key, SYMBOL, now);
 }
 
-// Hapus penanda trigger satu zona (dipakai saat reset keluar zona & saat push gagal total).
+// Hapus penanda trigger satu zona (dipakai saat push gagal total: sentuhan itu
+// harus bisa dicoba lagi, jadi barisnya memang dihapus supaya zona dianggap baru).
+// TIDAK ADA re-arm keluar zona: zona yang sudah fire tidak pernah bunyi lagi selama
+// barisnya ada — baris hanya hilang lewat flush saat zona keluar dari snapshot
+// (duplikat 23 Nov 20:33: BR2 3x + BR1 2x dalam ~100 dtk karena reset menghapus
+// baris state, lalu harga wick keluar-masuk langsung fire lagi).
 export function deleteTriggerStmt(db, key) {
   return db.prepare("DELETE FROM zone_trigger_state WHERE zone_key=?").bind(key);
 }

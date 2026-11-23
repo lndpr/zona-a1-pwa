@@ -19,7 +19,6 @@ import {
 const enc = new TextEncoder();
 const EMPTY_BODY_HASH = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU"; // SHA-256 body kosong, base64url
 const ZONE_REFRESH_MS = 5000;   // zona dibaca ulang dari D1 paling cepat tiap 5 dtk (+ langsung saat EA kirim snapshot)
-const RESET_MARGIN = 0.5;       // USD: harga sisi zona harus keluar sejauh ini dari batas zona agar trigger boleh bunyi lagi
 const FLUSH_MS = 30000;         // refresh last_seen zona di D1
 const STALE_MS = 90000;         // tidak ada pesan 90 dtk -> koneksi dianggap mati, sambung ulang
 const WATCHDOG_MS = 20000;      // alarm pengecek koneksi
@@ -164,7 +163,7 @@ export class TickWatcher {
     this.zonesAt = 0;
     this.lastFlush = 0;
     this.skipped = null;
-    this.triggered = new Set(); // zone_key yang sudah trigger (cermin D1)
+    this.triggered = new Set(); // zone_key yang sudah trigger (cermin D1) — TIDAK PERNAH dihapus selama zona masih di snapshot (sekali per zona, tanpa re-arm)
     this.fresh = new Set();     // zone_key yang baru pertama kali dilihat
     this.busy = false;
     this.pending = null;
@@ -449,21 +448,16 @@ export class TickWatcher {
     if (now - this.zonesAt >= ZONE_REFRESH_MS) await this.reloadZones(now);
 
     const prevBid = this.prevBid, prevAsk = this.prevAsk, prevMid = this.prevMid;
-    const stmts = [], fired = [], resetStmts = [];
+    const stmts = [], fired = [];
     for (const z of this.zones) {
       // Harga sisi zona: BUY dicek pakai bid, SELL pakai ask (dulu mid — selisih setengah
       // spread dari harga yang dipakai EA, jadi zona di dekat batas kadang fire kadang tidak).
       const sidePrice = z.bias === "BUY" ? tick.bid : tick.ask;
-      if (this.triggered.has(z.key)) {
-        // Reset: harga sudah keluar jauh dari zona -> zona boleh berbunyi lagi pada
-        // sentuhan berikutnya. Jangan fire di tick yang sama dengan reset.
-        if (sidePrice < z.lo - RESET_MARGIN || sidePrice > z.hi + RESET_MARGIN) {
-          this.triggered.delete(z.key);
-          this.retryAfter.delete(z.key);
-          resetStmts.push(deleteTriggerStmt(db, z.key));
-        }
-        continue;
-      }
+      // Sekali per zona: zona yang sudah bunyi TIDAK PERNAH bunyi lagi selama baris
+      // state-nya masih ada di D1 — tidak ada reset/re-arm keluar zona. Baris hanya
+      // hilang lewat flush saat zona keluar dari snapshot (>3 menit); zona BARU
+      // dengan key yang sama baru boleh bunyi lagi sekali.
+      if (this.triggered.has(z.key)) continue;
       // Push gagal total sebelumnya: tunggu sampai retryAfter sebelum mencoba lagi.
       if ((this.retryAfter.get(z.key) || 0) > now) continue;
       // first juga true saat prevMid null (tick pertama setelah restart DO): zona yang
@@ -472,15 +466,19 @@ export class TickWatcher {
       this.fresh.delete(z.key);
       const sidePrev = z.bias === "BUY" ? prevBid : prevAsk;
       if (shouldFire(z, sidePrice, sidePrev, first)) {
-        fired.push(z);
-        this.triggered.add(z.key);
-        stmts.push(triggerStmt(db, z, tick.price, now));
+        // Cek ulang D1: jalur EA bisa sudah fire zona ini di antara reload 5 dtk —
+        // jangan kirim push kedua untuk sentuhan yang sama.
+        const row = await db.prepare("SELECT triggered FROM zone_trigger_state WHERE zone_key=?").bind(z.key).first();
+        if (!row || !row.triggered) {
+          fired.push(z);
+          this.triggered.add(z.key);
+          stmts.push(triggerStmt(db, z, tick.price, now));
+        }
       }
     }
     this.prevBid = tick.bid;
     this.prevAsk = tick.ask;
     this.prevMid = tick.price;
-    if (resetStmts.length) await db.batch(resetStmts);
     if (!fired.length) return;
 
     this.lastFire = { at: now, price: tick.price, zones: fired.map((z) => `${z.bias} ${z.tf} ${z.block}`) };

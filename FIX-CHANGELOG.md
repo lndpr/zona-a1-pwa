@@ -3,6 +3,37 @@
 Semua temuan audit `ZONA-A1-PWA-AUDIT.md` sudah diperbaiki. Zip ini berisi seluruh
 repo hasil perbaikan (frontend + Worker + EA). File ini ikut di dalam zip.
 
+## Notif TRIGGERED tidak lagi ganda — sekali per zona (23 Nov 2026)
+
+**Bug yang dilaporkan user, 23 Nov ~20:35 WIB (dengan screenshot):** zona M1 yang sama mengirim notif TRIGGERED berkali-kali — BR2 3x (20:33:03, 20:33:16, 20:33:41) dan BR1 2x (20:34:05, 20:34:45), padahal harga cuma turun sekali melewati zona. Dicek live di `/api/push/history`: 5 push trigger dalam ~100 detik.
+
+**Akar masalah:** reset trigger menghapus baris state di D1 (`deleteTriggerStmt`). Batas reset cuma 0,5 USD — harga M1 gampang wick keluar-masuk selebar itu (apalagi saat spread melebar). Begitu harga keluar sebentar, baris state terhapus; begitu harga balik masuk, zona dianggap "baru" (`isNew` → `fresh`) dan langsung fire lagi. Dua jalur trigger (TickWatcher + POST EA) sama-sama lolos karena keduanya mengandalkan baris yang sudah dihapus itu.
+
+**Perbaikan (hanya Worker: `worker/src/push-alerts.js` + `worker/src/tick-watcher.js`):**
+- Sekali per zona, tanpa re-arm dan tanpa cooldown (aturan user 23 Nov ~20:50): zona yang sudah bunyi tidak pernah bunyi lagi selama baris state-nya masih ada di D1 — reset keluar zona dihapus total. Baris hanya hilang lewat flush saat zona keluar dari snapshot (>3 menit); zona BARU dengan key yang sama baru boleh bunyi lagi sekali.
+- TickWatcher mengecek ulang D1 tepat sebelum kirim push (jalur EA bisa saja sudah fire di antara reload 5 detik).
+- Jalur POST EA: zona yang sudah triggered ditolak dengan `already-triggered`.
+
+**Yang tetap jalan:** sentuhan pertama tetap langsung bunyi; zona baru (zona lama hilang dari snapshot >3 menit, lalu terbentuk lagi) bunyi sekali. Kalau push gagal total, retry 60 detik tetap jalan (baris dihapus supaya sentuhan itu bisa dicoba lagi — sengaja, supaya tidak kehilangan alert; yang tidak pernah sampai ke HP tidak dihitung sudah bunyi).
+
+Verifikasi: harness Node menjalankan TickWatcher + handleZoneTrigger ASLI dengan D1 palsu, replay urutan live 20:33 (26/26 lolos) — wick kecil tidak fire, keluar jauh + balik masuk tidak pernah fire lagi, POST EA setelah fire ditolak (juga setelah 16 menit), zona baru setelah zona lama hilang >3 menit fire sekali, race EA+TickWatcher tidak double-fire.
+
+**Deploy:** `npx wrangler deploy` (Worker saja; frontend tidak berubah di ronde ini — perbaikan `sw.js` ronde sebelumnya tetap ada di zip ini).
+
+## Teks fallback notifikasi push diperbaiki (23 Nov 2026)
+
+**Bug yang dilaporkan user, 23 Nov ~20:28 WIB:** zona baru M1 (BUY BR1/BR2) muncul, tapi notifikasi di HP berbunyi "Harga masuk area blok BR1/BR2. Buka ZONA A1 untuk detail." — padahal Worker sudah mengirim "2 NEW ZONES · XAUUSD" dengan benar (terkirim ke 25 subscriber; dicek live di `/tick-watcher/status` + `/api/push/history` + dashboard — zona M1 masih FRESH, tidak ada trigger).
+
+**Akar masalah:** push yang dikirim Worker itu KOSONG (tanpa isi — `sendOne` hanya POST dengan header VAPID). Service worker di HP lalu mengambil isi asli dari `GET /api/push/last` dengan timeout 3,5 detik, sekali percobaan. Kalau fetch itu gagal/kelamaan (sinyal HP lemot), SW menampilkan teks cadangan yang di-hardcode di `frontend/sw.js` — dan teks cadangan itu menyebut kejadian spesifik yang salah ("Harga masuk area blok BR1/BR2") untuk SEMUA jenis alert (zona baru, trigger, news, tes).
+
+**Perbaikan (hanya `frontend/sw.js`):**
+- Teks cadangan diganti netral: "Ada alert baru dari ZONA A1. Buka dashboard untuk detail." — tidak akan pernah mengaku-aku kejadian yang salah lagi.
+- Fetch isi asli: 2x percobaan, timeout 8 detik tiap percobaan (dulu 1x, 3,5 detik), supaya teks cadangan makin jarang muncul.
+
+Verifikasi: harness Node menjalankan `sw.js` asli dengan stub (11/11 lolos) — fetch sukses di percobaan pertama → isi asli tampil; fetch gagal dulu lalu sukses di retry → isi asli tampil; fetch selalu gagal → fallback netral, teks lama tidak pernah muncul. `node --check frontend/sw.js` bersih.
+
+**Catatan:** perbaikan penuh (isi alert ikut terkirim DI DALAM push, tanpa perlu fetch lagi) butuh enkripsi payload Web Push + menyimpan kunci `p256dh`/`auth` tiap subscriber — saat ini `push_subs` hanya menyimpan `endpoint`, jadi semua subscriber harus subscribe ulang. Ditunda; perbaikan di atas sudah menutup teks yang menyesatkan. Setelah deploy frontend, tutup-buka sekali PWA di HP supaya service worker baru terpasang.
+
 ## Halaman Fasilitas dihapus (23 Nov 2026)
 
 - File `frontend/rebate.html` ("Rebate Sharing") **dihapus** — itu halaman yang

@@ -78,21 +78,30 @@ self.addEventListener("fetch", (event) => {
 // Existing Web Push behavior: fetch the latest alert from the same Worker API.
 self.addEventListener("push", (event) => {
   event.waitUntil((async () => {
+    // Teks cadangan NETRAL: jangan pernah menyebut kejadian spesifik. Teks lama
+    // ("Harga masuk area blok BR1/BR2") tampil saat fetch /api/push/last gagal,
+    // padahal alert yang dikirim bisa saja zona baru / news / tes — persis yang
+    // terjadi 23 Nov 20:26: notif zona baru tampil sebagai "harga masuk area".
     let title = "ALERT ZONA A1";
-    let body = "Harga masuk area blok BR1/BR2. Buka ZONA A1 untuk detail.";
+    let body = "Ada alert baru dari ZONA A1. Buka dashboard untuk detail.";
     let tag = "a1-zone";
-    try {
-      // timeout 3,5 dtk: jangan sampai notif tertahan kalau Worker lambat — fallback ke teks bawaan
-      const response = await fetch(API + "/api/push/last", { cache: "no-store", signal: AbortSignal.timeout(3500) });
-      if (response.ok) {
-        const payload = await response.json();
-        if (payload && payload.title) {
-          title = payload.title;
-          body = payload.body || body;
-          tag = payload.tag || tag;
+    // Ambil isi asli dari Worker: 2x percobaan, timeout 8 dtk tiap percobaan.
+    // (Dulu 1x percobaan 3,5 dtk — di HP dengan sinyal lemot, fetch sering tidak
+    // keburu dan notif tampil dengan teks cadangan yang menyesatkan.)
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const response = await fetch(API + "/api/push/last", { cache: "no-store", signal: AbortSignal.timeout(8000) });
+        if (response.ok) {
+          const payload = await response.json();
+          if (payload && payload.title) {
+            title = payload.title;
+            body = payload.body || body;
+            tag = payload.tag || tag;
+            break;
+          }
         }
-      }
-    } catch (_) { /* Keep fallback notification text. */ }
+      } catch (_) { /* Coba lagi sekali, lalu pakai teks cadangan netral. */ }
+    }
 
     await self.registration.showNotification(title, {
       body,
