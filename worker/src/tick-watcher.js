@@ -163,6 +163,14 @@ export class TickWatcher {
     this.lastError = null;
     this.lastFire = null;
     this.lastPush = null;
+    // Diagnostik khusus siklus pengumuman zona baru (terpisah dari trigger harga).
+    this.zonesDetected = 0;
+    this.announcementKeys = 0;
+    this.alreadyAnnounced = 0;
+    this.newZonesPending = 0;
+    this.newZonePushResult = null;
+    this.newZoneLastError = null;
+    this.newZoneCheckedAt = 0;
     this.samples = [];
   }
 
@@ -221,6 +229,13 @@ export class TickWatcher {
       last_error: this.lastError,
       last_fire: this.lastFire,
       last_push: this.lastPush,
+      zones_detected: this.zonesDetected,
+      announcement_keys: this.announcementKeys,
+      already_announced: this.alreadyAnnounced,
+      new_zones_pending: this.newZonesPending,
+      new_zone_push_result: this.newZonePushResult,
+      new_zone_last_error: this.newZoneLastError,
+      new_zone_checked_at: this.newZoneCheckedAt || null,
       sample_messages: this.samples,
     };
   }
@@ -366,6 +381,11 @@ export class TickWatcher {
       "SELECT zone_key FROM zone_announcement_state WHERE symbol=?"
     ).bind(SYMBOL).all();
     const announcedKeys = new Set((announcedRows.results || []).map((r) => r.zone_key));
+    this.zonesDetected = zones.length;
+    this.announcementKeys = announcementKeys.length;
+    this.alreadyAnnounced = announcementKeys.filter((key) => announcedKeys.has(key)).length;
+    this.newZonesPending = 0;
+    this.newZoneCheckedAt = now;
     if (announcementKeys.length) {
       const marks = announcementKeys.map(() => "?").join(",");
       stmts.push(db.prepare(
@@ -396,6 +416,7 @@ export class TickWatcher {
       if (z.announcementKey && !announcedKeys.has(z.announcementKey)) {
         announcedKeys.add(z.announcementKey);
         newZones.push(z);
+        this.newZonesPending++;
         stmts.push(db.prepare(
           "INSERT OR IGNORE INTO zone_announcement_state (zone_key, symbol, announced_at) VALUES (?, ?, ?)"
         ).bind(z.announcementKey, SYMBOL, now));
@@ -411,11 +432,17 @@ export class TickWatcher {
     if (stmts.length) await db.batch(stmts);
     if (newZones.length) {
       try {
-        this.lastPush = await commitNewZoneAndPush(this.env, db, newZones, now);
+        this.newZonePushResult = await commitNewZoneAndPush(this.env, db, newZones, now);
+        this.newZoneLastError = null;
+        this.lastPush = this.newZonePushResult;
       } catch (e) {
-        this.lastError = "new-zone-push: " + String((e && e.message) || e);
+        this.newZoneLastError = String((e && e.message) || e);
+        this.lastError = "new-zone-push: " + this.newZoneLastError;
+        this.newZonePushResult = { announced: newZones.length, failed: true };
         console.log("NEW ZONE PUSH ERROR:", this.lastError);
       }
+    } else {
+      this.newZonePushResult = { announced: 0, skipped: "no-new-zones" };
     }
   }
 
