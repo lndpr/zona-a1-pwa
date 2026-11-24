@@ -59,10 +59,19 @@ export function ensureSchema(db) {
         db.prepare("CREATE TABLE IF NOT EXISTS push_subs (endpoint TEXT PRIMARY KEY, created_at INTEGER NOT NULL)"),
         db.prepare("CREATE TABLE IF NOT EXISTS push_state (zone_key TEXT PRIMARY KEY, inside INTEGER NOT NULL, last_sent INTEGER NOT NULL DEFAULT 0)"),
         db.prepare("CREATE TABLE IF NOT EXISTS zone_trigger_state (zone_key TEXT PRIMARY KEY, symbol TEXT NOT NULL, triggered INTEGER NOT NULL DEFAULT 0, trigger_price REAL, triggered_at INTEGER, last_seen INTEGER NOT NULL)"),
-        db.prepare("CREATE TABLE IF NOT EXISTS zone_announcement_state (zone_key TEXT PRIMARY KEY, symbol TEXT NOT NULL, announced_at INTEGER NOT NULL)"),
+        db.prepare("CREATE TABLE IF NOT EXISTS zone_announcement_state (zone_key TEXT PRIMARY KEY, symbol TEXT NOT NULL, announced_at INTEGER NOT NULL, last_seen INTEGER NOT NULL DEFAULT 0)"),
         db.prepare("CREATE TABLE IF NOT EXISTS zone_price_state (symbol TEXT PRIMARY KEY, last_price REAL NOT NULL, updated_at INTEGER NOT NULL)"),
         db.prepare("CREATE TABLE IF NOT EXISTS push_last (id INTEGER PRIMARY KEY, title TEXT, body TEXT, tag TEXT, ts INTEGER)"),
       ])
+      .then(async () => {
+        // Migrasi tabel lama agar zona yang sempat hilang bisa diberi grace period.
+        try {
+          await db.prepare("ALTER TABLE zone_announcement_state ADD COLUMN last_seen INTEGER NOT NULL DEFAULT 0").run();
+        } catch (e) {
+          // D1/SQLite mengembalikan error jika kolom sudah ada; error lain tetap dilempar.
+          if (!String((e && e.message) || e).toLowerCase().includes("duplicate column")) throw e;
+        }
+      })
       .catch((e) => { schemaReady = null; throw e; });
   }
   return schemaReady;
@@ -272,7 +281,9 @@ export function parseZones(data, now = Date.now()) {
       const t = num(box && box.top), b = num(box && box.bottom);
       if (t === null || b === null || String(status || "").toUpperCase() !== "FRESH") continue;
       const lo = Math.min(t, b), hi = Math.max(t, b);
-      out.push({ key: zoneKey(z, block, lo, hi), announcementKey: `${z.chart_id || z.tf}|${tf}|${block}|${bias}`, tf, bias, block, lo, hi, chart_id: z.chart_id || null });
+      // Kunci pengumuman tidak memakai chart_id: ID chart bisa berubah saat EA restart/re-attach.
+      // Siklus zona baru dibedakan dari zona lama lewat masa tidak terlihat (grace period) di TickWatcher.
+      out.push({ key: zoneKey(z, block, lo, hi), announcementKey: `${tf}|${block}|${bias}`, tf, bias, block, lo, hi, chart_id: z.chart_id || null });
     }
   }
   return out;
