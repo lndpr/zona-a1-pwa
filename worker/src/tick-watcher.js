@@ -382,6 +382,22 @@ export class TickWatcher {
     ).bind(SYMBOL).all();
     const announcedMap = new Map((announcedRows.results || []).map((r) => [r.zone_key, r]));
     const announcedKeys = new Set(announcedMap.keys());
+    // Migrasikan key lama (chart_id|TF|BLOCK|BIAS) ke key stabil baru (TF|BLOCK|BIAS)
+    // tanpa menganggap zona aktif sebagai zona baru saat deploy versi ini.
+    for (const key of announcementKeys) {
+      if (announcedKeys.has(key)) continue;
+      const legacyKey = [...announcedKeys].find((oldKey) => oldKey.endsWith("|" + key));
+      if (legacyKey) {
+        const legacyRow = announcedMap.get(legacyKey);
+        stmts.push(db.prepare(
+          "UPDATE zone_announcement_state SET zone_key=? WHERE symbol=? AND zone_key=?"
+        ).bind(key, SYMBOL, legacyKey));
+        announcedMap.delete(legacyKey);
+        announcedMap.set(key, { ...legacyRow, zone_key: key });
+        announcedKeys.delete(legacyKey);
+        announcedKeys.add(key);
+      }
+    }
     this.zonesDetected = zones.length;
     this.announcementKeys = announcementKeys.length;
     // Jangan hapus state saat snapshot kosong/sementara berubah. Zona dianggap benar-benar
