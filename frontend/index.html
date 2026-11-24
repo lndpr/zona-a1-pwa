@@ -4148,8 +4148,15 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
   if(Notification.permission!=="granted")return;
   try{
    var sub=await currentSub();
-   if(sub){state="on";paint();try{await post("/api/push/subscribe",{subscription:sub.toJSON()});}catch(e){}}
-  }catch(e){}
+   if(sub){
+    var sync=await post("/api/push/subscribe",{subscription:sub.toJSON()});
+    if(!sync.ok)throw new Error("SYNC SUBSCRIBE HTTP "+sync.status+": "+(await sync.text()).slice(0,180));
+    state="on";paint();
+   }
+  }catch(e){
+   console.error("PUSH BOOT SYNC:",e);
+   state="error";paint();
+  }
  }
  boot();
 })();
