@@ -12,10 +12,11 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>ZONA A1 | Market Intelligence Terminal</title>
 <meta name="description" content="ZONA A1 — terminal market intelligence XAUUSD: signal live, kalender ekonomi high impact, berita pasar terbaru, dan tools trading by MataryClub.">
+<meta name="theme-color" content="#050b12">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ZONA A1 | Market Intelligence Terminal">
 <meta property="og:description" content="Signal live XAUUSD, kalender ekonomi, dan berita pasar terbaru dalam satu terminal.">
-<meta property="og:url" content="https://lndpr.github.io/zona-a1-pwa/">
+<meta property="og:url" content="https://zonaa1.matary.id/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23061018'/%3E%3Ctext x='50' y='66' font-size='54' font-family='Arial' font-weight='900' text-anchor='middle' fill='%2339e8ff'%3EA1%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1149,6 +1150,16 @@ body[data-state="sell"] .live-hub{border-color:rgba(255,95,122,.22)}
  background:#39e8ff;
  box-shadow:0 0 12px rgba(57,232,255,.7);
 }
+.a1-nav-link.rebate-link{
+ color:#9df5c7;
+ border-color:rgba(84,245,154,.12);
+ background:rgba(84,245,154,.025);
+}
+.a1-nav-link.rebate-link:hover{
+ color:#fff;
+ border-color:rgba(84,245,154,.35);
+ background:rgba(84,245,154,.07);
+}
 .nav-right{
  display:flex;
  align-items:center;
@@ -1337,6 +1348,12 @@ body[data-state="sell"] .live-hub{border-color:rgba(255,95,122,.22)}
   background:rgba(57,232,255,.06);
   border-color:rgba(57,232,255,.14);
  }
+ .a1-mobile-links a.mobile-rebate{
+  color:#9df5c7;
+  border-color:rgba(84,245,154,.1);
+  background:rgba(84,245,154,.025);
+ }
+ .a1-mobile-links a.mobile-rebate i{color:#4ade80}
 
  .a1-mobile-join{
   margin-top:auto;
@@ -1622,7 +1639,6 @@ img,iframe,video,canvas,svg{max-width:100%}
 </style>
 </head>
 <body>
-<noscript><div style="padding:16px;text-align:center;background:#0b2633;color:#dffaff;font:600 13px/1.6 Inter,Arial,sans-serif">ZONA A1 membutuhkan JavaScript untuk menampilkan zona live, sinyal, dan notifikasi. Aktifkan JavaScript di browser kamu lalu muat ulang halaman ini.</div></noscript>
 <canvas id="astra-canvas"></canvas><div class="motion-orbs"><span class="motion-orb o1"></span><span class="motion-orb o2"></span><span class="motion-orb o3"></span></div>
 <div class="aurora"></div><div class="grid"></div><div class="noise"></div><div class="cursor-glow" id="cursorGlow"></div>
 
@@ -1634,7 +1650,7 @@ img,iframe,video,canvas,svg{max-width:100%}
   </a>
 
   <nav class="a1-main-nav" aria-label="Main navigation">
-   <a class="a1-nav-link active" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#info-member"><i class="fa-solid fa-circle-info"></i><span>Info Member</span></a><a class="a1-nav-link" href="ebook.html"><span>E-Book</span></a>
+   <a class="a1-nav-link active" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#info-member"><i class="fa-solid fa-circle-info"></i><span>Info Member</span></a><a class="a1-nav-link" href="ebook.html"><span>E-Book</span></a><a class="a1-nav-link rebate-link" href="fasilitas.html"><i class="fa-solid fa-circle-check"></i><span>Fasilitas</span></a>
   </nav>
 <button class="a1-mobile-toggle" id="a1MobileToggle" type="button"
     aria-label="Open navigation menu" aria-expanded="false">
@@ -1658,7 +1674,7 @@ img,iframe,video,canvas,svg{max-width:100%}
   <a href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a>
   <a href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a>
   <a href="index.html#info-member"><i class="fa-solid fa-circle-info"></i><span>Info Member</span></a>
-  <a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a>
+  <a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a><a class="mobile-rebate" href="fasilitas.html"><i class="fa-solid fa-circle-check"></i><span>Fasilitas</span></a>
   
  </div>
 
@@ -1730,19 +1746,7 @@ img,iframe,video,canvas,svg{max-width:100%}
  <div id="a1ZonesContent" class="a1-zones-content">
   <div class="a1-zones-empty"><i class="fa-solid fa-satellite-dish"></i><b>Menunggu data zona</b><span>Pastikan EA ZONA A1 aktif dan pengiriman zona ke Worker sudah dikonfigurasi.</span></div>
  </div>
- <div class="a1-zones-foot">Data dikirim EA secara berkala. Zona merupakan area pantauan, bukan instruksi entry. <a id="a1EaDownload" href="https://github.com/lndpr/zona-a1-pwa/raw/main/A1_new.mq5" style="color:#55e7f5">Download EA (.mq5)</a></div>
- <div id="a1AlertHistory" hidden>
-  <div class="a1-ah-head"><i class="fa-solid fa-clock-rotate-left"></i> ALERT TERAKHIR</div>
-  <ul id="a1AlertHistoryList" class="a1-ah-list"></ul>
- </div>
- <style id="a1-alert-history-style">
-#a1AlertHistory{margin-top:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:12px}
-.a1-ah-head{font:800 10px ui-monospace,monospace;letter-spacing:1.2px;color:#8aa5b5}
-.a1-ah-head i{color:#42d9ed;margin-right:6px}
-.a1-ah-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
-.a1-ah-list li{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#c5e2eb}
-.a1-ah-list li span:last-child{color:#7894a5;font:700 10px ui-monospace,monospace;white-space:nowrap}
-</style>
+ <div class="a1-zones-foot">Data dikirim EA secara berkala. Zona merupakan area pantauan, bukan instruksi entry.</div>
 </section>
 <style id="a1-live-zones-style">
 .a1-zones-panel{margin:20px 0;padding:clamp(16px,2.2vw,24px);border:1px solid rgba(57,232,255,.2);background:linear-gradient(145deg,rgba(9,25,37,.96),rgba(5,14,24,.96));}
@@ -2212,8 +2216,9 @@ img,iframe,video,canvas,svg{max-width:100%}
     <div class="card a1-info-item"><i class="fa-solid fa-book-open"></i><b>Catat Jurnal Trading</b><span>Tulis alasan entry, hasil, dan kondisi emosi. Evaluasi mingguan membantu melihat pola kesalahan yang sering berulang.</span></div>
    </div>
    <div class="a1-info-links">
-    <a href="ebook.html"><i class="fa-solid fa-compass"></i> Panduan Lengkap</a>
+    <a href="panduan.html"><i class="fa-solid fa-compass"></i> Panduan Lengkap</a>
     <a href="ebook.html"><i class="fa-solid fa-book-open"></i> E-Book</a>
+    <a href="fasilitas.html"><i class="fa-solid fa-circle-check"></i> Fasilitas</a>
    </div>
    <p class="a1-info-note">Informasi ini bersifat edukasi dan bukan ajakan transaksi. ZONA A1 tidak menerima pendaftaran IB maupun titip dana. Trading memiliki risiko tinggi dan setiap keputusan menjadi tanggung jawab pengguna.</p>
   </section>
@@ -2237,8 +2242,7 @@ img,iframe,video,canvas,svg{max-width:100%}
   ZONA A1 ASTRA ENGINE
   API endpoints dipertahankan dari ea-live.html saat ini.
   ========================================================= */
-const EA_DOWNLOAD_URL = "https://github.com/lndpr/zona-a1-pwa/raw/main/A1_new.mq5"; // file EA (repo root)
-var eaDlLink=document.getElementById("a1EaDownload");if(eaDlLink)eaDlLink.href=EA_DOWNLOAD_URL;
+const EA_DOWNLOAD_URL = "#"; // isi dengan URL file EA
 const API_BASE="https://zona-a1-signal-api.landungprakoso14.workers.dev";
 const feedOpen=document.getElementById("signalFeedOpen");
 const feedHistory=document.getElementById("signalFeedHistory");
@@ -2999,7 +3003,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 .a1c-period{color:#6f8f9e;font:600 8.5px/1.3 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
 .a1c-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:11px}
 .a1c-stat{min-width:0;padding:8px 8px 7px;border:1px solid rgba(71,133,157,.18);border-radius:7px;background:rgba(255,255,255,.022)}
-.a1c-stat>span{display:block;color:#6b8c9b;font:800 10px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.8px}
+.a1c-stat>span{display:block;color:#6b8c9b;font:800 7.5px/1 ui-monospace,Consolas,monospace;letter-spacing:.8px}
 .a1c-stat>b{display:flex;align-items:center;gap:4px;margin-top:6px;color:#e2f3fa;font:800 13px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .a1c-stat.na>b{color:#3f5a67;font-weight:700}
 .a1c-stat.act{border-color:rgba(57,232,160,.28);background:rgba(57,232,160,.05)}
@@ -4060,7 +4064,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
  function paint(){if(!btn)return;btn.classList.toggle("on",on);btn.setAttribute("aria-pressed",on?"true":"false");btn.innerHTML='<i class="fa-solid fa-bell'+(on?'':'-slash')+'"></i> '+(on?'ALERT ON':'ALERT OFF');}
  function seenMap(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}}
  function saveSeen(x){try{localStorage.setItem(KEY,JSON.stringify(x))}catch(e){}}
- async function poll(){try{var r=await fetch(BASE+"/api/zones?symbol="+SYMBOL,{cache:"no-store"});if(!r.ok)return;var data=await r.json();if(data.stale)return;var seen=seenMap(),now=Date.now();(data.zones||[]).forEach(function(z){[['BR1','br1'],['BR2','br2']].forEach(function(pair){var block=pair[0],st=String(z['status_'+pair[1]]||'').toUpperCase(),tr=z['trigger_'+pair[1]]||{},at=Number(tr.at||0);if(st!=='TRIGGERED'||!at)return;var boxz=z[pair[1]]||{},id=[z.chart_id||z.tf,z.tf,block,z.bias,boxz.top,boxz.bottom].join('|'),stamp=String(at);if(seen[id]!==stamp){seen[id]=stamp;if(on&&now-at<600000)toast(z,block,tr);}})});saveSeen(seen);}catch(e){console.warn('A1 trigger observer',e);}}
+ async function poll(){try{var r=await fetch(BASE+"/api/zones?symbol="+SYMBOL,{cache:"no-store"});if(!r.ok)return;var data=await r.json();if(data.stale)return;var seen=seenMap(),now=Date.now();(data.zones||[]).forEach(function(z){[['BR1','br1'],['BR2','br2']].forEach(function(pair){var block=pair[0],st=String(z['status_'+pair[1]]||'').toUpperCase(),tr=z['trigger_'+pair[1]]||{},at=Number(tr.at||0);if(st!=='TRIGGERED'||!at)return;var boxz=z[pair[1]]||{},id=[z.chart_id||z.tf,z.tf,block,z.bias,boxz.top,boxz.bottom].join('|'),stamp=String(at);if(seen[id]!==stamp){seen[id]=stamp;if(on&&now-at<180000)toast(z,block,tr);}})});saveSeen(seen);}catch(e){console.warn('A1 trigger observer',e);}}
  if(btn)btn.addEventListener("click",function(){on=!on;try{localStorage.setItem("a1_zone_alert",on?"on":"off")}catch(e){}unlock();paint();});
  paint();poll();setInterval(poll,12000);
  window.A1ZoneAlert={test:function(){toast({bias:'BUY',tf:'M1',trigger_br1:{price:0}},'BR1',{});}};
@@ -4101,28 +4105,19 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
  };
  async function post(path,obj){return fetch(BASE+path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(obj)});}
  async function currentSub(){var reg=await nav.serviceWorker.getRegistration();return reg?await reg.pushManager.getSubscription():null;}
- async function ensureReg(){
-  var reg=await nav.serviceWorker.getRegistration();
-  if(!reg)reg=await nav.serviceWorker.register("./sw.js");
-  await nav.serviceWorker.ready;
-  return reg;
- }
  async function enable(){
   if(!supported){info(isiOS?MSG.ios:MSG.nosup);return;}
   var perm=await Notification.requestPermission();
   if(perm!=="granted"){state=perm==="denied"?"blocked":"off";paint();if(perm==="denied")info(MSG.blocked);return;}
-  var reg=await ensureReg();
+  var reg=await nav.serviceWorker.register("sw.js");await nav.serviceWorker.ready;
   var kr=await fetch(BASE+"/api/push/key");
-  if(!kr.ok){info(MSG.server);state="error";paint();return;}
+  if(!kr.ok){
+  var detail=await kr.text();
+  throw new Error("VAPID HTTP "+kr.status+": "+detail);
+}
   var key=(await kr.json()).key,sub=await reg.pushManager.getSubscription();
   async function make(){return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(key)});}
-  // If the server rotated its VAPID key, the old subscription is dead even
-  // though getSubscription() still returns it — drop it and subscribe fresh.
-  var savedKey=null;
-  try{savedKey=localStorage.getItem("a1_vapid_key");}catch(e){}
-  if(sub&&savedKey&&savedKey!==key){try{await sub.unsubscribe();}catch(e){}sub=null;}
   if(!sub){sub=await make();}
-  try{localStorage.setItem("a1_vapid_key",key);}catch(e){}
   var pr=await post("/api/push/subscribe",{subscription:sub.toJSON()});
   if(!pr.ok){
   var detail=await pr.text();
@@ -4152,48 +4147,11 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
   if(Notification.permission==="denied"){state="blocked";paint();return;}
   if(Notification.permission!=="granted")return;
   try{
-   var reg=await ensureReg();
-   var sub=await reg.pushManager.getSubscription();
+   var sub=await currentSub();
    if(sub){state="on";paint();try{await post("/api/push/subscribe",{subscription:sub.toJSON()});}catch(e){}}
-   else{
-    // Permission granted but the browser dropped the subscription (site data
-    // cleared, PWA reinstalled, …) — subscribe again automatically instead
-    // of sitting silently in the OFF state.
-    var kr=await fetch(BASE+"/api/push/key");
-    if(!kr.ok)return;
-    var key=(await kr.json()).key;
-    sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(key)});
-    try{localStorage.setItem("a1_vapid_key",key);}catch(e){}
-    var pr=await post("/api/push/subscribe",{subscription:sub.toJSON()});
-    if(pr.ok){state="on";paint();}
-   }
   }catch(e){}
  }
  boot();
-})();
-</script>
-<script id="a1-push-history-js">
-/* ALERT TERAKHIR — inbox mini dari GET /api/push/history (20 terbaru).
-   Guarded: kalau fetch gagal atau kosong, bagian disembunyikan tanpa error. */
-(function(){
- var BASE="https://zona-a1-signal-api.landungprakoso14.workers.dev";
- var box=document.getElementById("a1AlertHistory"),list=document.getElementById("a1AlertHistoryList");
- if(!box||!list)return;
- function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
- async function load(){
-  try{
-   var r=await fetch(BASE+"/api/push/history",{cache:"no-store"});
-   if(!r.ok)return;
-   var data=await r.json(),alerts=(data&&data.alerts)||[];
-   if(!alerts.length){box.hidden=true;return;}
-   list.innerHTML=alerts.slice(0,5).map(function(a){
-    var t=a.ts?new Date(a.ts).toLocaleString("id-ID",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}):"";
-    return "<li><span>"+esc(a.title||"Alert zona")+"</span><span>"+esc(t)+"</span></li>";
-   }).join("");
-   box.hidden=false;
-  }catch(e){box.hidden=true;}
- }
- load();setInterval(load,60000);
 })();
 </script>
 <script id="a1-i18n-js">
@@ -4218,6 +4176,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 "EMAS": "GOLD",
 "Engine sedang memantau zona dan kondisi market. Signal akan muncul otomatis saat setup terdeteksi.": "The engine is monitoring zones and market conditions. Signals will appear automatically when a setup is detected.",
 "FED / SUKU BUNGA": "FED / INTEREST RATES",
+"Fasilitas": "Facilities",
 "HARI INI": "TODAY",
 "HIGH IMPACT BERIKUTNYA": "NEXT HIGH IMPACT",
 "HIGH-IMPACT RELEASES · WAKTU WIB": "HIGH-IMPACT RELEASES · WIB TIME",
