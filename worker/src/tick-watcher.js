@@ -378,22 +378,27 @@ export class TickWatcher {
     // Pengumuman zona adalah siklus terpisah dari trigger harga.
     const announcementKeys = [...new Set(zones.map((z) => z.announcementKey).filter(Boolean))];
     const announcedRows = await db.prepare(
-      "SELECT zone_key FROM zone_announcement_state WHERE symbol=?"
+      "SELECT zone_key, announced_at, last_seen FROM zone_announcement_state WHERE symbol=?"
     ).bind(SYMBOL).all();
-    const announcedKeys = new Set((announcedRows.results || []).map((r) => r.zone_key));
+    const announcedMap = new Map((announcedRows.results || []).map((r) => [r.zone_key, r]));
+    const announcedKeys = new Set(announcedMap.keys());
     this.zonesDetected = zones.length;
     this.announcementKeys = announcementKeys.length;
-    this.alreadyAnnounced = announcementKeys.filter((key) => announcedKeys.has(key)).length;
+    // Jangan hapus state saat snapshot kosong/sementara berubah. Zona dianggap benar-benar
+    // selesai hanya setelah tidak terlihat lebih lama dari STALE_AFTER_SEC (180 detik).
     this.newZonesPending = 0;
     this.newZoneCheckedAt = now;
-    if (announcementKeys.length) {
-      const marks = announcementKeys.map(() => "?").join(",");
-      stmts.push(db.prepare(
-        `DELETE FROM zone_announcement_state WHERE symbol=? AND zone_key NOT IN (${marks})`
-      ).bind(SYMBOL, ...announcementKeys));
-    } else {
-      stmts.push(db.prepare("DELETE FROM zone_announcement_state WHERE symbol=?").bind(SYMBOL));
+    const activeAnnouncementKeys = new Set(announcementKeys);
+    for (const [key, row] of announcedMap) {
+      if (!activeAnnouncementKeys.has(key)) {
+        const lastSeen = Number(row.last_seen || row.announced_at || 0);
+        if (lastSeen > 0 && now - lastSeen > STALE_AFTER_SEC * 1000) {
+          stmts.push(db.prepare("DELETE FROM zone_announcement_state WHERE symbol=? AND zone_key=?").bind(SYMBOL, key));
+          announcedKeys.delete(key);
+        }
+      }
     }
+    this.alreadyAnnounced = announcementKeys.filter((key) => announcedKeys.has(key)).length;
     for (const z of zones) {
       // Migrasi aman dari key versi lama yang masih menyertakan lo|hi.
       // Jika zona pernah trigger dan catatannya masih aktif, bawa statusnya ke key stabil.
@@ -418,8 +423,13 @@ export class TickWatcher {
         newZones.push(z);
         this.newZonesPending++;
         stmts.push(db.prepare(
-          "INSERT OR IGNORE INTO zone_announcement_state (zone_key, symbol, announced_at) VALUES (?, ?, ?)"
-        ).bind(z.announcementKey, SYMBOL, now));
+          "INSERT INTO zone_announcement_state (zone_key, symbol, announced_at, last_seen) VALUES (?, ?, ?, ?) " +
+          "ON CONFLICT(zone_key) DO UPDATE SET symbol=excluded.symbol, announced_at=excluded.announced_at, last_seen=excluded.last_seen"
+        ).bind(z.announcementKey, SYMBOL, now, now));
+      } else if (z.announcementKey) {
+        stmts.push(db.prepare(
+          "UPDATE zone_announcement_state SET last_seen=? WHERE symbol=? AND zone_key=?"
+        ).bind(now, SYMBOL, z.announcementKey));
       }
     }
     if (flush) {
