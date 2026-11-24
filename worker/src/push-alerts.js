@@ -61,6 +61,7 @@ export function ensureSchema(db) {
         db.prepare("CREATE TABLE IF NOT EXISTS zone_trigger_state (zone_key TEXT PRIMARY KEY, symbol TEXT NOT NULL, triggered INTEGER NOT NULL DEFAULT 0, trigger_price REAL, triggered_at INTEGER, last_seen INTEGER NOT NULL)"),
         db.prepare("CREATE TABLE IF NOT EXISTS zone_announcement_state (zone_key TEXT PRIMARY KEY, symbol TEXT NOT NULL, announced_at INTEGER NOT NULL, last_seen INTEGER NOT NULL DEFAULT 0)"),
         db.prepare("CREATE TABLE IF NOT EXISTS zone_price_state (symbol TEXT PRIMARY KEY, last_price REAL NOT NULL, updated_at INTEGER NOT NULL)"),
+        db.prepare("CREATE TABLE IF NOT EXISTS market_schedule_state (id INTEGER PRIMARY KEY CHECK(id=1), market_state TEXT NOT NULL, updated_at INTEGER NOT NULL)"),
         db.prepare("CREATE TABLE IF NOT EXISTS push_last (id INTEGER PRIMARY KEY, title TEXT, body TEXT, tag TEXT, ts INTEGER)"),
       ])
       .then(async () => {
@@ -372,17 +373,63 @@ export async function commitNewZoneAndPush(env, db, zones, now = Date.now()) {
   return { announced: zones.length, ...(await sendAll(env, db, subs.map(s => s.endpoint))) };
 }
 
-/* ---------------- cron: Exness WebSocket watchdog only ---------------- */
+/* ---------------- market weekend notifications ---------------- */
+
+// Jadwal mengikuti batas UTC yang sudah dipakai TickWatcher:
+// tutup Jumat 22:30 UTC (Sabtu 05:30 WIB), buka Minggu 20:30 UTC (Senin 03:30 WIB).
+function marketWeekendClosed(ms = Date.now()) {
+  const d = new Date(ms);
+  const day = d.getUTCDay();
+  const mins = d.getUTCHours() * 60 + d.getUTCMinutes();
+  if (day === 6) return true;
+  if (day === 5 && mins >= 22 * 60 + 30) return true;
+  if (day === 0 && mins < 20 * 60 + 30) return true;
+  return false;
+}
+
+async function checkMarketWeekendNotification(env, db, now = Date.now()) {
+  const nextState = marketWeekendClosed(now) ? "CLOSED" : "OPEN";
+  const previous = await db.prepare("SELECT market_state FROM market_schedule_state WHERE id=1").first();
+
+  // Bootstrap state saja saat pertama deploy; jangan kirim notifikasi palsu di tengah sesi.
+  if (!previous) {
+    await db.prepare("INSERT INTO market_schedule_state (id, market_state, updated_at) VALUES (1, ?, ?)")
+      .bind(nextState, now).run();
+    return { state: nextState, notified: false, reason: "initialized" };
+  }
+  if (previous.market_state === nextState) {
+    return { state: nextState, notified: false, reason: "no-transition" };
+  }
+
+  const closed = nextState === "CLOSED";
+  const title = closed ? "MARKET CLOSED · XAUUSD" : "MARKET OPEN · XAUUSD";
+  const body = closed
+    ? "Pasar XAUUSD memasuki jadwal akhir pekan. Notifikasi zona harga akan dilanjutkan setelah pasar buka kembali."
+    : "Pasar XAUUSD memasuki jadwal perdagangan mingguan. Perhatikan spread dan volatilitas saat pembukaan.";
+  const tag = closed ? "a1-market-closed" : "a1-market-open";
+
+  // Simpan status transisi dan isi notifikasi sebelum mengirim push agar cron berikutnya tidak mengulang.
+  await db.batch([
+    db.prepare("UPDATE market_schedule_state SET market_state=?, updated_at=? WHERE id=1").bind(nextState, now),
+    db.prepare("INSERT INTO push_last (id, title, body, tag, ts) VALUES (1, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, body=excluded.body, tag=excluded.tag, ts=excluded.ts")
+      .bind(title, body, tag, now),
+  ]);
+  const { results: subs } = await db.prepare("SELECT endpoint FROM push_subs").all();
+  const delivery = await sendAll(env, db, subs.map((s) => s.endpoint));
+  return { state: nextState, notified: true, subscribers: subs.length, ...delivery };
+}
+
+/* ---------------- cron: market schedule + Exness watchdog ---------------- */
 
 export async function runPushAlerts(env) {
-  // VPS-free mode: Exness WebSocket is the only market-price source.
-  // Cron is only a watchdog/bootstrap; it NEVER polls BiQuote or another quote API.
   const db = getDb(env);
   if (!db) return { skipped: "no-db" };
   await ensureSchema(db);
+  const market = await checkMarketWeekendNotification(env, db);
   const watcher = await pingWatcher(env, "/ensure");
   return {
     via: "exness-websocket",
+    market,
     configured: Boolean(watcher && watcher.configured),
     connected: Boolean(watcher && watcher.connected),
     tickAgeSec: watcher ? watcher.tickAgeSec : null,
