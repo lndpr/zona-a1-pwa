@@ -10,7 +10,7 @@
 //   EXN_SYMBOL (var, default XAUUSD — sesuaikan suffix akun: XAUUSDm untuk Standard)
 
 import {
-  getDb, ensureSchema, loadActiveZones, shouldFire, triggerStmt, seenStmt, commitAndPush,
+  getDb, ensureSchema, loadActiveZones, shouldFire, triggerStmt, seenStmt, commitAndPush, commitNewZoneAndPush,
   SYMBOL, STALE_AFTER_SEC,
 } from "./push-alerts.js";
 
@@ -359,6 +359,18 @@ export class TickWatcher {
 
     const flush = now - this.lastFlush >= FLUSH_MS;
     const stmts = [];
+    const newZones = [];
+    // Pengumuman zona adalah siklus terpisah dari trigger harga.
+    // Hapus penanda zona yang sudah tidak aktif agar kemunculan siklus baru kelak bisa diumumkan lagi.
+    const announcementKeys = [...new Set(zones.map((z) => z.announcementKey).filter(Boolean))];
+    if (announcementKeys.length) {
+      const marks = announcementKeys.map(() => "?").join(",");
+      stmts.push(db.prepare(
+        `DELETE FROM zone_announcement_state WHERE symbol=? AND zone_key NOT IN (${marks})`
+      ).bind(SYMBOL, ...announcementKeys));
+    } else {
+      stmts.push(db.prepare("DELETE FROM zone_announcement_state WHERE symbol=?").bind(SYMBOL));
+    }
     for (const z of zones) {
       // Migrasi aman dari key versi lama yang masih menyertakan lo|hi.
       // Jika zona pernah trigger dan catatannya masih aktif, bawa statusnya ke key stabil.
@@ -378,6 +390,11 @@ export class TickWatcher {
       const isNew = !rowKeys.has(z.key) && !this.fresh.has(z.key);
       if (isNew) this.fresh.add(z.key);
       if (isNew || (flush && !this.triggered.has(z.key))) stmts.push(seenStmt(db, z, now));
+      if (z.announcementKey) {
+        stmts.push(db.prepare(
+          "INSERT OR IGNORE INTO zone_announcement_state (zone_key, symbol, announced_at) VALUES (?, ?, ?)"
+        ).bind(z.announcementKey, SYMBOL, now));
+      }
     }
     if (flush) {
       this.lastFlush = now;
@@ -386,7 +403,26 @@ export class TickWatcher {
       // jaga last_seen zona yang sudah triggered supaya tidak terhapus selama zonanya masih aktif
       for (const z of zones) if (this.triggered.has(z.key)) stmts.push(seenStmt(db, z, now));
     }
-    if (stmts.length) await db.batch(stmts);
+    if (stmts.length) {
+      const results = await db.batch(stmts);
+      // Urutan hasil D1 mengikuti urutan statement. Kumpulkan hanya INSERT OR IGNORE
+      // yang benar-benar membuat baris baru agar satu zona tidak mengirim alert berulang.
+      let resultIndex = announcementKeys.length ? 1 : 1;
+      for (const z of zones) {
+        if (!z.announcementKey) continue;
+        const inserted = results[resultIndex]?.meta?.changes > 0;
+        if (inserted) newZones.push(z);
+        resultIndex++;
+      }
+    }
+    if (newZones.length) {
+      try {
+        this.lastPush = await commitNewZoneAndPush(this.env, db, newZones, now);
+      } catch (e) {
+        this.lastError = "new-zone-push: " + String((e && e.message) || e);
+        console.log("NEW ZONE PUSH ERROR:", this.lastError);
+      }
+    }
   }
 
   async process(price) {
