@@ -361,8 +361,11 @@ export class TickWatcher {
     const stmts = [];
     const newZones = [];
     // Pengumuman zona adalah siklus terpisah dari trigger harga.
-    // Hapus penanda zona yang sudah tidak aktif agar kemunculan siklus baru kelak bisa diumumkan lagi.
     const announcementKeys = [...new Set(zones.map((z) => z.announcementKey).filter(Boolean))];
+    const announcedRows = await db.prepare(
+      "SELECT zone_key FROM zone_announcement_state WHERE symbol=?"
+    ).bind(SYMBOL).all();
+    const announcedKeys = new Set((announcedRows.results || []).map((r) => r.zone_key));
     if (announcementKeys.length) {
       const marks = announcementKeys.map(() => "?").join(",");
       stmts.push(db.prepare(
@@ -390,7 +393,9 @@ export class TickWatcher {
       const isNew = !rowKeys.has(z.key) && !this.fresh.has(z.key);
       if (isNew) this.fresh.add(z.key);
       if (isNew || (flush && !this.triggered.has(z.key))) stmts.push(seenStmt(db, z, now));
-      if (z.announcementKey) {
+      if (z.announcementKey && !announcedKeys.has(z.announcementKey)) {
+        announcedKeys.add(z.announcementKey);
+        newZones.push(z);
         stmts.push(db.prepare(
           "INSERT OR IGNORE INTO zone_announcement_state (zone_key, symbol, announced_at) VALUES (?, ?, ?)"
         ).bind(z.announcementKey, SYMBOL, now));
@@ -403,18 +408,7 @@ export class TickWatcher {
       // jaga last_seen zona yang sudah triggered supaya tidak terhapus selama zonanya masih aktif
       for (const z of zones) if (this.triggered.has(z.key)) stmts.push(seenStmt(db, z, now));
     }
-    if (stmts.length) {
-      const results = await db.batch(stmts);
-      // Urutan hasil D1 mengikuti urutan statement. Kumpulkan hanya INSERT OR IGNORE
-      // yang benar-benar membuat baris baru agar satu zona tidak mengirim alert berulang.
-      let resultIndex = announcementKeys.length ? 1 : 1;
-      for (const z of zones) {
-        if (!z.announcementKey) continue;
-        const inserted = results[resultIndex]?.meta?.changes > 0;
-        if (inserted) newZones.push(z);
-        resultIndex++;
-      }
-    }
+    if (stmts.length) await db.batch(stmts);
     if (newZones.length) {
       try {
         this.lastPush = await commitNewZoneAndPush(this.env, db, newZones, now);
