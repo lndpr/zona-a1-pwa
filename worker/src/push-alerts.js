@@ -62,6 +62,7 @@ export function ensureSchema(db) {
         db.prepare("CREATE TABLE IF NOT EXISTS zone_announcement_state (zone_key TEXT PRIMARY KEY, symbol TEXT NOT NULL, announced_at INTEGER NOT NULL, last_seen INTEGER NOT NULL DEFAULT 0)"),
         db.prepare("CREATE TABLE IF NOT EXISTS zone_price_state (symbol TEXT PRIMARY KEY, last_price REAL NOT NULL, updated_at INTEGER NOT NULL)"),
         db.prepare("CREATE TABLE IF NOT EXISTS market_schedule_state (id INTEGER PRIMARY KEY CHECK(id=1), market_state TEXT NOT NULL, updated_at INTEGER NOT NULL)"),
+        db.prepare("CREATE TABLE IF NOT EXISTS usd_holiday_push_state (event_key TEXT PRIMARY KEY, sent_at INTEGER NOT NULL)"),
         db.prepare("CREATE TABLE IF NOT EXISTS push_last (id INTEGER PRIMARY KEY, title TEXT, body TEXT, tag TEXT, ts INTEGER)"),
       ])
       .then(async () => {
@@ -419,6 +420,69 @@ async function checkMarketWeekendNotification(env, db, now = Date.now()) {
   return { state: nextState, notified: true, subscribers: subs.length, ...delivery };
 }
 
+
+/* ---------------- USD holiday notifications ---------------- */
+function nthWeekdayOfMonth(year, month, weekday, nth) {
+  const first = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  return 1 + ((weekday - first + 7) % 7) + (nth - 1) * 7;
+}
+function lastWeekdayOfMonth(year, month, weekday) {
+  const last = new Date(Date.UTC(year, month + 1, 0));
+  return last.getUTCDate() - ((last.getUTCDay() - weekday + 7) % 7);
+}
+function observedDate(year, month, day) {
+  const d = new Date(Date.UTC(year, month, day));
+  if (d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() - 1);
+  if (d.getUTCDay() === 0) d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+function usFederalHolidays(year) {
+  return [
+    { date: observedDate(year, 0, 1), name: "New Year's Day" },
+    { date: new Date(Date.UTC(year, 0, nthWeekdayOfMonth(year, 0, 1, 3))).toISOString().slice(0, 10), name: "Martin Luther King Jr. Day" },
+    { date: new Date(Date.UTC(year, 1, nthWeekdayOfMonth(year, 1, 1, 3))).toISOString().slice(0, 10), name: "Washington's Birthday / Presidents Day" },
+    { date: new Date(Date.UTC(year, 4, lastWeekdayOfMonth(year, 4, 1))).toISOString().slice(0, 10), name: "Memorial Day" },
+    { date: observedDate(year, 5, 19), name: "Juneteenth" },
+    { date: observedDate(year, 6, 4), name: "Independence Day" },
+    { date: new Date(Date.UTC(year, 8, nthWeekdayOfMonth(year, 8, 1, 1))).toISOString().slice(0, 10), name: "Labor Day" },
+    { date: new Date(Date.UTC(year, 9, nthWeekdayOfMonth(year, 9, 1, 2))).toISOString().slice(0, 10), name: "Columbus Day" },
+    { date: observedDate(year, 10, 11), name: "Veterans Day" },
+    { date: new Date(Date.UTC(year, 10, nthWeekdayOfMonth(year, 10, 4, 4))).toISOString().slice(0, 10), name: "Thanksgiving Day" },
+    { date: observedDate(year, 11, 25), name: "Christmas Day" },
+  ].sort((a, b) => a.date.localeCompare(b.date));
+}
+function newYorkClock(ms) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  }).formatToParts(new Date(ms));
+  const p = Object.fromEntries(parts.map(x => [x.type, x.value]));
+  return { date: `${p.year}-${p.month}-${p.day}`, minutes: Number(p.hour) * 60 + Number(p.minute), year: Number(p.year) };
+}
+async function checkUsdHolidayNotification(env, db, now = Date.now()) {
+  const clock = newYorkClock(now);
+  const calendar = [...usFederalHolidays(clock.year - 1), ...usFederalHolidays(clock.year), ...usFederalHolidays(clock.year + 1)];
+  const event = calendar.find(h => {
+    const dayBefore = new Date(Date.parse(h.date + "T00:00:00Z") - 86400000).toISOString().slice(0, 10);
+    return (clock.date === dayBefore || clock.date === h.date) && clock.minutes >= 9 * 60;
+  });
+  if (!event) return { notified: false, reason: "no-holiday-window" };
+  const phase = clock.date === event.date ? "today" : "tomorrow";
+  const eventKey = `${event.date}:${phase}`;
+  const claimed = await db.prepare("INSERT OR IGNORE INTO usd_holiday_push_state (event_key, sent_at) VALUES (?, ?)").bind(eventKey, now).run();
+  if (!claimed.meta || claimed.meta.changes !== 1) return { notified: false, reason: "already-sent", event: event.name, phase };
+  const title = phase === "tomorrow" ? "USD HOLIDAY WATCH · BESOK" : "USD HOLIDAY · HARI INI";
+  const body = phase === "tomorrow"
+    ? `${event.name} jatuh besok (${event.date}, waktu AS). Aktivitas USD berpotensi lebih sepi. Cek spread, likuiditas, dan jadwal XAUUSD broker sebelum trading.`
+    : `Hari ini ${event.name} (${event.date}, waktu AS). Likuiditas dan aktivitas USD dapat berubah. Forex/XAUUSD tidak otomatis tutup; periksa jadwal broker.`;
+  await db.prepare(
+    "INSERT INTO push_last (id, title, body, tag, ts) VALUES (1, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, body=excluded.body, tag=excluded.tag, ts=excluded.ts"
+  ).bind(title, body, `a1-usd-holiday-${event.date}-${phase}`, now).run();
+  const { results: subs } = await db.prepare("SELECT endpoint FROM push_subs").all();
+  const delivery = await sendAll(env, db, subs.map(s => s.endpoint));
+  return { notified: true, event: event.name, date: event.date, phase, subscribers: subs.length, ...delivery };
+}
+
 /* ---------------- cron: market schedule + Exness watchdog ---------------- */
 
 export async function runPushAlerts(env) {
@@ -426,10 +490,12 @@ export async function runPushAlerts(env) {
   if (!db) return { skipped: "no-db" };
   await ensureSchema(db);
   const market = await checkMarketWeekendNotification(env, db);
+  const usdHoliday = await checkUsdHolidayNotification(env, db);
   const watcher = await pingWatcher(env, "/ensure");
   return {
     via: "exness-websocket",
     market,
+    usdHoliday,
     configured: Boolean(watcher && watcher.configured),
     connected: Boolean(watcher && watcher.connected),
     tickAgeSec: watcher ? watcher.tickAgeSec : null,
