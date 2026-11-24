@@ -99,7 +99,7 @@ self.addEventListener("push", (event) => {
       renotify: true,
       icon: "/assets/icons/icon-192.png",
       badge: "/assets/icons/icon-192.png",
-      data: { url: "/#a1LiveZones" }
+      data: { url: String(tag).startsWith("a1-usd-holiday-") ? "/ebook.html" : "/#a1LiveZones" }
     });
   })());
 });
