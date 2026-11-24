@@ -464,17 +464,15 @@ async function checkUsdHolidayNotification(env, db, now = Date.now()) {
   const calendar = [...usFederalHolidays(clock.year - 1), ...usFederalHolidays(clock.year), ...usFederalHolidays(clock.year + 1)];
   const event = calendar.find(h => {
     const dayBefore = new Date(Date.parse(h.date + "T00:00:00Z") - 86400000).toISOString().slice(0, 10);
-    return (clock.date === dayBefore || clock.date === h.date) && clock.minutes >= 9 * 60;
+    return clock.date === dayBefore && clock.minutes >= 9 * 60;
   });
-  if (!event) return { notified: false, reason: "no-holiday-window" };
-  const phase = clock.date === event.date ? "today" : "tomorrow";
-  const eventKey = `${event.date}:${phase}`;
+  if (!event) return { notified: false, reason: "no-holiday-eve" };
+  const phase = "h1";
+  const eventKey = `${event.date}:h1`;
   const claimed = await db.prepare("INSERT OR IGNORE INTO usd_holiday_push_state (event_key, sent_at) VALUES (?, ?)").bind(eventKey, now).run();
-  if (!claimed.meta || claimed.meta.changes !== 1) return { notified: false, reason: "already-sent", event: event.name, phase };
-  const title = phase === "tomorrow" ? "USD HOLIDAY WATCH · BESOK" : "USD HOLIDAY · HARI INI";
-  const body = phase === "tomorrow"
-    ? `${event.name} jatuh besok (${event.date}, waktu AS). Aktivitas USD berpotensi lebih sepi. Cek spread, likuiditas, dan jadwal XAUUSD broker sebelum trading.`
-    : `Hari ini ${event.name} (${event.date}, waktu AS). Likuiditas dan aktivitas USD dapat berubah. Forex/XAUUSD tidak otomatis tutup; periksa jadwal broker.`;
+  if (!claimed.meta || claimed.meta.changes !== 1) return { notified: false, reason: "already-sent", event: event.name };
+  const title = "USD HOLIDAY WATCH · BESOK";
+  const body = `${event.name} jatuh besok (${event.date}, waktu AS). Yuk pelajari kembali materi di E-Book ZONA A1 sebelum trading. Aktivitas USD dapat lebih sepi; periksa spread dan jadwal XAUUSD broker.`;
   await db.prepare(
     "INSERT INTO push_last (id, title, body, tag, ts) VALUES (1, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, body=excluded.body, tag=excluded.tag, ts=excluded.ts"
   ).bind(title, body, `a1-usd-holiday-${event.date}-${phase}`, now).run();
