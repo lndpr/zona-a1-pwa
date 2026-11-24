@@ -40,6 +40,10 @@ jobs:
         with:
           path: frontend
 
+      # Give GitHub Actions artifact metadata time to become available to deploy-pages.
+      - name: Wait for Pages artifact indexing
+        run: sleep 15
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
