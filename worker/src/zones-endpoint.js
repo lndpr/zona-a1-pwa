@@ -11,10 +11,6 @@
 //   - Key EA dibaca dari secret `env.ZONES_API_KEY`, fallback `env.API_KEY`.
 //     Isi dengan nilai yang sama dengan input ZP_ApiKey di EA (sebaiknya key terpisah dari key sinyal).
 //   - Tabel dibuat otomatis saat pertama kali dipanggil (CREATE TABLE IF NOT EXISTS).
-//   - Simbol dinormalisasi (XAUUSDm/XAUUSDc -> XAUUSD) lewat baseSymbol() dari push-alerts.js,
-//     supaya snapshot, state trigger, dan lookup zona selalu memakai simbol dasar yang sama.
-
-import { baseSymbol, safeEqual, rateLimitCheck, clientIp } from "./push-alerts.js";
 
 const DB_BINDING = 'DB';
 const STALE_AFTER_SEC = 180;           // EA heartbeat tiap 60 dtk; lewat 180 dtk dianggap offline
@@ -32,18 +28,11 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type, X-API-Key',
   'Cache-Control': 'no-store',
 };
-const SEC_HEADERS = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'Referrer-Policy': 'no-referrer',
-  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
-  'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
-};
 
-function json(body, status = 200, extra = {}) {
+function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json', ...SEC_HEADERS, ...CORS, ...extra },
+    headers: { 'Content-Type': 'application/json', ...CORS },
   });
 }
 
@@ -94,17 +83,10 @@ async function ensureTable(db) {
       'CREATE TABLE IF NOT EXISTS zone_snapshots (symbol TEXT PRIMARY KEY, payload TEXT NOT NULL, updated_at INTEGER NOT NULL)'
     )
     .run();
-  // Tabel yang sama juga dibuat ensureSchema() di push-alerts.js; dibuat di sini
-  // juga supaya handleZones tetap mandiri (rate limit dipakai sebelum auth).
-  await db
-    .prepare(
-      'CREATE TABLE IF NOT EXISTS rate_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, window_start INTEGER NOT NULL)'
-    )
-    .run();
 }
 
 export async function handleZones(request, env) {
-  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...SEC_HEADERS, ...CORS } });
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
 
   const db = env[DB_BINDING];
   if (!db) return json({ ok: false, error: 'D1 binding not found' }, 500);
@@ -112,13 +94,9 @@ export async function handleZones(request, env) {
 
   // ---- POST: snapshot / unregister dari EA ----
   if (request.method === 'POST') {
-    // Rate limit SEBELUM cek kunci. 30/menit/IP longgar untuk EA (heartbeat
-    // 60 dtk + snapshot saat zona berubah); banjir request tidak membebani D1.
-    const rl = await rateLimitCheck(db, `rl:${clientIp(request)}:zones`, 30, 60);
-    if (!rl.allowed) return json({ ok: false, error: 'rate limited' }, 429, { 'Retry-After': String(rl.retryAfter) });
     const expected = env.ZONES_API_KEY || env.API_KEY;
     if (!expected) return json({ ok: false, error: 'API key not configured' }, 500);
-    if (!safeEqual(request.headers.get('X-API-Key') || '', expected)) return json({ ok: false, error: 'unauthorized' }, 401);
+    if (request.headers.get('X-API-Key') !== expected) return json({ ok: false, error: 'unauthorized' }, 401);
 
     let body;
     try {
@@ -127,7 +105,7 @@ export async function handleZones(request, env) {
       return json({ ok: false, error: 'invalid json' }, 400);
     }
 
-    const symbol = baseSymbol(String(body.symbol || '').toUpperCase());
+    const symbol = String(body.symbol || '').toUpperCase();
     if (!validSymbol(symbol)) return json({ ok: false, error: 'invalid symbol' }, 400);
     const now = Date.now();
 
@@ -178,11 +156,9 @@ export async function handleZones(request, env) {
     }
 
     const incoming = body.zones.map(cleanZone).filter(Boolean);
-    // Merge per TF + chart_id (dulu hanya TF): dua chart dengan TF sama tapi chart
-    // berbeda tidak lagi saling menimpa snapshot satu sama lain.
-    const byTf = new Map(existing.filter(z => z && z.tf).map(z => [`${z.tf}|${z.chart_id || ''}`, z]));
+    const byTf = new Map(existing.filter(z => z && z.tf).map(z => [z.tf, z]));
     for (const zone of incoming) {
-      byTf.set(`${zone.tf}|${zone.chart_id || ''}`, { ...zone, updated_at: now });
+      byTf.set(zone.tf, { ...zone, updated_at: now });
     }
     const zones = Array.from(byTf.values()).slice(0, MAX_ZONES);
 
@@ -199,7 +175,7 @@ export async function handleZones(request, env) {
   // ---- GET: untuk dashboard ----
   if (request.method === 'GET') {
     const url = new URL(request.url);
-    const symbol = baseSymbol(String(url.searchParams.get('symbol') || 'XAUUSD').toUpperCase());
+    const symbol = String(url.searchParams.get('symbol') || 'XAUUSD').toUpperCase();
     if (!validSymbol(symbol)) return json({ ok: false, error: 'invalid symbol' }, 400);
 
     const row = await db

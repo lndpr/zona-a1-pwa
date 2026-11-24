@@ -1,5 +1,5 @@
 import { handleZones } from "./zones-endpoint.js";
-import { handlePush, handleZoneTrigger, runPushAlerts, pingWatcher, getDb, ensureSchema, rateLimitCheck, safeEqual, clientIp } from "./push-alerts.js";
+import { handlePush, runPushAlerts, pingWatcher } from "./push-alerts.js";
 export { SignalHub } from "./signal-hub.js";
 export { TickWatcher } from "./tick-watcher.js";
 
@@ -305,18 +305,9 @@ const CORS_HEADERS = {
     "Content-Type, X-API-Key, X-Admin-Key, X-Confirm-Delete",
 };
 
-// Header keamanan untuk semua respons JSON Worker (lihat push-alerts.js).
-const SEC_HEADERS = {
-  "X-Content-Type-Options": "nosniff",
-  "X-Frame-Options": "DENY",
-  "Referrer-Policy": "no-referrer",
-  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-  "Content-Security-Policy": "default-src 'none'; frame-ancestors 'none'",
-};
 
 
-
-function json(data, status = 200, extra = {}){
+function json(data, status = 200){
 
 return new Response(
 JSON.stringify(data),
@@ -324,9 +315,7 @@ JSON.stringify(data),
 status,
 headers:{
 "Content-Type":"application/json",
-...SEC_HEADERS,
-...CORS_HEADERS,
-...extra
+...CORS_HEADERS
 }
 }
 );
@@ -353,7 +342,7 @@ request.headers.get("X-Admin-Key");
 return Boolean(
 env.ADMIN_SECRET &&
 key &&
-safeEqual(key, env.ADMIN_SECRET)
+key === env.ADMIN_SECRET
 );
 
 }
@@ -426,24 +415,6 @@ if (url.pathname === "/api/zones") {
     // EA baru kirim snapshot zona -> TickWatcher langsung baca ulang & cek harga (INSTANT_ZONE_PUSH)
     if (request.method === "POST" && zr.ok) ctx.waitUntil(pingWatcher(env, "/refresh"));
     return zr;
-  } catch (e) {
-    return json({ ok: false, error: String(e && e.message || e) }, 500);
-  }
-}
-
-// ZONA TRIGGER LANGSUNG dari EA — POST /api/zones/trigger (dulu 404: router hanya cocok /api/zones persis)
-if (url.pathname === "/api/zones/trigger") {
-  try {
-    const tr = await handleZoneTrigger(request, env);
-    // Kalau trigger berhasil fire, bangunkan TickWatcher supaya langsung sinkron
-    // (ctx.waitUntil tidak tersedia di dalam handleZoneTrigger).
-    if (request.method === "POST" && tr.ok) {
-      try {
-        const tj = await tr.clone().json();
-        if (tj && tj.fired) ctx.waitUntil(pingWatcher(env, "/refresh"));
-      } catch { /* abaikan: respons trigger tetap dikembalikan apa adanya */ }
-    }
-    return tr;
   } catch (e) {
     return json({ ok: false, error: String(e && e.message || e) }, 500);
   }
@@ -636,23 +607,14 @@ url.pathname === "/api/signal"
 
 
 
-// Rate limit SEBELUM cek kunci: 60/menit/IP longgar untuk EA (sinyal hanya saat
-// entry/close). Kalau D1 tidak tersedia, lewati rate limit supaya sinyal tidak
-// ikut mati — auth tetap jalan.
-const dbSig = getDb(env);
-if (dbSig) {
-  await ensureSchema(dbSig);
-  const rlSig = await rateLimitCheck(dbSig, `rl:${clientIp(request)}:signal`, 60, 60);
-  if (!rlSig.allowed) return json({ error: "rate limited" }, 429, { "Retry-After": String(rlSig.retryAfter) });
-}
-
 const apiKey =
 request.headers.get("X-API-Key");
 
 
 
 if(
-!safeEqual(apiKey || "", env.API_SECRET || "")
+!apiKey ||
+apiKey !== env.API_SECRET
 ){
 
 return json({

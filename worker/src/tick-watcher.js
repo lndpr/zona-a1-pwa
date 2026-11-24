@@ -11,8 +11,6 @@
 
 import {
   getDb, ensureSchema, loadActiveZones, shouldFire, triggerStmt, seenStmt, commitAndPush,
-  commitNewZoneAndPush,
-  deleteTriggerStmt, baseSymbol,
   SYMBOL, STALE_AFTER_SEC,
 } from "./push-alerts.js";
 
@@ -20,7 +18,6 @@ const enc = new TextEncoder();
 const EMPTY_BODY_HASH = "47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU"; // SHA-256 body kosong, base64url
 const ZONE_REFRESH_MS = 5000;   // zona dibaca ulang dari D1 paling cepat tiap 5 dtk (+ langsung saat EA kirim snapshot)
 const FLUSH_MS = 30000;         // refresh last_seen zona di D1
-const ANNOUNCE_KEEP_MS = 7 * 24 * 60 * 60 * 1000; // 7 hari: catatan pengumuman zona baru disimpan selama ini — slot yang sama baru boleh bunyi lagi setelah itu (sekali per slot, diawal aja)
 const STALE_MS = 90000;         // tidak ada pesan 90 dtk -> koneksi dianggap mati, sambung ulang
 const WATCHDOG_MS = 20000;      // alarm pengecek koneksi
 const MAX_BACKOFF_MS = 30000;
@@ -154,17 +151,12 @@ export class TickWatcher {
     this.connectedAt = 0;
     this.lastMsgAt = 0;
     this.lastTick = null;       // { bid, ask, price, at }
-    this.prevBid = null;        // bid tick sebelumnya (dipakai shouldFire zona BUY)
-    this.prevAsk = null;        // ask tick sebelumnya (dipakai shouldFire zona SELL)
-    this.prevMid = null;        // mid tick sebelumnya (null = tick pertama setelah restart)
-    this.retryAfter = new Map(); // zone_key -> timestamp: jangan coba kirim ulang sebelum ini
-    this.announceRetryAfter = new Map(); // zone_key -> timestamp: jangan coba umumkan ulang sebelum ini
-    this.lastAnnounce = null;    // hasil kirim pengumuman zona baru terakhir
+    this.prev = null;           // harga tick sebelumnya
     this.zones = [];
     this.zonesAt = 0;
     this.lastFlush = 0;
     this.skipped = null;
-    this.triggered = new Set(); // zone_key yang sudah trigger (cermin D1) — TIDAK PERNAH dihapus selama zona masih di snapshot (sekali per zona, tanpa re-arm)
+    this.triggered = new Set(); // zone_key yang sudah trigger (cermin D1)
     this.fresh = new Set();     // zone_key yang baru pertama kali dilihat
     this.busy = false;
     this.pending = null;
@@ -189,7 +181,7 @@ export class TickWatcher {
       // Evaluasi segera terhadap tick terakhir setelah zona diperbarui.
       if (this.lastTick) {
         this.zonesAt = 0;
-        this.queue(this.lastTick);
+        this.queue(this.lastTick.price);
       }
       await this.scheduleAlarm();
       return jsonRes({ ok: true, connected: Boolean(this.ws), tickAgeSec: this.lastTick ? Math.round((Date.now() - this.lastTick.at) / 1000) : null });
@@ -229,7 +221,6 @@ export class TickWatcher {
       last_error: this.lastError,
       last_fire: this.lastFire,
       last_push: this.lastPush,
-      last_announce: this.lastAnnounce,
       sample_messages: this.samples,
     };
   }
@@ -246,7 +237,7 @@ export class TickWatcher {
     if (!configured(this.env)) { this.lastError = "exness-not-configured"; return; }
     const now = Date.now();
     if (weekendClosed(now)) {
-      if (this.ws) { this.closeSocket("weekend"); this.prevBid = null; this.prevAsk = null; this.prevMid = null; }
+      if (this.ws) { this.closeSocket("weekend"); this.prev = null; }
       return;
     }
     if (this.ws && now - this.lastMsgAt > STALE_MS) { this.lastError = "stale: tidak ada pesan " + STALE_MS / 1000 + " dtk"; this.closeSocket("stale"); this.reconnects++; }
@@ -327,21 +318,21 @@ export class TickWatcher {
     const t = extractTick(j, this.symbol);
     if (!t) return;
     this.lastTick = { ...t, at: Date.now() };
-    this.queue(this.lastTick);
+    this.queue(t.price);
   }
 
   /* ----- pemrosesan tick (serial; tick yang menumpuk digabung ke yang terbaru) ----- */
 
-  queue(tick) {
-    this.pending = tick;
+  queue(price) {
+    this.pending = price;
     if (this.busy) return;
     this.busy = true;
     (async () => {
       try {
         while (this.pending !== null) {
-          const t = this.pending;
+          const p = this.pending;
           this.pending = null;
-          await this.process(t);
+          await this.process(p);
         }
       } catch (e) {
         this.lastError = "process: " + String((e && e.message) || e);
@@ -356,7 +347,7 @@ export class TickWatcher {
     const db = getDb(this.env);
     if (!db) return;
     await ensureSchema(db);
-    const { zones, skipped } = await loadActiveZones(db, baseSymbol(this.symbol));
+    const { zones, skipped } = await loadActiveZones(db);
     this.skipped = skipped || null;
     this.zonesAt = now;
     this.zones = zones;
@@ -366,17 +357,8 @@ export class TickWatcher {
     const rowKeys = new Set(rowMap.keys());
     this.triggered = new Set(results.filter((r) => r.triggered).map((r) => r.zone_key));
 
-    // Zona yang sudah pernah diumumkan (persisten di D1 — DO restart tidak mengumumkan ulang).
-    // Sekali per slot, TIDAK PERNAH diumumkan ulang: baris pengumuman tidak dihapus saat
-    // zona keluar dari snapshot (aturan user 23 Nov ~22:07: notif zona baru cuma sekali,
-    // diawal aja — update zona tiap beberapa menit tidak boleh bunyi lagi). Baris hanya
-    // hilang lewat prune 7 hari di flush; slot yang sama baru boleh bunyi lagi setelah itu.
-    const { results: announcedRows } = await db.prepare("SELECT zone_key FROM zone_announcement_state WHERE symbol=? AND announced_at > ?").bind(SYMBOL, now - ANNOUNCE_KEEP_MS).all();
-    const announced = new Set(announcedRows.map((r) => r.zone_key));
-
     const flush = now - this.lastFlush >= FLUSH_MS;
     const stmts = [];
-    const toAnnounce = [];
     for (const z of zones) {
       // Migrasi aman dari key versi lama yang masih menyertakan lo|hi.
       // Jika zona pernah trigger dan catatannya masih aktif, bawa statusnya ke key stabil.
@@ -396,108 +378,41 @@ export class TickWatcher {
       const isNew = !rowKeys.has(z.key) && !this.fresh.has(z.key);
       if (isNew) this.fresh.add(z.key);
       if (isNew || (flush && !this.triggered.has(z.key))) stmts.push(seenStmt(db, z, now));
-      // Pengumuman zona baru FRESH: sekali per slot, TIDAK PERNAH diumumkan ulang.
-      // Syaratnya HANYA "belum tercatat diumumkan di D1" + tidak sedang dalam jeda
-      // retry — sengaja TIDAK memakai
-      // isNew: isNew hanya true pada reload pertama zona itu muncul, sedangkan baris
-      // seenStmt di zone_trigger_state membuat isNew false pada reload berikutnya.
-      // Kalau syaratnya isNew, zona yang gagal diumumkan tidak akan pernah dicoba
-      // lagi (retryAfter jadi kode mati). Dengan syarat D1 ini, DO restart pun aman:
-      // zona yang belum diumumkan akan diumumkan pada reload berikutnya.
-      if (!announced.has(z.key) && (this.announceRetryAfter.get(z.key) || 0) <= now) toAnnounce.push(z);
     }
     if (flush) {
       this.lastFlush = now;
       // zona yang sudah hilang > 3 menit = siklus lama selesai
       stmts.push(db.prepare("DELETE FROM zone_trigger_state WHERE symbol=? AND last_seen < ?").bind(SYMBOL, now - STALE_AFTER_SEC * 1000));
-      // Prune catatan pengumuman yang sudah > 7 hari (batas ukuran tabel — slot boleh
-      // bunyi lagi setelah itu). TIDAK ADA penghapusan saat zona keluar dari snapshot:
-      // zona yang hilang lalu muncul lagi TIDAK diumumkan ulang (sekali per slot).
-      stmts.push(db.prepare("DELETE FROM zone_announcement_state WHERE symbol=? AND announced_at < ?").bind(SYMBOL, now - ANNOUNCE_KEEP_MS));
       // jaga last_seen zona yang sudah triggered supaya tidak terhapus selama zonanya masih aktif
       for (const z of zones) if (this.triggered.has(z.key)) stmts.push(seenStmt(db, z, now));
     }
     if (stmts.length) await db.batch(stmts);
-
-    // Kirim pengumuman zona baru (fungsi commitNewZoneAndPush dulu dead code).
-    // Catatan: kalau harga sudah di dalam zona baru itu, notif TRIGGERED bisa menyusul
-    // beberapa detik kemudian dari process() — itu dua kejadian berbeda, bukan duplikat.
-    if (toAnnounce.length) {
-      try {
-        const res = await commitNewZoneAndPush(this.env, db, toAnnounce, now);
-        this.lastAnnounce = { at: now, zones: toAnnounce.map((z) => `${z.bias} ${z.tf} ${z.block}`), ...res };
-        const sent = res.sent || 0;
-        if (res.subscribers === 0 || sent > 0) {
-          await db.batch(toAnnounce.map((z) => db.prepare(
-            "INSERT OR REPLACE INTO zone_announcement_state (zone_key, symbol, announced_at) VALUES (?, ?, ?)"
-          ).bind(z.key, SYMBOL, now)));
-        } else {
-          // Push gagal total padahal ada subscriber: jangan tandai announced,
-          // coba lagi setelah jeda 60 detik (bukan hilang selamanya).
-          for (const z of toAnnounce) this.announceRetryAfter.set(z.key, now + 60000);
-        }
-      } catch (e) {
-        this.lastError = "announce: " + String((e && e.message) || e);
-        console.log("NEW ZONE ANNOUNCE ERROR:", this.lastError);
-      }
-    }
   }
 
-  async process(tick) {
+  async process(price) {
     const db = getDb(this.env);
     if (!db) return;
     const now = Date.now();
     if (now - this.zonesAt >= ZONE_REFRESH_MS) await this.reloadZones(now);
 
-    const prevBid = this.prevBid, prevAsk = this.prevAsk, prevMid = this.prevMid;
+    const prev = this.prev;
     const stmts = [], fired = [];
     for (const z of this.zones) {
-      // Harga sisi zona: BUY dicek pakai bid, SELL pakai ask (dulu mid — selisih setengah
-      // spread dari harga yang dipakai EA, jadi zona di dekat batas kadang fire kadang tidak).
-      const sidePrice = z.bias === "BUY" ? tick.bid : tick.ask;
-      // Sekali per zona: zona yang sudah bunyi TIDAK PERNAH bunyi lagi selama baris
-      // state-nya masih ada di D1 — tidak ada reset/re-arm keluar zona. Baris hanya
-      // hilang lewat flush saat zona keluar dari snapshot (>3 menit); zona BARU
-      // dengan key yang sama baru boleh bunyi lagi sekali.
       if (this.triggered.has(z.key)) continue;
-      // Push gagal total sebelumnya: tunggu sampai retryAfter sebelum mencoba lagi.
-      if ((this.retryAfter.get(z.key) || 0) > now) continue;
-      // first juga true saat prevMid null (tick pertama setelah restart DO): zona yang
-      // harganya sudah di dalam saat itu boleh langsung fire, bukan menunggu lintasan.
-      const first = this.fresh.has(z.key) || prevMid === null;
+      const first = this.fresh.has(z.key);
       this.fresh.delete(z.key);
-      const sidePrev = z.bias === "BUY" ? prevBid : prevAsk;
-      if (shouldFire(z, sidePrice, sidePrev, first)) {
-        // Cek ulang D1: jalur EA bisa sudah fire zona ini di antara reload 5 dtk —
-        // jangan kirim push kedua untuk sentuhan yang sama.
-        const row = await db.prepare("SELECT triggered FROM zone_trigger_state WHERE zone_key=?").bind(z.key).first();
-        if (!row || !row.triggered) {
-          fired.push(z);
-          this.triggered.add(z.key);
-          stmts.push(triggerStmt(db, z, tick.price, now));
-        }
+      if (shouldFire(z, price, prev, first)) {
+        fired.push(z);
+        this.triggered.add(z.key);
+        stmts.push(triggerStmt(db, z, price, now));
       }
     }
-    this.prevBid = tick.bid;
-    this.prevAsk = tick.ask;
-    this.prevMid = tick.price;
+    this.prev = price;
     if (!fired.length) return;
 
-    this.lastFire = { at: now, price: tick.price, zones: fired.map((z) => `${z.bias} ${z.tf} ${z.block}`) };
+    this.lastFire = { at: now, price, zones: fired.map((z) => `${z.bias} ${z.tf} ${z.block}`) };
     try {
-      const result = await commitAndPush(this.env, db, stmts, fired, tick.price, now);
-      this.lastPush = result;
-      const sent = result.sent || 0, failed = result.failed || 0;
-      if (result.subscribers > 0 && sent === 0 && failed > 0) {
-        // Push gagal total padahal ada subscriber: lepas penanda supaya sentuhan ini
-        // bisa dicoba lagi (setelah jeda 60 dtk), bukan hilang selamanya.
-        // Kalau subscribers == 0, biarkan triggered — tidak ada yang perlu diberitahu.
-        for (const z of fired) {
-          this.triggered.delete(z.key);
-          this.retryAfter.set(z.key, now + 60000);
-        }
-        await db.batch(fired.map((z) => deleteTriggerStmt(db, z.key)));
-      }
+      this.lastPush = await commitAndPush(this.env, db, stmts, fired, price, now);
     } catch (e) {
       // gagal tulis D1 -> lepas penanda supaya tick berikutnya mencoba lagi (jangan sampai alert hilang)
       for (const z of fired) this.triggered.delete(z.key);
