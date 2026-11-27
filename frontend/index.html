@@ -4468,6 +4468,39 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 })();
 </script>
 <script src="js/pwa-init.js" defer></script>
+<script id="a1-site-traffic-analytics">
+(function(){
+  "use strict";
+  var API="https://zona-a1-signal-api.landungprakoso14.workers.dev";
+  function getVisitorId(){
+    var key="zona_a1_visitor_id_v1",id="";
+    try{
+      id=localStorage.getItem(key)||"";
+      if(!/^[a-f0-9-]{30,40}$/i.test(id)){
+        id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():
+          "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){
+            var r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16);
+          });
+        localStorage.setItem(key,id);
+      }
+    }catch(e){
+      id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():
+        "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){
+          var r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16);
+        });
+    }
+    try{
+      fetch(API+"/api/site-visit",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({visitorId:id,page:location.pathname||"/"}),
+        keepalive:true
+      }).catch(function(){});
+    }catch(e){}
+  }
+  getVisitorId();
+})();
+</script>
 </body>
 </html>
 

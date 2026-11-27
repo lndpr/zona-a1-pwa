@@ -1,5 +1,6 @@
 import { handleZones } from "./zones-endpoint.js";
 import { handlePush, runPushAlerts, pingWatcher } from "./push-alerts.js";
+import { handleSiteAnalytics } from "./site-analytics.js";
 export { SignalHub } from "./signal-hub.js";
 export { TickWatcher } from "./tick-watcher.js";
 
@@ -358,6 +359,12 @@ async fetch(request,env,ctx){
 
 
 const url = new URL(request.url);
+
+// Private website visit analytics; data is stored in D1 and not rendered on the public site.
+if (url.pathname === "/api/site-visit" || url.pathname === "/api/site-visit-stats") {
+  const visitRes = await handleSiteAnalytics(request, env);
+  if (visitRes) return visitRes;
+}
 
 // Tick Watcher diagnostic endpoint (public read-only status).
 if (url.pathname === "/tick-watcher/status" && request.method === "GET") {
