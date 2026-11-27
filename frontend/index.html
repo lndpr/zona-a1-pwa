@@ -90,6 +90,34 @@
 .a1-zr-empty{color:#6f8194;font-size:10px;padding:4px 0}
 .a1-zr-foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:14px;color:#6f8194;font-size:9px;line-height:1.6}
 @media(max-width:620px){.a1-zr{padding:17px}.a1-zr-row{grid-template-columns:44px 50px 1fr;}.a1-zr-row .a1-zr-box:last-child{grid-column:2 / span 2}}
+
+/* ===== AKSES INDIKATOR (verifikasi akun Exness) ===== */
+.a1-ia-card{padding:22px 20px!important;overflow:hidden}
+.a1-ia-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.a1-ia-head h3{margin:0;font-size:16px}
+.a1-ia-hint{margin:8px 2px 0;font-size:11px;color:#6f7f98;line-height:1.6}
+.a1-ia-toggle{background:none;border:0;padding:0;cursor:pointer;font:inherit;font-size:12px;font-weight:800;color:#67e8f9}
+.a1-ia-toggle:after{content:" ▾"}.a1-ia-toggle[aria-expanded="true"]:after{content:" ▴"}
+.a1-ia-why-body[hidden]{display:none!important}
+.a1-ia-lead{color:#91a0b8;font-size:12px;line-height:1.8;margin:2px 0 14px}
+.a1-ia-note{color:#b7c4d9;font-size:12px;line-height:1.8;margin:0 0 14px;padding:11px 13px;border-left:3px solid #22d3ee;background:rgba(34,211,238,.06);border-radius:0 10px 10px 0}
+.a1-ia-form{display:flex;gap:10px;flex-wrap:wrap}
+.a1-ia-form input{flex:1 1 200px;min-width:0;padding:13px 14px;border-radius:12px;border:1px solid rgba(34,211,238,.25);background:rgba(4,8,15,.7);color:#e8f1ff;font-size:14px;font-weight:700;letter-spacing:.5px;outline:0}
+.a1-ia-form input:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.15)}
+.a1-ia-form button{flex:0 0 auto;border:0;border-radius:12px;padding:13px 22px;color:#fff;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#22d3ee,#2563eb);box-shadow:0 0 24px rgba(34,211,238,.22)}
+.a1-ia-form button[disabled]{opacity:.55;cursor:wait}
+.a1-ia-msg{margin-top:12px;font-size:12px;line-height:1.7;color:#91a0b8;min-height:0}
+.a1-ia-msg.ok{color:#35e8a0}.a1-ia-msg.err{color:#ff8fa3}.a1-ia-msg.warn{color:#fbbf24}
+.a1-ia-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.a1-ia-links:empty{display:none}
+.a1-ia-links a,.a1-ia-links span{display:block;text-align:center;padding:13px 12px;border-radius:12px;font-weight:800;font-size:13px;text-decoration:none}
+.a1-ia-links a{color:#031017;background:linear-gradient(135deg,#35e8a0,#22d3ee);box-shadow:0 0 22px rgba(53,232,160,.25)}
+.a1-ia-links span{color:#91a0b8;border:1px dashed rgba(145,160,184,.4)}
+.a1-ia-why{margin-top:16px;border-top:1px solid rgba(145,160,184,.15);padding-top:12px}
+.a1-ia-why summary{cursor:pointer;font-size:12px;font-weight:800;color:#67e8f9;list-style:none}
+.a1-ia-why summary::-webkit-details-marker{display:none}
+.a1-ia-why p{color:#91a0b8;font-size:12px;line-height:1.8;margin:10px 0 0}
+.a1-ia-reg{display:inline-block;margin-top:10px;font-size:12px;font-weight:800;color:#22d3ee;text-decoration:none}
 </style>
 
 <style>
@@ -1637,6 +1665,7 @@ img,iframe,video,canvas,svg{max-width:100%}
 .a1-eq-note{margin-top:8px;font-size:9px;color:#65738a;letter-spacing:.3px}
 @media(max-width:620px){.a1-eq-stats{grid-template-columns:repeat(2,1fr)}.a1-eq-card{padding:14px}.a1-eq-chart svg{height:160px}.day .pnl{font-size:8px!important}.day .dmeta{font-size:6px!important}.day .dstep{font-size:5px!important;padding:0 3px}}
 </style>
+
 </head>
 <body>
 <canvas id="astra-canvas"></canvas><div class="motion-orbs"><span class="motion-orb o1"></span><span class="motion-orb o2"></span><span class="motion-orb o3"></span></div>
@@ -1650,7 +1679,7 @@ img,iframe,video,canvas,svg{max-width:100%}
   </a>
 
   <nav class="a1-main-nav" aria-label="Main navigation">
-   <a class="a1-nav-link active" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#matary-insight"><i class="fa-solid fa-circle-info"></i><span>MATARY INSIGHT</span></a><a class="a1-nav-link" href="ebook.html"><span>E-Book</span></a>
+   <a class="a1-nav-link active" href="index.html#home"><i class="fa-solid fa-house"></i><span>Dashboard</span></a><a class="a1-nav-link" href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a><a class="a1-nav-link" href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a><a class="a1-nav-link" href="index.html#matary-insight"><i class="fa-solid fa-circle-info"></i><span>MATARY INSIGHT</span></a><a class="a1-nav-link" href="ebook.html"><span>E-Book</span></a><a class="a1-nav-link rebate-link" href="index.html#a1IndicatorAccess"><i class="fa-solid fa-toolbox"></i><span>Tools A1</span></a>
   </nav>
 <button class="a1-mobile-toggle" id="a1MobileToggle" type="button"
     aria-label="Open navigation menu" aria-expanded="false">
@@ -1674,7 +1703,7 @@ img,iframe,video,canvas,svg{max-width:100%}
   <a href="index.html#signals"><i class="fa-solid fa-bolt"></i><span>Signals</span></a>
   <a href="index.html#intelligence"><i class="fa-solid fa-microchip"></i><span>Intelligence</span></a>
   <a href="index.html#matary-insight"><i class="fa-solid fa-circle-info"></i><span>MATARY INSIGHT</span></a>
-  <a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a>
+  <a href="ebook.html"><i class="fa-solid fa-book-open"></i><span>E-Book</span></a><a class="mobile-rebate" href="index.html#a1IndicatorAccess"><i class="fa-solid fa-toolbox"></i><span>Tools A1</span></a>
   
  </div>
 
@@ -1956,15 +1985,7 @@ img,iframe,video,canvas,svg{max-width:100%}
  <section class="layout" id="signals">
   <div>
    
-<div class="live-hub reveal" id="liveHub">
- <div class="hub-scan"></div>
- <div class="hub-ring"></div>
- <div class="hub-orb idle" id="hubOrb"></div>
- <div class="hub-copy">
-  <strong id="hubTitle">SCANNING MARKET</strong>
-  <span id="hubSub">Menunggu koneksi engine ZONA A1…</span>
- </div>
-</div>
+
 
 <div class="section-head reveal"><h3>Posisi Berjalan</h3><span class="section-tag">LIVE EXECUTION</span></div>
    <div class="feed" id="signalFeedOpen"><div class="signal-empty card"><div><div class="radar"></div><b>SCANNING FOR LIVE SIGNALS</b><p>Engine sedang memantau zona dan kondisi market. Signal akan muncul otomatis saat setup terdeteksi.</p></div></div></div>
@@ -2004,11 +2025,36 @@ img,iframe,video,canvas,svg{max-width:100%}
     <div class="a1-eq-note" id="a1EqNote"></div>
    </section>
 
-   
+   <section class="card a1-ia-card reveal" id="a1IndicatorAccess">
+    <div class="a1-ia-head">
+      <h3>Akses Indikator ZONA A1</h3>
+      <span class="section-tag">V1 &amp; V2</span>
+    </div>
+    <p class="a1-ia-lead">Pakai indikator ZONA A1 V1 &amp; V2 dengan memasukkan kode akses kamu. Kode dicek otomatis, dan kalau valid link indikator langsung muncul.</p>
+    <div class="a1-ia-form">
+      <input id="a1IaInput" type="text" inputmode="numeric" autocomplete="off" maxlength="12" placeholder="Masukkan kode" aria-label="Kode akses">
+      <button type="button" id="a1IaBtn">Verifikasi</button>
+    </div>
+    <p class="a1-ia-hint">Kode = ID akun yang aktif trading dalam 7 hari terakhir.</p>
+    <div class="a1-ia-msg" id="a1IaMsg" role="status" aria-live="polite"></div>
+    <div class="a1-ia-links" id="a1IaLinks"></div>
+    <div class="a1-ia-why">
+      <button type="button" class="a1-ia-toggle" id="a1IaWhyBtn" aria-expanded="false" aria-controls="a1IaWhy">Cara dapat kode</button>
+      <div class="a1-ia-why-body" id="a1IaWhy" hidden>
+        <p>Belum punya kode? Chat kami di Telegram, nanti dibantu sampai akunmu bisa dipakai untuk akses indikator.</p>
+        <a class="a1-ia-reg" id="a1IaTg" href="#" target="_blank" rel="noopener">Chat Telegram ↗</a>
+      </div>
+    </div>
+   </section>
 
    
 
+   
 
+
+
+
+   
 
   </div>
 
@@ -2218,8 +2264,9 @@ img,iframe,video,canvas,svg{max-width:100%}
    </div>
    <div class="a1-info-links">
     <a href="ebook.html"><i class="fa-solid fa-book-open"></i> E-Book</a>
+    <a href="index.html#a1IndicatorAccess"><i class="fa-solid fa-toolbox"></i> Tools A1</a>
    </div>
-   <p class="a1-info-note">Informasi ini bersifat edukasi dan bukan ajakan transaksi. ZONA A1 tidak menerima pendaftaran IB maupun titip dana. Trading memiliki risiko tinggi dan setiap keputusan menjadi tanggung jawab pengguna.</p>
+   <p class="a1-info-note">Informasi ini bersifat edukasi dan bukan ajakan transaksi. ZONA A1 tidak menerima pendaftaran IB/sub-IB maupun titip dana. Akses indikator diverifikasi lewat akun Exness yang terdaftar via tautan partner ZONA A1, sehingga ZONA A1 dapat menerima komisi dari broker. Trading memiliki risiko tinggi dan setiap keputusan menjadi tanggung jawab pengguna.</p>
   </section>
 
 
@@ -2229,8 +2276,8 @@ img,iframe,video,canvas,svg{max-width:100%}
 <div class="popup" id="disclaimerPopup">
  <div class="popup-box">
   <div class="popup-icon">⚠</div>
-  <h2>DISCLAIMER</h2>
-  <p>ZONA A1 merupakan platform tools dan edukasi trading. ZONA A1 tidak menerima pendaftaran IB, tidak menerima penitipan dana, tidak mengelola dana pengguna, tidak menyediakan layanan investasi, dan tidak menjanjikan keuntungan tertentu.</p>
+  <h2>TRANSPARANSI &amp; DISCLAIMER</h2>
+  <p>ZONA A1 merupakan platform tools dan edukasi trading. ZONA A1 tidak menerima pendaftaran IB atau sub-IB, tidak menerima penitipan dana, tidak mengelola dana pengguna, tidak menyediakan layanan investasi, dan tidak menjanjikan keuntungan tertentu.</p>
   <p>Seluruh tools dan informasi hanya untuk edukasi dan analisa pasar. Trading memiliki risiko tinggi dan setiap keputusan transaksi menjadi tanggung jawab masing-masing pengguna.</p>
   <button onclick="closeDisclaimer()">Saya Mengerti</button>
  </div>
@@ -4168,6 +4215,40 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
  var WD={Senin:"Monday",Selasa:"Tuesday",Rabu:"Wednesday",Kamis:"Thursday",Jumat:"Friday",Sabtu:"Saturday",Minggu:"Sunday"};
  var MO={Januari:"January",Februari:"February",Maret:"March",Mei:"May",Juni:"June",Juli:"July",Agustus:"August",Oktober:"October",Desember:"December",Agu:"Aug",Okt:"Oct",Des:"Dec"};
  var EXACT=new Map(Object.entries({
+"Kode = ID akun yang aktif trading dalam 7 hari terakhir.": "Code = the account ID that has traded in the last 7 days.",
+"Cara dapat kode": "How to get a code",
+"Belum punya kode? Chat kami di Telegram, nanti dibantu sampai akunmu bisa dipakai untuk akses indikator.": "No code yet? Chat with us on Telegram and we will help until your account can be used for indicator access.",
+"Chat Telegram ↗": "Chat on Telegram ↗",
+"Pakai indikator ZONA A1 V1 & V2 dengan memasukkan kode akses kamu. Kode dicek otomatis, dan kalau valid link indikator langsung muncul.": "Use the ZONA A1 V1 & V2 indicators by entering your access code. The code is checked automatically, and if it is valid the indicator links appear right away.",
+"Kode = ID akun Exness yang aktif trading dalam 7 hari terakhir.": "Code = your Exness account ID that has traded in the last 7 days.",
+"Cara dapat kode & kenapa dicek": "How to get a code & why it is checked",
+"Kode berlaku untuk akun Exness yang terdaftar lewat tautan partner ZONA A1. Dari akun-akun itulah ZONA A1 dapat menerima komisi dari broker, dan itu yang membantu indikator terus dikembangkan.": "The code works for Exness accounts registered through the ZONA A1 partner link. ZONA A1 may receive commission from the broker on those accounts, which helps keep the indicators developed.",
+"Pengecekan hanya membaca status dan aktivitas trading akun. Tidak ada akses deposit, withdraw, atau buka posisi. Dana tetap di akunmu sendiri dan kami tidak pernah meminta password.": "The check only reads account status and trading activity. There is no access to deposit, withdraw, or open positions. Your funds stay in your own account and we never ask for your password.",
+"Akun lama yang tidak terdaftar lewat tautan partner tidak bisa diverifikasi.": "Older accounts not registered through the partner link cannot be verified.",
+"Kode harus berupa angka (6–12 digit).": "The code must be digits only (6–12 digits).",
+"Kode ini belum terdaftar lewat tautan partner ZONA A1, jadi belum bisa diverifikasi.": "This code is not registered through the ZONA A1 partner link, so it cannot be verified yet.",
+"Kode terdaftar, tapi belum ada aktivitas trading dalam 7 hari terakhir. Data Exness bisa tertunda; coba lagi setelah ada trade yang ditutup.": "The code is registered, but there is no trading activity in the last 7 days. Exness data can lag; try again after a trade has closed.",
+"Kode terverifikasi. Pilih indikator di bawah:": "Code verified. Choose an indicator below:",
+"Agar jelas sejak awal: akses indikator ZONA A1 V1 dan V2 diverifikasi lewat nomor akun Exness yang terdaftar melalui tautan partner ZONA A1, sehingga ZONA A1 dapat menerima komisi dari broker. Dana kamu tetap di akun Exness atas namamu sendiri dan kami tidak pernah meminta password.": "To be clear from the start: access to the ZONA A1 V1 and V2 indicators is verified through an Exness account number registered via the ZONA A1 partner link, so ZONA A1 may receive commission from the broker. Your funds stay in your own Exness account and we never ask for your password.",
+"TRANSPARANSI & DISCLAIMER": "TRANSPARENCY & DISCLAIMER",
+"Akses Indikator ZONA A1": "ZONA A1 Indicator Access",
+"Masukkan nomor akun Exness yang aktif trading dalam 7 hari terakhir. Sistem mengecek otomatis, dan link akses indikator V1 & V2 muncul kalau akunmu valid.": "Enter an Exness account number that has traded in the last 7 days. The system checks automatically, and the V1 & V2 indicator access links appear if your account is valid.",
+"Verifikasi": "Verify",
+"Memeriksa…": "Checking…",
+"Kenapa harus nomor akun? (transparansi)": "Why an account number? (transparency)",
+"Akses indikator diberikan untuk akun Exness yang terdaftar lewat tautan partner ZONA A1. Dengan cara ini ZONA A1 dapat menerima komisi dari broker atas aktivitas trading akun tersebut, dan komisi itu membantu membiayai pengembangan indikator.": "Indicator access is given to Exness accounts registered through the ZONA A1 partner link. This way ZONA A1 may receive commission from the broker on that account's trading activity, and that commission helps fund indicator development.",
+"ZONA A1 tidak menerima titip dana, tidak mengelola dana, dan tidak pernah meminta password akun. Dana tetap berada di akun Exness atas namamu sendiri.": "ZONA A1 does not accept deposits of funds, does not manage funds, and never asks for your account password. Your funds stay in your own Exness account.",
+"Verifikasi hanya membaca status akun dan aktivitas trading dari data partner Exness. Tidak ada akses untuk deposit, withdraw, maupun membuka posisi.": "Verification only reads account status and trading activity from Exness partner data. There is no access to deposit, withdraw, or open positions.",
+"Akun Exness lama yang tidak terdaftar lewat tautan partner tidak bisa diverifikasi.": "Older Exness accounts not registered through the partner link cannot be verified.",
+"Belum punya akun lewat tautan partner? Daftar di sini ↗": "No account via the partner link yet? Register here ↗",
+"Nomor akun harus berupa angka (6–12 digit).": "The account number must be digits only (6–12 digits).",
+"Terlalu banyak percobaan. Coba lagi sekitar 1 jam lagi.": "Too many attempts. Please try again in about 1 hour.",
+"Verifikasi sedang tidak tersedia. Coba lagi beberapa menit lagi.": "Verification is temporarily unavailable. Please try again in a few minutes.",
+"Akun ini belum terdaftar lewat tautan partner ZONA A1, jadi belum bisa diverifikasi.": "This account is not registered through the ZONA A1 partner link, so it cannot be verified yet.",
+"Akun terdaftar, tapi belum ada aktivitas trading dalam 7 hari terakhir. Data Exness bisa tertunda; coba lagi setelah ada trade yang ditutup.": "The account is registered, but there is no trading activity in the last 7 days. Exness data can lag; try again after a trade has closed.",
+"Akun terverifikasi. Pilih indikator di bawah:": "Account verified. Choose an indicator below:",
+"Link belum tersedia, hubungi admin": "Link not available yet, contact admin",
+"Tidak bisa terhubung ke server. Cek koneksi lalu coba lagi.": "Cannot reach the server. Check your connection and try again.",
 "ANALISA HARIAN · AGENT ZONA A1": "DAILY ANALYSIS · ZONA A1 AGENT",
 "Analisa Hari Ini": "Today's Analysis",
 "Analisa dari Agent memuat bias, support, resistance, dan skenario. Pakai sebagai bahan pertimbangan, keputusan transaksi tetap di tangan kamu.": "The Agent's analysis covers bias, support, resistance, and scenarios. Use it as input for your considerations; the trading decision stays in your hands.",
@@ -4182,7 +4263,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 "EMAS": "GOLD",
 "Engine sedang memantau zona dan kondisi market. Signal akan muncul otomatis saat setup terdeteksi.": "The engine is monitoring zones and market conditions. Signals will appear automatically when a setup is detected.",
 "FED / SUKU BUNGA": "FED / INTEREST RATES",
-"Fasilitas": "Facilities",
+"Tools A1": "A1 Tools",
 "HARI INI": "TODAY",
 "HIGH IMPACT BERIKUTNYA": "NEXT HIGH IMPACT",
 "HIGH-IMPACT RELEASES · WAKTU WIB": "HIGH-IMPACT RELEASES · WIB TIME",
@@ -4192,7 +4273,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 "MATARY INSIGHT": "MATARY INSIGHT",
 "MATARY INSIGHT": "MATARY INSIGHT",
 "Identifikasi area smart money sebelum entry.": "Identify smart money areas before entry.",
-"Informasi ini bersifat edukasi dan bukan ajakan transaksi. ZONA A1 tidak menerima pendaftaran IB maupun titip dana. Trading memiliki risiko tinggi dan setiap keputusan menjadi tanggung jawab pengguna.": "This information is educational and not a call to trade. ZONA A1 does not accept IB registrations or deposits of funds. Trading carries high risk and every decision is the responsibility of the user.",
+"Informasi ini bersifat edukasi dan bukan ajakan transaksi. ZONA A1 tidak menerima pendaftaran IB/sub-IB maupun titip dana. Akses indikator diverifikasi lewat akun Exness yang terdaftar via tautan partner ZONA A1, sehingga ZONA A1 dapat menerima komisi dari broker. Trading memiliki risiko tinggi dan setiap keputusan menjadi tanggung jawab pengguna.": "This information is educational and not a call to trade. ZONA A1 does not accept IB/sub-IB registrations or deposits of funds. Indicator access is verified through Exness accounts registered via the ZONA A1 partner link, so ZONA A1 may receive commission from the broker. Trading carries high risk and every decision is the responsibility of the user.",
 "Jaga risiko dan jangan memaksakan trade.": "Protect your risk and never force a trade.",
 "Lihat kalender di sidebar sebelum entry. Rilis High Impact bisa membuat harga bergerak cepat dan spread melebar, jadi pertimbangkan menahan diri di sekitar jam rilis.": "Check the calendar in the sidebar before entering. High Impact releases can move price fast and widen spreads, so consider staying out around release times.",
 "MAKRO": "MACRO",
@@ -4245,7 +4326,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 "Validasi kondisi market dan status signal.": "Validate market conditions and signal status.",
 "ZONA A1 BERITA UTAMA": "ZONA A1 TOP NEWS",
 "ZONA A1 merupakan platform tools dan edukasi trading untuk membantu analisa serta pemantauan market. Seluruh informasi, signal, indikator, hasil backtest, dan performa Expert Advisor yang ditampilkan bersifat informatif dan tidak dapat dianggap sebagai jaminan hasil di masa depan. Performa pada kondisi live dapat berbeda dari hasil historis atau backtest.": "ZONA A1 is a trading tools and education platform that helps with market analysis and monitoring. All information, signals, indicators, backtest results, and Expert Advisor performance shown are informative only and cannot be taken as a guarantee of future results. Live performance may differ from historical or backtest results.",
-"ZONA A1 merupakan platform tools dan edukasi trading. ZONA A1 tidak menerima pendaftaran IB, tidak menerima penitipan dana, tidak mengelola dana pengguna, tidak menyediakan layanan investasi, dan tidak menjanjikan keuntungan tertentu.": "ZONA A1 is a trading tools and education platform. ZONA A1 does not accept IB registrations, does not accept deposits of funds, does not manage user funds, does not provide investment services, and does not promise any specific profit.",
+"ZONA A1 merupakan platform tools dan edukasi trading. ZONA A1 tidak menerima pendaftaran IB atau sub-IB, tidak menerima penitipan dana, tidak mengelola dana pengguna, tidak menyediakan layanan investasi, dan tidak menjanjikan keuntungan tertentu.": "ZONA A1 is a trading tools and education platform. ZONA A1 does not accept IB or sub-IB registrations, does not accept deposits of funds, does not manage user funds, does not provide investment services, and does not promise any specific profit.",
 "ZONA BR1": "BR1 ZONE",
 "ZONA BR2": "BR2 ZONE",
 "ZONA FRESH": "FRESH ZONES",
@@ -4468,6 +4549,64 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 })();
 </script>
 <script src="js/pwa-init.js" defer></script>
+
+<script>
+/* ===== AKSES INDIKATOR: verifikasi nomor akun Exness (Worker /api/indicator-access) ===== */
+(function(){
+ var API=(typeof API_BASE!=="undefined"&&API_BASE)||"https://zona-a1-signal-api.landungprakoso14.workers.dev";
+ var inp=document.getElementById("a1IaInput"),btn=document.getElementById("a1IaBtn"),msg=document.getElementById("a1IaMsg"),box=document.getElementById("a1IaLinks");
+ if(!inp||!btn)return;
+ var KEY="a1_ia_account",busy=false;
+ var T={
+  invalid_format:"Kode harus berupa angka (6–12 digit).",
+  rate_limited:"Terlalu banyak percobaan. Coba lagi sekitar 1 jam lagi.",
+  verify_unavailable:"Verifikasi sedang tidak tersedia. Coba lagi beberapa menit lagi.",
+  not_linked:"Kode ini belum terdaftar lewat tautan partner ZONA A1, jadi belum bisa diverifikasi.",
+  inactive:"Kode terdaftar, tapi belum ada aktivitas trading dalam 7 hari terakhir. Data Exness bisa tertunda; coba lagi setelah ada trade yang ditutup.",
+  ok:"Kode terverifikasi. Pilih indikator di bawah:",
+  net:"Tidak bisa terhubung ke server. Cek koneksi lalu coba lagi."
+ };
+ try{var sv=localStorage.getItem(KEY);if(sv)inp.value=sv}catch(e){}
+ function say(t,cls){msg.textContent=t||"";msg.className="a1-ia-msg"+(cls?" "+cls:"")}
+ function renderLinks(list){
+  box.textContent="";
+  (list||[]).forEach(function(l){
+   var el;
+   if(l&&l.url&&/^https:\/\//i.test(l.url)){el=document.createElement("a");el.href=l.url;el.target="_blank";el.rel="noopener noreferrer";el.textContent="Buka "+l.name+" ↗"}
+   else{el=document.createElement("span");el.textContent=(l&&l.name?l.name+": ":"")+"Link belum tersedia, hubungi admin"}
+   box.appendChild(el);
+  });
+ }
+ async function verify(){
+  if(busy)return;
+  var acc=inp.value.replace(/\s+/g,"");
+  box.textContent="";
+  busy=true;btn.disabled=true;btn.textContent="Memeriksa…";say("");
+  try{
+   var r=await fetch(API+"/api/indicator-access",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({account:acc})});
+   var d=await r.json().catch(function(){return{}});
+   if(d.ok){
+    try{localStorage.setItem(KEY,acc)}catch(e){}
+    say(T.ok,"ok");renderLinks(d.links);
+   }else{
+    say(T[d.code]||d.message||T.net,d.code==="inactive"?"warn":"err");
+   }
+  }catch(e){say(T.net,"err")}
+  busy=false;btn.disabled=false;btn.textContent="Verifikasi";
+ }
+
+ var A1_TELEGRAM_URL="https://t.me/mataryclub";
+ var A1_TELEGRAM_MSG="Infokan kodenya saya mau pakai indikator zona A1";
+ var tgEl=document.getElementById("a1IaTg");
+ if(tgEl){if(/^https:\/\/t\.me\/[A-Za-z0-9_+\/-]+$/.test(A1_TELEGRAM_URL)&&A1_TELEGRAM_URL.indexOf("ISI_")<0)tgEl.href=A1_TELEGRAM_URL+"?text="+encodeURIComponent(A1_TELEGRAM_MSG);else tgEl.style.display="none"}
+ var wb=document.getElementById("a1IaWhyBtn"),wc=document.getElementById("a1IaWhy");
+ if(wb&&wc)wb.addEventListener("click",function(){var o=wc.hasAttribute("hidden");if(o)wc.removeAttribute("hidden");else wc.setAttribute("hidden","");wb.setAttribute("aria-expanded",o?"true":"false")});
+ btn.addEventListener("click",verify);
+ inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();verify()}});
+ inp.addEventListener("input",function(){inp.value=inp.value.replace(/[^\d]/g,"")});
+})();
+</script>
+
 <script id="a1-site-traffic-analytics">
 (function(){
   "use strict";
@@ -4501,6 +4640,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
   }catch(e){}
 })();
 </script>
+
 </body>
 </html>
 
@@ -4584,4 +4724,8 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
 }
 </style>
 
+
+
+<style id="a1-indicator-analytics-stats">
+</style>
 
