@@ -4493,7 +4493,7 @@ window.A1_NEWS_WORKER='https://zona-a1-signal-api.landungprakoso14.workers.dev';
       fetch(API+"/api/site-visit",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({visitorId:getVisitorId(),page:location.pathname||"/"}),
+        body:JSON.stringify({visitorId:id,page:location.pathname||"/"}),
         keepalive:true
       }).catch(function(){});
     }catch(e){}
